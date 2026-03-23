@@ -1,83 +1,127 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
+import SidePanel from "./components/SidePanel.vue";
 import GameCanvas from "./components/GameCanvas.vue";
 import DialogBox from "./components/DialogBox.vue";
-import ChoicePanel from "./components/ChoicePanel.vue";
-import EventSummary from "./components/EventSummary.vue";
-import TimeControls from "./components/TimeControls.vue";
 import {
   fetchWorldState,
   skipTime,
   generateDialogue,
-  submitChoice,
   moveToLocation,
+  switchCharacter,
+  submitChoice,
 } from "./api/client";
 import type { GameTime } from "./engine/time";
-import type { ClickableArea } from "./scene/scenes";
+import type { TileMapData } from "./tilemap/types";
 import { npcs } from "./data/npcs";
-import { getLocation } from "./data/locations";
+import { campusMap } from "./tilemap/maps/campus";
+import { classroomMap } from "./tilemap/maps/classroom";
+import { officeMap } from "./tilemap/maps/office";
 
 const gameTime = ref<GameTime | null>(null);
+const weather = ref("sunny");
 const currentScene = ref("classroom");
+const activeCharacter = ref("teacher");
 const events = ref<{ id: string; description: string }[]>([]);
 const dialogNpc = ref("");
 const dialogText = ref("");
 const dialogLoading = ref(false);
-const choices = ref<{ id: string; label: string }[]>([]);
 const currentNpcId = ref("");
-const currentLocationName = computed(() => {
-  const loc = getLocation(currentScene.value);
-  return loc?.name ?? "";
+const choices = ref<{ id: string; label: string }[]>([]);
+const npcStates = ref<any[]>([]);
+
+const maps: Record<string, TileMapData> = {
+  classroom: classroomMap,
+  office: officeMap,
+  playground: campusMap,
+  // Other scenes fall back to campus map for now
+};
+
+const currentMapData = computed(() => {
+  return maps[currentScene.value] || campusMap;
+});
+
+// Map NPC states to include tile positions based on their schedule location
+const visibleNpcs = computed(() => {
+  return npcStates.value
+    .filter((n: any) => {
+      // Only show NPCs whose schedule location matches current scene
+      const locId = n.location;
+      return (
+        locId === currentScene.value ||
+        (currentScene.value === "playground" &&
+          ["playground", "flower-pool", "water-tower"].includes(locId))
+      );
+    })
+    .map((n: any, i: number) => {
+      // Assign tile positions from map's npcSpawns or spread them out
+      const mapData = currentMapData.value;
+      const spawn = mapData.npcSpawns.find((s: any) => s.npcId === n.id);
+      return {
+        ...n,
+        tileX: spawn ? spawn.tileX : 5 + i * 2,
+        tileY: spawn ? spawn.tileY : 5 + i,
+      };
+    });
 });
 
 async function loadWorld() {
   const data = await fetchWorldState();
   gameTime.value = data.gameTime;
+  weather.value = data.weather;
+  currentScene.value = data.location || "classroom";
+  activeCharacter.value = data.activeCharacter || "teacher";
   events.value = data.events || [];
-  if (data.location) currentScene.value = data.location;
+  npcStates.value = data.npcs || [];
 }
 
-async function handleAreaClick(area: ClickableArea) {
-  if (area.type === "exit") {
-    const targetId = area.id.replace("exit-", "");
-    // Special case: classroom "door" exit goes to playground
-    const actualTarget = area.id === "door" ? "playground" : targetId;
-    try {
-      await moveToLocation(actualTarget);
-      await loadWorld();
-    } catch {
-      // Cannot move there
-    }
-    return;
+async function handleNavigate(locationId: string) {
+  await moveToLocation(locationId);
+  await loadWorld();
+}
+
+async function handleSwitchCharacter(character: string) {
+  await switchCharacter(character);
+  await loadWorld();
+}
+
+async function handleSkip(type: "day" | "week" | "semester") {
+  await skipTime(type);
+  await loadWorld();
+}
+
+async function handleClickNpc(npcId: string) {
+  const npc = npcs.find((n) => n.id === npcId);
+  if (!npc || !gameTime.value) return;
+  currentNpcId.value = npcId;
+  dialogNpc.value = npc.name;
+  dialogLoading.value = true;
+  dialogText.value = "";
+  choices.value = [];
+  try {
+    const periodName = gameTime.value.period === "morning" ? "上午" : "下午";
+    const { dialogue } = await generateDialogue({
+      npcName: npc.name,
+      npcPersonality: npc.personality,
+      situation: `在${currentScene.value}，当前是${periodName}`,
+      season: gameTime.value.season,
+      gameDate: gameTime.value.date,
+    });
+    dialogText.value = dialogue;
+    choices.value = [
+      { id: "encourage", label: "鼓励一下" },
+      { id: "criticize", label: "批评几句" },
+      { id: "ignore", label: "不说了" },
+    ];
+  } catch {
+    dialogText.value = "（沉默）";
   }
-  if (area.type === "npc") {
-    const npcId = area.id.replace("desk-", "student-");
-    const npc = npcs.find((n) => n.id === npcId);
-    if (!npc || !gameTime.value) return;
-    currentNpcId.value = npcId;
-    dialogNpc.value = npc.name;
-    dialogLoading.value = true;
-    dialogText.value = "";
-    try {
-      const periodName = gameTime.value.period === "morning" ? "上午" : "下午";
-      const { dialogue } = await generateDialogue({
-        npcName: npc.name,
-        npcPersonality: npc.personality,
-        situation: `在教室里，当前是${periodName}`,
-        season: gameTime.value.season,
-        gameDate: gameTime.value.date,
-      });
-      dialogText.value = dialogue;
-      choices.value = [
-        { id: "encourage", label: "鼓励一下" },
-        { id: "criticize", label: "批评几句" },
-        { id: "ignore", label: "不说了" },
-      ];
-    } catch {
-      dialogText.value = "（沉默）";
-    }
-    dialogLoading.value = false;
-  }
+  dialogLoading.value = false;
+}
+
+async function handleClickExit(targetMapId: string) {
+  await moveToLocation(targetMapId);
+  await loadWorld();
 }
 
 async function handleChoose(choiceId: string) {
@@ -91,66 +135,129 @@ async function handleChoose(choiceId: string) {
   choices.value = [];
   dialogText.value = "";
   dialogNpc.value = "";
-  currentNpcId.value = "";
   await loadWorld();
 }
 
-async function handleSkip(type: "day" | "week" | "semester") {
-  await skipTime(type);
-  await loadWorld();
+function handleCloseDialog() {
+  dialogText.value = "";
+  dialogNpc.value = "";
+  choices.value = [];
 }
 
 onMounted(loadWorld);
 </script>
 
 <template>
-  <div class="game-container">
-    <div v-if="currentLocationName" class="location-label">{{ currentLocationName }}</div>
-    <GameCanvas :game-time="gameTime" :scene-id="currentScene" @area-click="handleAreaClick" />
-    <EventSummary :events="events" />
-    <TimeControls :game-time="gameTime" @skip="handleSkip" />
-    <ChoicePanel :choices="choices" @choose="handleChoose" />
-    <DialogBox
-      :npc-name="dialogNpc"
-      :text="dialogText"
-      :loading="dialogLoading"
-      @close="
-        dialogText = '';
-        dialogNpc = '';
-      "
-    />
+  <div class="game-layout">
+    <div class="game-main">
+      <SidePanel
+        :game-time="gameTime"
+        :weather="weather"
+        :current-scene="currentScene"
+        :active-character="activeCharacter"
+        :events="events"
+        @navigate="handleNavigate"
+        @switch-character="handleSwitchCharacter"
+        @skip="handleSkip"
+      />
+      <div class="canvas-area">
+        <div class="scene-label">📍 {{ currentScene }}</div>
+        <GameCanvas
+          :map-data="currentMapData"
+          :npcs="visibleNpcs"
+          :active-character="activeCharacter"
+          :current-scene="currentScene"
+          @click-npc="handleClickNpc"
+          @click-exit="handleClickExit"
+        />
+      </div>
+    </div>
+    <div class="dialog-area" v-if="dialogNpc || dialogLoading">
+      <DialogBox
+        :npc-name="dialogNpc"
+        :text="dialogText"
+        :loading="dialogLoading"
+        @close="handleCloseDialog"
+      />
+      <div class="choices" v-if="choices.length && !dialogLoading">
+        <button v-for="c in choices" :key="c.id" @click="handleChoose(c.id)">{{ c.label }}</button>
+      </div>
+    </div>
   </div>
 </template>
 
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap");
 
-body {
+* {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
   background: #3a3530;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-}
-
-.game-container {
-  position: relative;
-  width: 800px;
-  height: 500px;
-}
-
-.location-label {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  z-index: 10;
-  background: rgba(0, 0, 0, 0.6);
-  color: #f5e6d0;
-  padding: 4px 12px;
-  border-radius: 4px;
   font-family: "Noto Serif SC", serif;
-  font-size: 14px;
-  pointer-events: none;
+}
+
+.game-layout {
+  width: 720px;
+  background: #f5e6c8;
+  border: 3px solid #6b5b4e;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.game-main {
+  display: flex;
+  height: 420px;
+}
+
+.canvas-area {
+  flex: 1;
+  position: relative;
+  background: #3a3530;
+  overflow: hidden;
+}
+
+.scene-label {
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  font-size: 10px;
+  color: #d4c08e;
+  z-index: 1;
+}
+
+.dialog-area {
+  border-top: 2px solid #6b5b4e;
+  background: #f5e6c8;
+  padding: 12px 16px;
+  min-height: 60px;
+}
+
+.choices {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.choices button {
+  background: #d4c08e;
+  border: 1px solid #6b5b4e;
+  border-radius: 3px;
+  padding: 4px 16px;
+  font-family: "Noto Serif SC", serif;
+  font-size: 12px;
+  color: #3a3530;
+  cursor: pointer;
+}
+
+.choices button:hover {
+  background: #c9a882;
 }
 </style>
