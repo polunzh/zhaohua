@@ -26,9 +26,8 @@
 # 安装依赖
 pnpm install
 
-# 配置 AI
-cp .env.example .env
-# 编辑 .env，填入你的 API Key
+# 配置 AI API Key
+echo 'AI_API_KEY=your-key-here' > .env.local
 
 # 启动开发
 pnpm dev          # 前端 (端口 5173)

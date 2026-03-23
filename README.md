@@ -26,9 +26,8 @@ A web-based life simulation set in 1990s rural China. Experience the daily life 
 # Install dependencies
 pnpm install
 
-# Configure AI
-cp .env.example .env
-# Edit .env with your API key
+# Configure AI API key
+echo 'AI_API_KEY=your-key-here' > .env.local
 
 # Start development
 pnpm dev          # Frontend (port 5173)
