@@ -31,7 +31,14 @@ export function createAiAdapter(config: AiConfig): AiAdapter {
               temperature: 0.8,
             }),
           });
+          if (!response.ok) {
+            const text = await response.text();
+            throw new Error(`AI API error (${response.status}): ${text}`);
+          }
           const data = (await response.json()) as any;
+          if (!data.choices?.length) {
+            throw new Error(`AI API returned no choices: ${JSON.stringify(data)}`);
+          }
           return data.choices[0].message.content;
         },
       };
