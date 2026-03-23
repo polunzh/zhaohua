@@ -1766,3 +1766,116 @@ tokens used
 
 本次结论是：当前改动确实包含对旧 Review 的回应说明；`Review v5` 中明确指出，部署模型问题已真正修正，但“粗粒度追算下的叙事保真”“写锁超时恢复”“随机种子与可复现约束”仍未闭环，只是被下放到实现阶段，不能视为已处理完成。
 [2026-03-23 12:06:51 CST] codex run completed
+[2026-03-23 12:18:52 CST] review.md changed, invoking codex
+2026-03-23T04:18:52.476420Z ERROR codex_core::skills::loader: failed to stat skills entry /Users/zhenqiang/.codex/skills/intent-check (symlink): No such file or directory (os error 2)
+2026-03-23T04:18:52.476574Z ERROR codex_core::skills::loader: failed to stat skills entry /Users/zhenqiang/.codex/skills/intent-interview (symlink): No such file or directory (os error 2)
+2026-03-23T04:18:52.476589Z ERROR codex_core::skills::loader: failed to stat skills entry /Users/zhenqiang/.codex/skills/intent-story (symlink): No such file or directory (os error 2)
+2026-03-23T04:18:52.476674Z ERROR codex_core::skills::loader: failed to stat skills entry /Users/zhenqiang/.codex/skills/intent-sync (symlink): No such file or directory (os error 2)
+2026-03-23T04:18:52.476849Z ERROR codex_core::skills::loader: failed to stat skills entry /Users/zhenqiang/.codex/skills/intent-init (symlink): No such file or directory (os error 2)
+2026-03-23T04:18:52.476859Z ERROR codex_core::skills::loader: failed to stat skills entry /Users/zhenqiang/.codex/skills/intent-assess (symlink): No such file or directory (os error 2)
+2026-03-23T04:18:52.476868Z ERROR codex_core::skills::loader: failed to stat skills entry /Users/zhenqiang/.codex/skills/intent-critique (symlink): No such file or directory (os error 2)
+2026-03-23T04:18:52.476916Z ERROR codex_core::skills::loader: failed to stat skills entry /Users/zhenqiang/.codex/skills/intent-review (symlink): No such file or directory (os error 2)
+2026-03-23T04:18:52.476925Z ERROR codex_core::skills::loader: failed to stat skills entry /Users/zhenqiang/.codex/skills/intent-plan (symlink): No such file or directory (os error 2)
+2026-03-23T04:18:52.476934Z ERROR codex_core::skills::loader: failed to stat skills entry /Users/zhenqiang/.codex/skills/intent-report (symlink): No such file or directory (os error 2)
+2026-03-23T04:18:52.476942Z ERROR codex_core::skills::loader: failed to stat skills entry /Users/zhenqiang/.codex/skills/intent-build-now (symlink): No such file or directory (os error 2)
+2026-03-23T04:18:52.476990Z ERROR codex_core::skills::loader: failed to stat skills entry /Users/zhenqiang/.codex/skills/intent-changes (symlink): No such file or directory (os error 2)
+2026-03-23T04:18:52.477036Z ERROR codex_core::skills::loader: failed to stat skills entry /Users/zhenqiang/.codex/skills/myvibe-publish (symlink): No such file or directory (os error 2)
+2026-03-23T04:18:52.494754Z ERROR codex_core::codex: failed to load skill /private/tmp/gstack/.agents/skills/gstack/SKILL.md: invalid description: exceeds maximum length of 1024 characters
+OpenAI Codex v0.116.0 (research preview)
+--------
+workdir: /Users/zhenqiang/Documents/code/zhaohua
+model: gpt-5.4
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR, /Users/zhenqiang/.codex/memories]
+reasoning effort: high
+reasoning summaries: none
+session id: 019d18ea-cc3f-7e23-9d9e-0e3c461afe5c
+--------
+user
+你在仓库根目录工作。
+
+请对比下面两个文件的差异：
+- 旧快照：/Users/zhenqiang/Documents/code/zhaohua/.review-watch/review.prev.md
+- 当前文件：/Users/zhenqiang/Documents/code/zhaohua/review.md
+
+任务：
+1. 判断这次改动里，是否包含“针对某个已有 Review 版本的改进、回应、修正、补充或已处理说明”。
+2. 如果没有，不要修改任何文件，只在最终输出中写一行：NO_ACTION
+3. 如果有，重新 review：/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md
+4. 把新的评审结果追加写入：/Users/zhenqiang/Documents/code/zhaohua/review.md
+5. 只能追加，不能覆盖已有内容
+6. 新结果必须使用递增版本号，格式为：## Review vN
+7. 使用中文
+8. 重点关注：旧问题是否已被修正、是否引入新问题、还缺什么约束
+
+mcp startup: no servers
+codex
+我先比对 `review.prev.md` 和当前 `review.md`，确认这次改动里是否真的包含了对既有 Review 的回应或修正说明；如果有，再基于最新状态重审设计文档并只做追加写入。
+exec
+/bin/zsh -lc 'diff -u .review-watch/review.prev.md review.md' in /Users/zhenqiang/Documents/code/zhaohua succeeded in 0ms:
+
+exec
+/bin/zsh -lc "sed -n '1,260p' review.md" in /Users/zhenqiang/Documents/code/zhaohuaexec
+/bin/zsh -lc "sed -n '1,260p' .review-watch/review.prev.md" in /Users/zhenqiang/Documents/code/zhaohua succeeded in 0ms:
+# Review Log
+
+## Review v1
+
+- 时间：2026-03-23 11:29:07 CST
+- 评审对象：`docs/specs/2026-03-23-zhaohua-design.md`
+
+### 发现的问题
+
+1. 实时 1:1 推进与“1994-2002 年时间跨度”存在根本冲突。文档一方面要求世界与现实时间同步，另一方面又把体验跨度设为从某个秋季开学开始、覆盖 1994-2002 年。按字面实现，玩家需要接近 8 年现实时间才能走完整个时间线，学年推进、角色成长、长线剧情都会变得不可达。这里必须先定义“现实时间到游戏日历时间”的映射规则。参考：[docs/specs/2026-03-23-zhaohua-design.md#L5](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L5) [docs/specs/2026-03-23-zhaohua-design.md#L11](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L11) [docs/specs/2026-03-23-zhaohua-design.md#L57](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L57)
+
+2. 世界状态的权威来源没有定义，后续一定会导致一致性问题。文档描述的是一个老师线和邮递员线交织的共享世界，但推进方式又是“用户打开页面时根据上次关闭到现在的时间差进行追算”，同时后端不持续运行。这样就留下一个关键问题：这是每个玩家自己的世界，还是所有玩家共享的一个世界？如果不先定下来，并发访问、角色切换、NPC 连续性都没法自洽。参考：[docs/specs/2026-03-23-zhaohua-design.md#L19](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L19) [docs/specs/2026-03-23-zhaohua-design.md#L33](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L33) [docs/specs/2026-03-23-zhaohua-design.md#L76](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L76) [docs/specs/2026-03-23-zhaohua-design.md#L91](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L91)
+
+3. 规范把世界的规范性状态推进交给了非确定性的 AI 生成。文档支持用户自行选择模型和 API Key，同时又让 AI 参与事件生成和长线故事推进。这意味着同样的时间流逝，在不同模型、不同版本、不同 prompt 漂移下，可能生成不同的世界历史。这是规格层面的完整性风险。更合理的做法是：世界状态转移必须是确定性的，AI 只负责润色表达；或者必须定义严格的结构化输出和校验约束。参考：[docs/specs/2026-03-23-zhaohua-design.md#L84](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L84) [docs/specs/2026-03-23-zhaohua-design.md#L87](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L87) [docs/specs/2026-03-23-zhaohua-design.md#L89](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L89) [docs/specs/2026-03-23-zhaohua-design.md#L180](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L180)
+
+4. “按小时追算”对文档承诺的体验粒度来说过于粗糙。文档强调早晨到校、课间、水塔排队喝水、邮递路线上的途中相遇等具体时刻，但时间引擎只按小时步长检查事件。这样在 7:20、9:45 或送信半途中打开页面时，要么落在错误场景，要么就需要一个文档里并未定义的更细粒度系统来兜底。参考：[docs/specs/2026-03-23-zhaohua-design.md#L34](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L34) [docs/specs/2026-03-23-zhaohua-design.md#L38](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L38) [docs/specs/2026-03-23-zhaohua-design.md#L44](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L44) [docs/specs/2026-03-23-zhaohua-design.md#L80](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L80)
+
+5. 持久化模型对目标行为来说定义得太粗。SQLite 里只列了天气、季节、NPC 心情、选择历史等大类，但这不足以支持“错过事件摘要可回溯”“信件投递链路”“待处理事项”“事件因果关系”“长线故事连续性”等行为。另外，文档说用户要配置自己的 API Key，但没有定义这些密钥最终存在哪里，是浏览器本地、Nitro 后端，还是其他安全存储。这会直接影响实现边界和安全模型。参考：[docs/specs/2026-03-23-zhaohua-design.md#L73](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L73) [docs/specs/2026-03-23-zhaohua-design.md#L87](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L87) [docs/specs/2026-03-23-zhaohua-design.md#L91](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L91) [docs/specs/2026-03-23-zhaohua-design.md#L115](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L115)
+
+### 待确认问题
+ succeeded in 0ms:
+# Review Log
+
+## Review v1
+
+- 时间：2026-03-23 11:29:07 CST
+- 评审对象：`docs/specs/2026-03-23-zhaohua-design.md`
+
+### 发现的问题
+
+1. 实时 1:1 推进与“1994-2002 年时间跨度”存在根本冲突。文档一方面要求世界与现实时间同步，另一方面又把体验跨度设为从某个秋季开学开始、覆盖 1994-2002 年。按字面实现，玩家需要接近 8 年现实时间才能走完整个时间线，学年推进、角色成长、长线剧情都会变得不可达。这里必须先定义“现实时间到游戏日历时间”的映射规则。参考：[docs/specs/2026-03-23-zhaohua-design.md#L5](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L5) [docs/specs/2026-03-23-zhaohua-design.md#L11](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L11) [docs/specs/2026-03-23-zhaohua-design.md#L57](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L57)
+
+2. 世界状态的权威来源没有定义，后续一定会导致一致性问题。文档描述的是一个老师线和邮递员线交织的共享世界，但推进方式又是“用户打开页面时根据上次关闭到现在的时间差进行追算”，同时后端不持续运行。这样就留下一个关键问题：这是每个玩家自己的世界，还是所有玩家共享的一个世界？如果不先定下来，并发访问、角色切换、NPC 连续性都没法自洽。参考：[docs/specs/2026-03-23-zhaohua-design.md#L19](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L19) [docs/specs/2026-03-23-zhaohua-design.md#L33](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L33) [docs/specs/2026-03-23-zhaohua-design.md#L76](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L76) [docs/specs/2026-03-23-zhaohua-design.md#L91](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L91)
+
+3. 规范把世界的规范性状态推进交给了非确定性的 AI 生成。文档支持用户自行选择模型和 API Key，同时又让 AI 参与事件生成和长线故事推进。这意味着同样的时间流逝，在不同模型、不同版本、不同 prompt 漂移下，可能生成不同的世界历史。这是规格层面的完整性风险。更合理的做法是：世界状态转移必须是确定性的，AI 只负责润色表达；或者必须定义严格的结构化输出和校验约束。参考：[docs/specs/2026-03-23-zhaohua-design.md#L84](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L84) [docs/specs/2026-03-23-zhaohua-design.md#L87](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L87) [docs/specs/2026-03-23-zhaohua-design.md#L89](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L89) [docs/specs/2026-03-23-zhaohua-design.md#L180](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L180)
+
+4. “按小时追算”对文档承诺的体验粒度来说过于粗糙。文档强调早晨到校、课间、水塔排队喝水、邮递路线上的途中相遇等具体时刻，但时间引擎只按小时步长检查事件。这样在 7:20、9:45 或送信半途中打开页面时，要么落在错误场景，要么就需要一个文档里并未定义的更细粒度系统来兜底。参考：[docs/specs/2026-03-23-zhaohua-design.md#L34](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L34) [docs/specs/2026-03-23-zhaohua-design.md#L38](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L38) [docs/specs/2026-03-23-zhaohua-design.md#L44](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L44) [docs/specs/2026-03-23-zhaohua-design.md#L80](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L80)
+
+5. 持久化模型对目标行为来说定义得太粗。SQLite 里只列了天气、季节、NPC 心情、选择历史等大类，但这不足以支持“错过事件摘要可回溯”“信件投递链路”“待处理事项”“事件因果关系”“长线故事连续性”等行为。另外，文档说用户要配置自己的 API Key，但没有定义这些密钥最终存在哪里，是浏览器本地、Nitro 后端，还是其他安全存储。这会直接影响实现边界和安全模型。参考：[docs/specs/2026-03-23-zhaohua-design.md#L73](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L73) [docs/specs/2026-03-23-zhaohua-design.md#L87](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L87) [docs/specs/2026-03-23-zhaohua-design.md#L91](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L91) [docs/specs/2026-03-23-zhaohua-design.md#L115](/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md#L115)
+
+### 待确认问题
+exec
+/bin/zsh -lc 'rg -n "''^## Review v[0-9]+" review.md .review-watch/review.prev.md' in /Users/zhenqiang/Documents/code/zhaohua succeeded in 0ms:
+.review-watch/review.prev.md:3:## Review v1
+.review-watch/review.prev.md:44:## Review v2
+.review-watch/review.prev.md:72:## Review v2
+.review-watch/review.prev.md:94:## Review v3
+.review-watch/review.prev.md:136:## Review v4
+.review-watch/review.prev.md:175:## Review v5
+review.md:3:## Review v1
+review.md:44:## Review v2
+review.md:72:## Review v2
+review.md:94:## Review v3
+review.md:136:## Review v4
+review.md:175:## Review v5
+codex
+NO_ACTION
+tokens used
+30,529
+NO_ACTION
+[2026-03-23 12:19:11 CST] codex run completed
