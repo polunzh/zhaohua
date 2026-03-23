@@ -45,3 +45,4 @@ __screenshots__/
 *.db-wal
 .nitro
 .output
+.superpowers/
