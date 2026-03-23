@@ -1,7 +1,14 @@
 export interface NPC {
   id: string;
   name: string;
-  role: "student" | "principal" | "teacher-colleague" | "parent" | "villager" | "shopkeeper";
+  role:
+    | "student"
+    | "principal"
+    | "teacher-colleague"
+    | "parent"
+    | "villager"
+    | "shopkeeper"
+    | "postman";
   personality: string;
   age: number;
 }
@@ -76,5 +83,12 @@ export const npcs: NPC[] = [
     role: "shopkeeper",
     personality: "镇上小卖部老板，什么都卖，爱聊天",
     age: 45,
+  },
+  {
+    id: "postman-chen",
+    name: "陈邮递员",
+    role: "postman",
+    personality: "风雨无阻，骑车送信二十年，认识每个村的人",
+    age: 40,
   },
 ];

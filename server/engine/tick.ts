@@ -1,7 +1,8 @@
 import type Database from "better-sqlite3";
 import { EventEngine } from "../../src/engine/events";
 import { determineWeather } from "../../src/engine/weather";
-import { getTriggeredEventIds, addEventLog } from "../db/queries";
+import { calculateMoodShift } from "../../src/engine/mood";
+import { getTriggeredEventIds, addEventLog, getAllNpcStates, saveNpcState } from "../db/queries";
 import type { EventTemplate } from "../../src/data/event-pool";
 
 interface GameTimeInput {
@@ -32,6 +33,19 @@ export function tick(db: Database.Database, gameTime: GameTimeInput, seed: numbe
       involvedNpcs: "",
       description: event.description,
     });
+  }
+
+  // Apply mood shifts to all NPCs based on weather and time period
+  const allNpcs = getAllNpcStates(db);
+  for (const npc of allNpcs) {
+    const newMood = calculateMoodShift({
+      weather,
+      period: gameTime.period,
+      currentMood: npc.mood,
+    });
+    if (newMood !== npc.mood) {
+      saveNpcState(db, { ...npc, mood: newMood });
+    }
   }
 
   return { event, weather };

@@ -22,6 +22,7 @@ export function handleGetWorld(db: Database.Database) {
       randomSeed: 42,
       anchorRealDate: now.toISOString(),
       location: "classroom",
+      activeCharacter: "teacher",
     });
   }
 

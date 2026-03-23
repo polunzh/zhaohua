@@ -11,7 +11,8 @@ export function initSchema(db: Database.Database): void {
       calendar_offset INTEGER NOT NULL DEFAULT 0,
       random_seed INTEGER NOT NULL DEFAULT 42,
       anchor_real_date TEXT,
-      location TEXT NOT NULL DEFAULT 'classroom'
+      location TEXT NOT NULL DEFAULT 'classroom',
+      active_character TEXT NOT NULL DEFAULT 'teacher'
     );
     CREATE TABLE IF NOT EXISTS npc_state (
       npc_id TEXT PRIMARY KEY,
@@ -36,6 +37,27 @@ export function initSchema(db: Database.Database): void {
       choice_type TEXT NOT NULL,
       choice_value TEXT NOT NULL,
       context TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+    CREATE TABLE IF NOT EXISTS relationships (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      npc_a TEXT NOT NULL,
+      npc_b TEXT NOT NULL,
+      type TEXT NOT NULL,
+      strength INTEGER NOT NULL DEFAULT 50,
+      UNIQUE(npc_a, npc_b)
+    );
+    CREATE TABLE IF NOT EXISTS mail (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT NOT NULL,
+      sender TEXT NOT NULL,
+      recipient_npc TEXT NOT NULL,
+      origin TEXT NOT NULL,
+      destination TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      content TEXT,
+      pickup_date TEXT,
+      delivery_date TEXT,
       created_at TEXT DEFAULT (datetime('now'))
     );
   `);

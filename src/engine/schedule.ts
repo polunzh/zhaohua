@@ -1,4 +1,5 @@
 import type { NPC } from "../data/npcs";
+import { getPostmanStop } from "../data/routes";
 
 export interface ScheduleEntry {
   location: string;
@@ -188,6 +189,24 @@ function getShopkeeperSchedule(time: number): ScheduleEntry {
   return { location: "home", activity: "resting" };
 }
 
+function getPostmanSchedule(time: number, hour: number, minute: number): ScheduleEntry {
+  // Before 7:30: home
+  if (time < timeToMinutes(7, 30)) {
+    return { location: "home", activity: "sleeping" };
+  }
+  // 7:30-8:00: post-office (picking up mail)
+  if (time < timeToMinutes(8, 0)) {
+    return { location: "post-office", activity: "picking-up-mail" };
+  }
+  // 8:00-17:00: follows route
+  if (time <= timeToMinutes(17, 0)) {
+    const stop = getPostmanStop(hour, minute);
+    return { location: stop.locationId, activity: "delivering-mail" };
+  }
+  // After 17:00: home
+  return { location: "home", activity: "resting" };
+}
+
 export function getScheduleEntry(
   npc: NPC,
   hour: number,
@@ -214,6 +233,8 @@ export function getScheduleEntry(
       return getVillagerSchedule(time);
     case "shopkeeper":
       return getShopkeeperSchedule(time);
+    case "postman":
+      return getPostmanSchedule(time, hour, minute);
     default:
       return getStudentSchedule(time, season);
   }

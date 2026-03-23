@@ -23,6 +23,7 @@ describe("tick", () => {
       randomSeed: 42,
       anchorRealDate: "2026-03-23T00:00:00Z",
       location: "classroom",
+      activeCharacter: "teacher",
     });
     const result = tick(
       db,
@@ -47,6 +48,7 @@ describe("performCatchUp", () => {
       randomSeed: 42,
       anchorRealDate: "2026-03-23T00:00:00Z",
       location: "classroom",
+      activeCharacter: "teacher",
     });
   });
   afterEach(() => db.close());
@@ -67,6 +69,7 @@ describe("performCatchUp", () => {
       randomSeed: 42,
       anchorRealDate: "2026-03-23T00:00:00Z",
       location: "classroom",
+      activeCharacter: "teacher",
     });
     const result = performCatchUp(db, new Date("2026-03-23T08:00:00Z"));
     expect(result.coarseMode).toBe(true);
@@ -83,6 +86,7 @@ describe("performCatchUp", () => {
       randomSeed: 42,
       anchorRealDate: "2026-03-23T00:00:00Z",
       location: "classroom",
+      activeCharacter: "teacher",
     });
     const result = performCatchUp(db, new Date("2026-03-23T08:00:00Z"));
     expect(result.summary.length).toBeLessThanOrEqual(20);

@@ -19,6 +19,7 @@ describe("GET /api/world handler", () => {
       randomSeed: 42,
       anchorRealDate: new Date().toISOString(),
       location: "classroom",
+      activeCharacter: "teacher",
     });
   });
 

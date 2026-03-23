@@ -51,3 +51,12 @@ export async function submitChoice(params: {
   });
   return res.json();
 }
+
+export async function switchCharacter(character: "teacher" | "postman") {
+  const res = await fetch(`${BASE_URL}/switch`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ character }),
+  });
+  return res.json();
+}

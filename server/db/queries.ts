@@ -9,6 +9,7 @@ export interface WorldState {
   randomSeed: number;
   anchorRealDate: string | null;
   location: string;
+  activeCharacter: string;
 }
 
 export interface NpcStateRow {
@@ -36,6 +37,7 @@ interface WorldStateRow {
   random_seed: number;
   anchor_real_date: string | null;
   location: string;
+  active_character: string;
 }
 
 interface NpcStateDbRow {
@@ -70,13 +72,14 @@ export function getWorldState(db: Database.Database): WorldState | undefined {
     randomSeed: row.random_seed,
     anchorRealDate: row.anchor_real_date,
     location: row.location,
+    activeCharacter: row.active_character,
   };
 }
 
 export function saveWorldState(db: Database.Database, state: WorldState): void {
   db.prepare(`
-    INSERT INTO world_state (id, game_date, weather, season, last_visit, calendar_offset, random_seed, anchor_real_date, location)
-    VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO world_state (id, game_date, weather, season, last_visit, calendar_offset, random_seed, anchor_real_date, location, active_character)
+    VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(id) DO UPDATE SET
       game_date = excluded.game_date,
       weather = excluded.weather,
@@ -85,7 +88,8 @@ export function saveWorldState(db: Database.Database, state: WorldState): void {
       calendar_offset = excluded.calendar_offset,
       random_seed = excluded.random_seed,
       anchor_real_date = excluded.anchor_real_date,
-      location = excluded.location
+      location = excluded.location,
+      active_character = excluded.active_character
   `).run(
     state.gameDate,
     state.weather,
@@ -95,6 +99,7 @@ export function saveWorldState(db: Database.Database, state: WorldState): void {
     state.randomSeed,
     state.anchorRealDate,
     state.location,
+    state.activeCharacter,
   );
 }
 
@@ -178,10 +183,166 @@ export function savePlayerChoice(db: Database.Database, entry: PlayerChoiceEntry
   );
 }
 
+export function getAllNpcStates(db: Database.Database): NpcStateRow[] {
+  const rows = db.prepare("SELECT * FROM npc_state").all() as NpcStateDbRow[];
+  return rows.map((row) => ({
+    npcId: row.npc_id,
+    location: row.location,
+    mood: row.mood,
+    affinity: row.affinity,
+  }));
+}
+
 export function updateNpcAffinity(db: Database.Database, npcId: string, delta: number): void {
   db.prepare("UPDATE npc_state SET affinity = affinity + ? WHERE npc_id = ?").run(delta, npcId);
 }
 
 export function updateNpcMood(db: Database.Database, npcId: string, mood: string): void {
   db.prepare("UPDATE npc_state SET mood = ? WHERE npc_id = ?").run(mood, npcId);
+}
+
+// --- Relationships ---
+
+export interface RelationshipRow {
+  npcA: string;
+  npcB: string;
+  type: string;
+  strength: number;
+}
+
+interface RelationshipDbRow {
+  npc_a: string;
+  npc_b: string;
+  type: string;
+  strength: number;
+}
+
+export function getRelationship(
+  db: Database.Database,
+  npcA: string,
+  npcB: string,
+): { type: string; strength: number } | null {
+  const row = db
+    .prepare("SELECT type, strength FROM relationships WHERE npc_a = ? AND npc_b = ?")
+    .get(npcA, npcB) as { type: string; strength: number } | undefined;
+  return row ?? null;
+}
+
+export function saveRelationship(
+  db: Database.Database,
+  rel: { npcA: string; npcB: string; type: string; strength: number },
+): void {
+  db.prepare(`
+    INSERT INTO relationships (npc_a, npc_b, type, strength)
+    VALUES (?, ?, ?, ?)
+    ON CONFLICT(npc_a, npc_b) DO UPDATE SET
+      type = excluded.type,
+      strength = excluded.strength
+  `).run(rel.npcA, rel.npcB, rel.type, rel.strength);
+}
+
+export function getRelationships(db: Database.Database, npcId: string): RelationshipRow[] {
+  const rows = db
+    .prepare("SELECT npc_a, npc_b, type, strength FROM relationships WHERE npc_a = ? OR npc_b = ?")
+    .all(npcId, npcId) as RelationshipDbRow[];
+  return rows.map((row) => ({
+    npcA: row.npc_a,
+    npcB: row.npc_b,
+    type: row.type,
+    strength: row.strength,
+  }));
+}
+
+// --- Mail ---
+
+export interface MailRow {
+  id: number;
+  type: string;
+  sender: string;
+  recipientNpc: string;
+  origin: string;
+  destination: string;
+  status: string;
+  content: string | null;
+  pickupDate: string | null;
+  deliveryDate: string | null;
+}
+
+interface MailDbRow {
+  id: number;
+  type: string;
+  sender: string;
+  recipient_npc: string;
+  origin: string;
+  destination: string;
+  status: string;
+  content: string | null;
+  pickup_date: string | null;
+  delivery_date: string | null;
+}
+
+function toMailRow(row: MailDbRow): MailRow {
+  return {
+    id: row.id,
+    type: row.type,
+    sender: row.sender,
+    recipientNpc: row.recipient_npc,
+    origin: row.origin,
+    destination: row.destination,
+    status: row.status,
+    content: row.content,
+    pickupDate: row.pickup_date,
+    deliveryDate: row.delivery_date,
+  };
+}
+
+export function addMail(
+  db: Database.Database,
+  mail: {
+    type: string;
+    sender: string;
+    recipientNpc: string;
+    origin: string;
+    destination: string;
+    content?: string;
+  },
+): void {
+  db.prepare(`
+    INSERT INTO mail (type, sender, recipient_npc, origin, destination, content)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(
+    mail.type,
+    mail.sender,
+    mail.recipientNpc,
+    mail.origin,
+    mail.destination,
+    mail.content ?? null,
+  );
+}
+
+export function getPendingMail(db: Database.Database): MailRow[] {
+  const rows = db.prepare("SELECT * FROM mail WHERE status = 'pending'").all() as MailDbRow[];
+  return rows.map(toMailRow);
+}
+
+export function getMailInTransit(db: Database.Database): MailRow[] {
+  const rows = db.prepare("SELECT * FROM mail WHERE status = 'in-transit'").all() as MailDbRow[];
+  return rows.map(toMailRow);
+}
+
+export function updateMailStatus(
+  db: Database.Database,
+  mailId: number,
+  status: string,
+  date?: string,
+): void {
+  if (date) {
+    db.prepare("UPDATE mail SET status = ?, delivery_date = ? WHERE id = ?").run(
+      status,
+      date,
+      mailId,
+    );
+  } else {
+    db.prepare("UPDATE mail SET status = ? WHERE id = ?").run(status, mailId);
+  }
 }

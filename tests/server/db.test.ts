@@ -43,6 +43,7 @@ describe("Database", () => {
       randomSeed: 42,
       anchorRealDate: "2026-03-23T00:00:00Z",
       location: "classroom",
+      activeCharacter: "teacher",
     });
     const state = getWorldState(db);
     expect(state).toBeDefined();
