@@ -47,6 +47,12 @@ export function initSchema(db: Database.Database): void {
       strength INTEGER NOT NULL DEFAULT 50,
       UNIQUE(npc_a, npc_b)
     );
+    CREATE TABLE IF NOT EXISTS story_progress (
+      story_id TEXT PRIMARY KEY,
+      current_stage TEXT NOT NULL,
+      started_date TEXT NOT NULL,
+      data TEXT DEFAULT '{}'
+    );
     CREATE TABLE IF NOT EXISTS mail (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       type TEXT NOT NULL,

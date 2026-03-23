@@ -30,6 +30,8 @@ export class EventEngine {
     triggeredEventIds: string[],
     weather?: string,
     location?: string,
+    character?: string,
+    affinity?: number,
   ): EventTemplate | null {
     if (gameTime.period === "night") {
       return null;
@@ -45,14 +47,18 @@ export class EventEngine {
       return seasonalMatch;
     }
 
-    // Filter eligible daily events by period, weather, and location
+    // Filter eligible daily events by period, season, weather, location, character, and affinity
     const eligible = eventPool.filter(
       (e) =>
         e.type === "daily" &&
         !triggeredEventIds.includes(e.id) &&
         (!e.periods || e.periods.includes(gameTime.period)) &&
+        (!e.seasons || e.seasons.includes(gameTime.season)) &&
         (!e.weather || (weather != null && e.weather.includes(weather))) &&
-        (!e.location || e.location === location),
+        (!e.location || e.location === location) &&
+        (!e.character || e.character === character) &&
+        (e.minAffinity == null || (affinity != null && affinity >= e.minAffinity)) &&
+        (e.maxAffinity == null || (affinity != null && affinity <= e.maxAffinity)),
     );
 
     if (eligible.length === 0) {

@@ -14,7 +14,11 @@ interface CatchUpResult {
   summary: EventTemplate[];
 }
 
-export function performCatchUp(db: Database.Database, now: Date): CatchUpResult {
+export function performCatchUp(
+  db: Database.Database,
+  now: Date,
+  character?: string,
+): CatchUpResult {
   const worldState = getWorldState(db);
   if (!worldState) {
     throw new Error("No world state found");
@@ -50,7 +54,7 @@ export function performCatchUp(db: Database.Database, now: Date): CatchUpResult 
 
       const gameTime = timeEngine.getGameTime(simulatedTime);
       const seed = worldState.randomSeed + i;
-      const result = tick(db, gameTime, seed);
+      const result = tick(db, gameTime, seed, character);
       latestWeather = result.weather;
 
       if (result.event) {

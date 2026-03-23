@@ -201,6 +201,76 @@ export function updateNpcMood(db: Database.Database, npcId: string, mood: string
   db.prepare("UPDATE npc_state SET mood = ? WHERE npc_id = ?").run(mood, npcId);
 }
 
+// --- Story Progress ---
+
+export interface StoryProgressRow {
+  storyId: string;
+  currentStage: string;
+  startedDate: string;
+  data: string;
+}
+
+interface StoryProgressDbRow {
+  story_id: string;
+  current_stage: string;
+  started_date: string;
+  data: string;
+}
+
+export function getStoryProgress(db: Database.Database, storyId: string): StoryProgressRow | null {
+  const row = db.prepare("SELECT * FROM story_progress WHERE story_id = ?").get(storyId) as
+    | StoryProgressDbRow
+    | undefined;
+  if (!row) return null;
+  return {
+    storyId: row.story_id,
+    currentStage: row.current_stage,
+    startedDate: row.started_date,
+    data: row.data,
+  };
+}
+
+export function saveStoryProgress(
+  db: Database.Database,
+  progress: { storyId: string; currentStage: string; startedDate: string; data: string },
+): void {
+  db.prepare(`
+    INSERT INTO story_progress (story_id, current_stage, started_date, data)
+    VALUES (?, ?, ?, ?)
+    ON CONFLICT(story_id) DO UPDATE SET
+      current_stage = excluded.current_stage,
+      started_date = excluded.started_date,
+      data = excluded.data
+  `).run(progress.storyId, progress.currentStage, progress.startedDate, progress.data);
+}
+
+export function getAllActiveStories(db: Database.Database): StoryProgressRow[] {
+  const rows = db.prepare("SELECT * FROM story_progress").all() as StoryProgressDbRow[];
+  return rows.map((row) => ({
+    storyId: row.story_id,
+    currentStage: row.current_stage,
+    startedDate: row.started_date,
+    data: row.data,
+  }));
+}
+
+export function getStoryEvent(db: Database.Database, storyId: string): EventLogEntry | null {
+  const row = db
+    .prepare(
+      "SELECT * FROM event_log WHERE type = 'story' AND event_id LIKE ? ORDER BY id DESC LIMIT 1",
+    )
+    .get(`story-${storyId}-%`) as EventLogDbRow | undefined;
+  if (!row) return null;
+  return {
+    eventId: row.event_id,
+    gameDate: row.game_date,
+    gameTime: row.game_time,
+    type: row.type,
+    involvedNpcs: row.involved_npcs,
+    description: row.description,
+  };
+}
+
 // --- Relationships ---
 
 export interface RelationshipRow {

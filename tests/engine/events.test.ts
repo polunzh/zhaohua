@@ -104,4 +104,122 @@ describe("EventEngine", () => {
       }
     }
   });
+
+  // --- Character filtering tests ---
+
+  it("postman event only triggers for postman character", () => {
+    let found = false;
+    for (let seed = 0; seed < 200; seed++) {
+      const eng = new EventEngine(seed);
+      const event = eng.selectEvent(makeGameTime(), [], undefined, undefined, "postman");
+      if (event && event.character === "postman") {
+        found = true;
+        break;
+      }
+    }
+    expect(found).toBe(true);
+  });
+
+  it("postman event does not trigger for teacher character", () => {
+    for (let seed = 0; seed < 200; seed++) {
+      const eng = new EventEngine(seed);
+      const event = eng.selectEvent(makeGameTime(), [], undefined, undefined, "teacher");
+      if (event) {
+        expect(event.character).not.toBe("postman");
+      }
+    }
+  });
+
+  // --- Affinity filtering tests ---
+
+  it("event with minAffinity triggers when affinity is high enough", () => {
+    // student-confide has minAffinity: 70
+    let found = false;
+    for (let seed = 0; seed < 500; seed++) {
+      const eng = new EventEngine(seed);
+      const event = eng.selectEvent(
+        makeGameTime({ period: "afternoon" }),
+        [],
+        undefined,
+        undefined,
+        undefined,
+        80,
+      );
+      if (event && event.id === "student-confide") {
+        found = true;
+        break;
+      }
+    }
+    expect(found).toBe(true);
+  });
+
+  it("event with minAffinity does NOT trigger when affinity is too low", () => {
+    for (let seed = 0; seed < 500; seed++) {
+      const eng = new EventEngine(seed);
+      const event = eng.selectEvent(
+        makeGameTime({ period: "afternoon" }),
+        [],
+        undefined,
+        undefined,
+        undefined,
+        50,
+      );
+      if (event) {
+        expect(event.id).not.toBe("student-confide");
+      }
+    }
+  });
+
+  it("event with maxAffinity triggers when affinity is low enough", () => {
+    // student-skip has maxAffinity: 30
+    let found = false;
+    for (let seed = 0; seed < 500; seed++) {
+      const eng = new EventEngine(seed);
+      const event = eng.selectEvent(
+        makeGameTime({ period: "morning" }),
+        [],
+        undefined,
+        undefined,
+        undefined,
+        20,
+      );
+      if (event && event.id === "student-skip") {
+        found = true;
+        break;
+      }
+    }
+    expect(found).toBe(true);
+  });
+
+  it("affinity-gated events do not trigger when affinity is not provided", () => {
+    for (let seed = 0; seed < 500; seed++) {
+      const eng = new EventEngine(seed);
+      const event = eng.selectEvent(makeGameTime({ period: "afternoon" }), []);
+      if (event) {
+        expect(event.minAffinity).toBeUndefined();
+        expect(event.maxAffinity).toBeUndefined();
+      }
+    }
+  });
+
+  it("cross-character event (no character filter) triggers for both postman and teacher", () => {
+    // postman-at-school has no character field, location=playground, period=morning
+    let foundForPostman = false;
+    let foundForTeacher = false;
+    for (let seed = 0; seed < 500; seed++) {
+      const engP = new EventEngine(seed);
+      const eventP = engP.selectEvent(makeGameTime(), [], undefined, "playground", "postman");
+      if (eventP && eventP.id === "postman-at-school") {
+        foundForPostman = true;
+      }
+      const engT = new EventEngine(seed);
+      const eventT = engT.selectEvent(makeGameTime(), [], undefined, "playground", "teacher");
+      if (eventT && eventT.id === "postman-at-school") {
+        foundForTeacher = true;
+      }
+      if (foundForPostman && foundForTeacher) break;
+    }
+    expect(foundForPostman).toBe(true);
+    expect(foundForTeacher).toBe(true);
+  });
 });

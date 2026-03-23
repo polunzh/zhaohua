@@ -6,10 +6,14 @@ export interface EventTemplate {
   periods?: string[];
   weather?: string[];
   location?: string;
+  character?: string;
+  minAffinity?: number;
+  maxAffinity?: number;
   description: string;
 }
 
 export const eventPool: EventTemplate[] = [
+  // ===== Seasonal events =====
   {
     id: "school-start",
     type: "seasonal",
@@ -46,6 +50,218 @@ export const eventPool: EventTemplate[] = [
     triggerDate: "06-25",
     description: "期末考试，天热得坐不住",
   },
+
+  // ===== School spring events =====
+  {
+    id: "spring-outing-prep",
+    type: "daily",
+    periods: ["morning"],
+    seasons: ["spring"],
+    description: "春游准备，学生们叽叽喳喳讨论要带什么吃的",
+  },
+  {
+    id: "rapeseed-observation",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    seasons: ["spring"],
+    location: "farmland",
+    description: "带学生去看油菜花，金灿灿的一大片，有人偷偷摘了一朵",
+  },
+  {
+    id: "spring-sports-meet",
+    type: "seasonal",
+    triggerDate: "04-10",
+    description: "春季运动会，操场上红旗招展，学生们拼命给同学加油",
+  },
+  {
+    id: "first-lesson-spring",
+    type: "seasonal",
+    triggerDate: "02-21",
+    description: "开学第一课，讲新学期的规矩，学生们还没收心",
+  },
+  {
+    id: "tree-planting-day",
+    type: "seasonal",
+    triggerDate: "03-12",
+    description: "植树节，全校师生在操场边挖坑种树，泥巴糊了一身",
+  },
+
+  // ===== School summer events =====
+  {
+    id: "summer-cleanup",
+    type: "daily",
+    periods: ["afternoon"],
+    seasons: ["summer"],
+    description: "暑假前大扫除，学生们搬桌子擦窗户，教室里灰尘飞扬",
+  },
+  {
+    id: "cicada-singing",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    seasons: ["summer"],
+    description: "知了叫个不停，上课都听不清老师说什么",
+  },
+  {
+    id: "eating-popsicle",
+    type: "daily",
+    periods: ["afternoon"],
+    seasons: ["summer"],
+    description: "有人在校门口卖冰棍，五分钱一根，学生们馋得不行",
+  },
+  {
+    id: "classroom-too-hot",
+    type: "daily",
+    periods: ["afternoon"],
+    seasons: ["summer"],
+    description: "教室太热了，学生们用课本扇风，谁也坐不住",
+  },
+  {
+    id: "summer-flower-pool",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    seasons: ["summer"],
+    location: "flower-pool",
+    description: "花池里的美人蕉开了，红得耀眼，蜜蜂嗡嗡飞",
+  },
+
+  // ===== School autumn events =====
+  {
+    id: "corn-harvest-leave",
+    type: "daily",
+    periods: ["morning"],
+    seasons: ["autumn"],
+    description: "又有学生请假回家收玉米，一走就是好几个",
+  },
+  {
+    id: "autumn-parent-meeting",
+    type: "seasonal",
+    triggerDate: "10-15",
+    description: "秋季家长会，有的家长从地里赶来，裤腿上还沾着泥",
+  },
+  {
+    id: "blackboard-contest",
+    type: "daily",
+    periods: ["afternoon"],
+    seasons: ["autumn"],
+    description: "黑板报评比，各班使出浑身解数画画写字",
+  },
+  {
+    id: "seat-rearrange",
+    type: "daily",
+    periods: ["morning"],
+    seasons: ["autumn"],
+    description: "教室换座位，几个学生争着要坐后排",
+  },
+  {
+    id: "autumn-leaves",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    seasons: ["autumn"],
+    location: "playground",
+    description: "操场上落叶厚厚一层，踩上去沙沙响",
+  },
+
+  // ===== School winter events =====
+  {
+    id: "stove-out",
+    type: "daily",
+    periods: ["morning"],
+    seasons: ["winter"],
+    description: "煤炉灭了，教室里冷得直哆嗦，值日生赶紧重新生火",
+  },
+  {
+    id: "chilblain",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    seasons: ["winter"],
+    description: "好几个学生手上长了冻疮，又红又肿，写字都疼",
+  },
+  {
+    id: "snowball-fight",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    seasons: ["winter"],
+    weather: ["snowy"],
+    location: "playground",
+    description: "下雪了，课间学生们在操场上打雪仗，笑声传遍整个学校",
+  },
+  {
+    id: "write-couplets",
+    type: "daily",
+    periods: ["afternoon"],
+    seasons: ["winter"],
+    description: "教学生写春联，红纸铺满了课桌，墨汁香飘满教室",
+  },
+  {
+    id: "winter-homework",
+    type: "seasonal",
+    triggerDate: "01-10",
+    description: "发寒假作业，厚厚一本，学生们翻了翻直叹气",
+  },
+
+  // ===== Village events =====
+  {
+    id: "market-day",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    location: "market",
+    description: "赶集日，集市上热热闹闹，有卖年画的、卖鞭炮的、卖糖葫芦的",
+  },
+  {
+    id: "village-wedding",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    location: "village-road",
+    description: "村里办喜事，鞭炮响了一早上，路过能闻到酒席的香味",
+  },
+  {
+    id: "villager-sick",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    location: "villager-house",
+    description: "村里有人生了病，卫生所的赤脚医生骑车去看",
+  },
+  {
+    id: "help-harvest",
+    type: "daily",
+    periods: ["afternoon"],
+    seasons: ["autumn"],
+    location: "farmland",
+    description: "放学后帮村民收割，弯腰割麦子，腰酸得直不起来",
+  },
+  {
+    id: "pig-slaughter",
+    type: "daily",
+    periods: ["morning"],
+    seasons: ["winter"],
+    location: "village-road",
+    description: "杀年猪，半个村子的人都来帮忙，孩子们又怕又兴奋地围着看",
+  },
+
+  // ===== Affinity-gated events =====
+  {
+    id: "student-confide",
+    type: "daily",
+    periods: ["afternoon", "evening"],
+    minAffinity: 70,
+    description: "有个学生红着眼圈来找你，吞吞吐吐说了家里的难处",
+  },
+  {
+    id: "student-gift",
+    type: "daily",
+    periods: ["morning"],
+    minAffinity: 80,
+    description: "学生偷偷在讲台上放了个小礼物——一个叠得歪歪扭扭的纸鹤",
+  },
+  {
+    id: "student-skip",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    maxAffinity: 30,
+    description: "发现有学生逃学了，跑去河边摸鱼",
+  },
+
+  // ===== Original daily events =====
   {
     id: "student-late",
     type: "daily",
@@ -136,5 +352,135 @@ export const eventPool: EventTemplate[] = [
     periods: ["afternoon"],
     location: "market",
     description: "集市上人来人往，有卖菜的有卖布的",
+  },
+
+  // ===== Additional daily events =====
+  {
+    id: "chalk-break",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    description: "粉笔写着写着断了，又从粉笔盒里拿一根",
+  },
+  {
+    id: "window-broken",
+    type: "daily",
+    periods: ["afternoon"],
+    description: "教室窗户玻璃被球砸碎了，得赶紧找人修",
+  },
+  {
+    id: "rainy-recess",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    weather: ["rainy"],
+    description: "下雨了，课间学生们只能挤在走廊里玩",
+  },
+  {
+    id: "student-poem",
+    type: "daily",
+    periods: ["morning"],
+    description: "有个学生在作文里写了首小诗，虽然稚嫩但真挚得很",
+  },
+  {
+    id: "bell-ring",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    description: "上课铃响了，看门老头使劲敲着挂在树上的铁块",
+  },
+
+  // ===== Postman events =====
+  {
+    id: "flat-tire",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    character: "postman",
+    description: "自行车扎了胎，只能推着走一段",
+  },
+  {
+    id: "dog-chase",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    character: "postman",
+    location: "village-road",
+    description: "村口的大黄狗又追着自行车跑",
+  },
+  {
+    id: "rain-on-route",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    character: "postman",
+    weather: ["rainy"],
+    description: "送信半路下起了雨，赶紧把邮包裹好",
+  },
+  {
+    id: "recipient-away",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    character: "postman",
+    location: "villager-house",
+    description: "敲了半天门没人开，收件人下地干活去了",
+  },
+  {
+    id: "wrong-address",
+    type: "daily",
+    periods: ["morning"],
+    character: "postman",
+    location: "post-office",
+    description: "有封信地址写错了，得想办法找到收件人",
+  },
+  {
+    id: "shortcut-field",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    character: "postman",
+    location: "farmland",
+    description: "抄近路穿过麦田，鞋上沾满了泥",
+  },
+  {
+    id: "rest-at-shop",
+    type: "daily",
+    periods: ["afternoon"],
+    character: "postman",
+    location: "market",
+    description: "在刘叔的小卖部歇歇脚，喝碗水",
+  },
+  {
+    id: "heavy-package",
+    type: "daily",
+    periods: ["morning"],
+    character: "postman",
+    location: "post-office",
+    description: "今天有个大包裹，绑在车后座都怕掉",
+  },
+  {
+    id: "newspaper-chat",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    character: "postman",
+    location: "villager-house",
+    description: "送报纸时和村民聊了几句庄稼的事",
+  },
+  {
+    id: "snow-route",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    character: "postman",
+    weather: ["snowy"],
+    description: "雪天路滑，骑车得格外小心",
+  },
+
+  // ===== Cross-character events =====
+  {
+    id: "postman-at-school",
+    type: "daily",
+    periods: ["morning"],
+    location: "playground",
+    description: "邮递员骑车来到学校，带来了今天的信件和报纸",
+  },
+  {
+    id: "teacher-sends-letter",
+    type: "daily",
+    periods: ["afternoon"],
+    location: "playground",
+    description: "老师托邮递员帮忙寄一封信",
   },
 ];

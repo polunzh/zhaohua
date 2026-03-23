@@ -3,6 +3,7 @@ import { EventEngine } from "../../src/engine/events";
 import { determineWeather } from "../../src/engine/weather";
 import { calculateMoodShift } from "../../src/engine/mood";
 import { getTriggeredEventIds, addEventLog, getAllNpcStates, saveNpcState } from "../db/queries";
+import { processStories } from "./story";
 import type { EventTemplate } from "../../src/data/event-pool";
 
 interface GameTimeInput {
@@ -18,11 +19,16 @@ interface TickResult {
   weather: string;
 }
 
-export function tick(db: Database.Database, gameTime: GameTimeInput, seed: number): TickResult {
+export function tick(
+  db: Database.Database,
+  gameTime: GameTimeInput,
+  seed: number,
+  character?: string,
+): TickResult {
   const weather = determineWeather(gameTime.season, seed);
   const triggeredIds = getTriggeredEventIds(db);
   const engine = new EventEngine(seed);
-  const event = engine.selectEvent(gameTime as any, triggeredIds, weather);
+  const event = engine.selectEvent(gameTime as any, triggeredIds, weather, undefined, character);
 
   if (event) {
     addEventLog(db, {
@@ -47,6 +53,10 @@ export function tick(db: Database.Database, gameTime: GameTimeInput, seed: numbe
       saveNpcState(db, { ...npc, mood: newMood });
     }
   }
+
+  // Process long-form story arcs
+  const timeStr = `${String(gameTime.hour).padStart(2, "0")}:${String(gameTime.minute).padStart(2, "0")}`;
+  processStories(db, gameTime.date, timeStr);
 
   return { event, weather };
 }
