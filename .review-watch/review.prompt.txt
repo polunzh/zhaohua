@@ -1,0 +1,15 @@
+你在仓库根目录工作。
+
+请对比下面两个文件的差异：
+- 旧快照：/Users/zhenqiang/Documents/code/zhaohua/.review-watch/review.prev.md
+- 当前文件：/Users/zhenqiang/Documents/code/zhaohua/review.md
+
+任务：
+1. 判断这次改动里，是否包含“针对某个已有 Review 版本的改进、回应、修正、补充或已处理说明”。
+2. 如果没有，不要修改任何文件，只在最终输出中写一行：NO_ACTION
+3. 如果有，重新 review：/Users/zhenqiang/Documents/code/zhaohua/docs/specs/2026-03-23-zhaohua-design.md
+4. 把新的评审结果追加写入：/Users/zhenqiang/Documents/code/zhaohua/review.md
+5. 只能追加，不能覆盖已有内容
+6. 新结果必须使用递增版本号，格式为：## Review vN
+7. 使用中文
+8. 重点关注：旧问题是否已被修正、是否引入新问题、还缺什么约束
