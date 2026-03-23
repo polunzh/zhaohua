@@ -41,5 +41,7 @@ __screenshots__/
 # Project
 .env
 *.db
+*.db-shm
+*.db-wal
 .nitro
 .output
