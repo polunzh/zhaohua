@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import Database from "better-sqlite3";
 import { initSchema } from "../../server/db/schema";
 import { saveWorldState } from "../../server/db/queries";
-import { handleGetWorld } from "../../server/api/world.get";
+import { handleGetWorld } from "../../server/handlers/world.get";
 
 describe("GET /api/world handler", () => {
   let db: Database.Database;
