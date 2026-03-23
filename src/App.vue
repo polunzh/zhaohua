@@ -5,7 +5,7 @@ import DialogBox from "./components/DialogBox.vue";
 import ChoicePanel from "./components/ChoicePanel.vue";
 import EventSummary from "./components/EventSummary.vue";
 import TimeControls from "./components/TimeControls.vue";
-import { fetchWorldState, skipTime, generateDialogue } from "./api/client";
+import { fetchWorldState, skipTime, generateDialogue, submitChoice } from "./api/client";
 import type { GameTime } from "./engine/time";
 import type { ClickableArea } from "./scene/scenes";
 import { npcs } from "./data/npcs";
@@ -16,6 +16,7 @@ const dialogNpc = ref("");
 const dialogText = ref("");
 const dialogLoading = ref(false);
 const choices = ref<{ id: string; label: string }[]>([]);
+const currentNpcId = ref("");
 
 async function loadWorld() {
   const data = await fetchWorldState();
@@ -28,6 +29,7 @@ async function handleAreaClick(area: ClickableArea) {
     const npcId = area.id.replace("desk-", "student-");
     const npc = npcs.find((n) => n.id === npcId);
     if (!npc || !gameTime.value) return;
+    currentNpcId.value = npcId;
     dialogNpc.value = npc.name;
     dialogLoading.value = true;
     dialogText.value = "";
@@ -41,11 +43,31 @@ async function handleAreaClick(area: ClickableArea) {
         gameDate: gameTime.value.date,
       });
       dialogText.value = dialogue;
+      choices.value = [
+        { id: "encourage", label: "鼓励一下" },
+        { id: "criticize", label: "批评几句" },
+        { id: "ignore", label: "不说了" },
+      ];
     } catch {
       dialogText.value = "（沉默）";
     }
     dialogLoading.value = false;
   }
+}
+
+async function handleChoose(choiceId: string) {
+  if (!gameTime.value) return;
+  await submitChoice({
+    npcId: currentNpcId.value,
+    choiceId,
+    gameDate: gameTime.value.date,
+    gameTime: `${String(gameTime.value.hour).padStart(2, "0")}:${String(gameTime.value.minute).padStart(2, "0")}`,
+  });
+  choices.value = [];
+  dialogText.value = "";
+  dialogNpc.value = "";
+  currentNpcId.value = "";
+  await loadWorld();
 }
 
 async function handleSkip(type: "day" | "week" | "semester") {
@@ -61,7 +83,7 @@ onMounted(loadWorld);
     <GameCanvas :game-time="gameTime" @area-click="handleAreaClick" />
     <EventSummary :events="events" />
     <TimeControls :game-time="gameTime" @skip="handleSkip" />
-    <ChoicePanel :choices="choices" />
+    <ChoicePanel :choices="choices" @choose="handleChoose" />
     <DialogBox
       :npc-name="dialogNpc"
       :text="dialogText"

@@ -33,6 +33,7 @@ export function performCatchUp(db: Database.Database, now: Date): CatchUpResult 
   const coarseMode = timeEngine.isCoarseMode(lastVisit, now);
 
   const events: EventTemplate[] = [];
+  let latestWeather = worldState.weather ?? "sunny";
 
   // Run everything in a transaction for atomicity
   const runCatchUp = db.transaction(() => {
@@ -50,6 +51,7 @@ export function performCatchUp(db: Database.Database, now: Date): CatchUpResult 
       const gameTime = timeEngine.getGameTime(simulatedTime);
       const seed = worldState.randomSeed + i;
       const result = tick(db, gameTime, seed);
+      latestWeather = result.weather;
 
       if (result.event) {
         events.push(result.event);
@@ -62,6 +64,7 @@ export function performCatchUp(db: Database.Database, now: Date): CatchUpResult 
       ...worldState,
       gameDate: finalGameTime.date,
       season: finalGameTime.season,
+      weather: latestWeather,
       lastVisit: now.toISOString(),
       anchorRealDate: anchorRealDate,
     });

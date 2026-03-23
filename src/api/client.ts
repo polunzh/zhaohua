@@ -28,3 +28,17 @@ export async function generateDialogue(params: {
   });
   return res.json();
 }
+
+export async function submitChoice(params: {
+  npcId: string;
+  choiceId: string;
+  gameDate: string;
+  gameTime: string;
+}) {
+  const res = await fetch(`${BASE_URL}/choice`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  });
+  return res.json();
+}

@@ -4,6 +4,7 @@ export interface EventTemplate {
   triggerDate?: string;
   seasons?: string[];
   periods?: string[];
+  weather?: string[];
   description: string;
 }
 

@@ -25,7 +25,11 @@ export class EventEngine {
     this.rng = mulberry32(seed);
   }
 
-  selectEvent(gameTime: GameTime, triggeredEventIds: string[]): EventTemplate | null {
+  selectEvent(
+    gameTime: GameTime,
+    triggeredEventIds: string[],
+    weather?: string,
+  ): EventTemplate | null {
     if (gameTime.period === "night") {
       return null;
     }
@@ -40,12 +44,13 @@ export class EventEngine {
       return seasonalMatch;
     }
 
-    // Filter eligible daily events by period
+    // Filter eligible daily events by period and weather
     const eligible = eventPool.filter(
       (e) =>
         e.type === "daily" &&
         !triggeredEventIds.includes(e.id) &&
-        (!e.periods || e.periods.includes(gameTime.period)),
+        (!e.periods || e.periods.includes(gameTime.period)) &&
+        (!e.weather || (weather != null && e.weather.includes(weather))),
     );
 
     if (eligible.length === 0) {

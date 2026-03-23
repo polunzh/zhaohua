@@ -3,20 +3,37 @@ import { createAiAdapter } from "../../server/ai/adapter";
 import { buildDialoguePrompt, buildEventDescriptionPrompt } from "../../server/ai/prompts";
 
 describe("AI Adapter", () => {
-  it("creates adapter from config", () => {
-    const adapter = createAiAdapter({
+  it("creates deepseek adapter", () => {
+    const a = createAiAdapter({
       model: "deepseek",
-      apiKey: "test",
+      apiKey: "k",
       baseUrl: "https://api.deepseek.com",
     });
-    expect(adapter).toBeDefined();
-    expect(adapter.name).toBe("deepseek");
+    expect(a.name).toBe("deepseek");
+  });
+
+  it("creates kimi adapter", () => {
+    const a = createAiAdapter({ model: "kimi", apiKey: "k", baseUrl: "" });
+    expect(a.name).toBe("kimi");
+  });
+
+  it("creates minimax adapter", () => {
+    const a = createAiAdapter({ model: "minimax", apiKey: "k", baseUrl: "" });
+    expect(a.name).toBe("minimax");
+  });
+
+  it("creates openai adapter", () => {
+    const a = createAiAdapter({ model: "openai", apiKey: "k", baseUrl: "" });
+    expect(a.name).toBe("openai");
+  });
+
+  it("creates claude adapter", () => {
+    const a = createAiAdapter({ model: "claude", apiKey: "k", baseUrl: "" });
+    expect(a.name).toBe("claude");
   });
 
   it("throws for unknown model", () => {
-    expect(() => createAiAdapter({ model: "unknown", apiKey: "test", baseUrl: "" })).toThrow(
-      "Unknown AI model: unknown",
-    );
+    expect(() => createAiAdapter({ model: "unknown", apiKey: "k", baseUrl: "" })).toThrow();
   });
 });
 

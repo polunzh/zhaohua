@@ -1,5 +1,6 @@
 import type Database from "better-sqlite3";
 import { EventEngine } from "../../src/engine/events";
+import { determineWeather } from "../../src/engine/weather";
 import { getTriggeredEventIds, addEventLog } from "../db/queries";
 import type { EventTemplate } from "../../src/data/event-pool";
 
@@ -13,12 +14,14 @@ interface GameTimeInput {
 
 interface TickResult {
   event: EventTemplate | null;
+  weather: string;
 }
 
 export function tick(db: Database.Database, gameTime: GameTimeInput, seed: number): TickResult {
+  const weather = determineWeather(gameTime.season, seed);
   const triggeredIds = getTriggeredEventIds(db);
   const engine = new EventEngine(seed);
-  const event = engine.selectEvent(gameTime as any, triggeredIds);
+  const event = engine.selectEvent(gameTime as any, triggeredIds, weather);
 
   if (event) {
     addEventLog(db, {
@@ -31,5 +34,5 @@ export function tick(db: Database.Database, gameTime: GameTimeInput, seed: numbe
     });
   }
 
-  return { event };
+  return { event, weather };
 }

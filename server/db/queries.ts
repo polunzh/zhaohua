@@ -151,3 +151,32 @@ export function getTriggeredEventIds(db: Database.Database): string[] {
   }[];
   return rows.map((row) => row.event_id);
 }
+
+export interface PlayerChoiceEntry {
+  gameDate: string;
+  gameTime: string;
+  choiceType: string;
+  choiceValue: string;
+  context?: string;
+}
+
+export function savePlayerChoice(db: Database.Database, entry: PlayerChoiceEntry): void {
+  db.prepare(`
+    INSERT INTO player_choices (game_date, game_time, choice_type, choice_value, context)
+    VALUES (?, ?, ?, ?, ?)
+  `).run(
+    entry.gameDate,
+    entry.gameTime,
+    entry.choiceType,
+    entry.choiceValue,
+    entry.context ?? null,
+  );
+}
+
+export function updateNpcAffinity(db: Database.Database, npcId: string, delta: number): void {
+  db.prepare("UPDATE npc_state SET affinity = affinity + ? WHERE npc_id = ?").run(delta, npcId);
+}
+
+export function updateNpcMood(db: Database.Database, npcId: string, mood: string): void {
+  db.prepare("UPDATE npc_state SET mood = ? WHERE npc_id = ?").run(mood, npcId);
+}
