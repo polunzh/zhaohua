@@ -21,6 +21,7 @@ export function handleGetWorld(db: Database.Database) {
       calendarOffset: 0,
       randomSeed: 42,
       anchorRealDate: now.toISOString(),
+      location: "classroom",
     });
   }
 
@@ -56,6 +57,7 @@ export function handleGetWorld(db: Database.Database) {
   return {
     gameTime,
     weather: worldState.weather,
+    location: worldState.location,
     npcs: npcStates,
     events: catchUpResult.summary,
     coarseMode: catchUpResult.coarseMode,

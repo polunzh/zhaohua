@@ -18,6 +18,7 @@ describe("GET /api/world handler", () => {
       calendarOffset: 0,
       randomSeed: 42,
       anchorRealDate: new Date().toISOString(),
+      location: "classroom",
     });
   });
 

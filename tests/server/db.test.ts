@@ -42,6 +42,7 @@ describe("Database", () => {
       calendarOffset: 0,
       randomSeed: 42,
       anchorRealDate: "2026-03-23T00:00:00Z",
+      location: "classroom",
     });
     const state = getWorldState(db);
     expect(state).toBeDefined();

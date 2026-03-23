@@ -10,7 +10,8 @@ export function initSchema(db: Database.Database): void {
       last_visit TEXT NOT NULL,
       calendar_offset INTEGER NOT NULL DEFAULT 0,
       random_seed INTEGER NOT NULL DEFAULT 42,
-      anchor_real_date TEXT
+      anchor_real_date TEXT,
+      location TEXT NOT NULL DEFAULT 'classroom'
     );
     CREATE TABLE IF NOT EXISTS npc_state (
       npc_id TEXT PRIMARY KEY,

@@ -8,6 +8,7 @@ export interface WorldState {
   calendarOffset: number;
   randomSeed: number;
   anchorRealDate: string | null;
+  location: string;
 }
 
 export interface NpcStateRow {
@@ -34,6 +35,7 @@ interface WorldStateRow {
   calendar_offset: number;
   random_seed: number;
   anchor_real_date: string | null;
+  location: string;
 }
 
 interface NpcStateDbRow {
@@ -67,13 +69,14 @@ export function getWorldState(db: Database.Database): WorldState | undefined {
     calendarOffset: row.calendar_offset,
     randomSeed: row.random_seed,
     anchorRealDate: row.anchor_real_date,
+    location: row.location,
   };
 }
 
 export function saveWorldState(db: Database.Database, state: WorldState): void {
   db.prepare(`
-    INSERT INTO world_state (id, game_date, weather, season, last_visit, calendar_offset, random_seed, anchor_real_date)
-    VALUES (1, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO world_state (id, game_date, weather, season, last_visit, calendar_offset, random_seed, anchor_real_date, location)
+    VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(id) DO UPDATE SET
       game_date = excluded.game_date,
       weather = excluded.weather,
@@ -81,7 +84,8 @@ export function saveWorldState(db: Database.Database, state: WorldState): void {
       last_visit = excluded.last_visit,
       calendar_offset = excluded.calendar_offset,
       random_seed = excluded.random_seed,
-      anchor_real_date = excluded.anchor_real_date
+      anchor_real_date = excluded.anchor_real_date,
+      location = excluded.location
   `).run(
     state.gameDate,
     state.weather,
@@ -90,6 +94,7 @@ export function saveWorldState(db: Database.Database, state: WorldState): void {
     state.calendarOffset,
     state.randomSeed,
     state.anchorRealDate,
+    state.location,
   );
 }
 

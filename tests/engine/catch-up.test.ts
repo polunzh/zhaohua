@@ -22,6 +22,7 @@ describe("tick", () => {
       calendarOffset: 0,
       randomSeed: 42,
       anchorRealDate: "2026-03-23T00:00:00Z",
+      location: "classroom",
     });
     const result = tick(
       db,
@@ -45,6 +46,7 @@ describe("performCatchUp", () => {
       calendarOffset: 0,
       randomSeed: 42,
       anchorRealDate: "2026-03-23T00:00:00Z",
+      location: "classroom",
     });
   });
   afterEach(() => db.close());
@@ -64,6 +66,7 @@ describe("performCatchUp", () => {
       calendarOffset: 0,
       randomSeed: 42,
       anchorRealDate: "2026-03-23T00:00:00Z",
+      location: "classroom",
     });
     const result = performCatchUp(db, new Date("2026-03-23T08:00:00Z"));
     expect(result.coarseMode).toBe(true);
@@ -79,6 +82,7 @@ describe("performCatchUp", () => {
       calendarOffset: 0,
       randomSeed: 42,
       anchorRealDate: "2026-03-23T00:00:00Z",
+      location: "classroom",
     });
     const result = performCatchUp(db, new Date("2026-03-23T08:00:00Z"));
     expect(result.summary.length).toBeLessThanOrEqual(20);

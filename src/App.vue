@@ -1,30 +1,55 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import GameCanvas from "./components/GameCanvas.vue";
 import DialogBox from "./components/DialogBox.vue";
 import ChoicePanel from "./components/ChoicePanel.vue";
 import EventSummary from "./components/EventSummary.vue";
 import TimeControls from "./components/TimeControls.vue";
-import { fetchWorldState, skipTime, generateDialogue, submitChoice } from "./api/client";
+import {
+  fetchWorldState,
+  skipTime,
+  generateDialogue,
+  submitChoice,
+  moveToLocation,
+} from "./api/client";
 import type { GameTime } from "./engine/time";
 import type { ClickableArea } from "./scene/scenes";
 import { npcs } from "./data/npcs";
+import { getLocation } from "./data/locations";
 
 const gameTime = ref<GameTime | null>(null);
+const currentScene = ref("classroom");
 const events = ref<{ id: string; description: string }[]>([]);
 const dialogNpc = ref("");
 const dialogText = ref("");
 const dialogLoading = ref(false);
 const choices = ref<{ id: string; label: string }[]>([]);
 const currentNpcId = ref("");
+const currentLocationName = computed(() => {
+  const loc = getLocation(currentScene.value);
+  return loc?.name ?? "";
+});
 
 async function loadWorld() {
   const data = await fetchWorldState();
   gameTime.value = data.gameTime;
   events.value = data.events || [];
+  if (data.location) currentScene.value = data.location;
 }
 
 async function handleAreaClick(area: ClickableArea) {
+  if (area.type === "exit") {
+    const targetId = area.id.replace("exit-", "");
+    // Special case: classroom "door" exit goes to playground
+    const actualTarget = area.id === "door" ? "playground" : targetId;
+    try {
+      await moveToLocation(actualTarget);
+      await loadWorld();
+    } catch {
+      // Cannot move there
+    }
+    return;
+  }
   if (area.type === "npc") {
     const npcId = area.id.replace("desk-", "student-");
     const npc = npcs.find((n) => n.id === npcId);
@@ -80,7 +105,8 @@ onMounted(loadWorld);
 
 <template>
   <div class="game-container">
-    <GameCanvas :game-time="gameTime" @area-click="handleAreaClick" />
+    <div v-if="currentLocationName" class="location-label">{{ currentLocationName }}</div>
+    <GameCanvas :game-time="gameTime" :scene-id="currentScene" @area-click="handleAreaClick" />
     <EventSummary :events="events" />
     <TimeControls :game-time="gameTime" @skip="handleSkip" />
     <ChoicePanel :choices="choices" @choose="handleChoose" />
@@ -112,5 +138,19 @@ body {
   position: relative;
   width: 800px;
   height: 500px;
+}
+
+.location-label {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.6);
+  color: #f5e6d0;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-family: "Noto Serif SC", serif;
+  font-size: 14px;
+  pointer-events: none;
 }
 </style>

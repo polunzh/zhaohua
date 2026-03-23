@@ -7,6 +7,7 @@ import type { GameTime } from "../engine/time";
 
 const props = defineProps<{
   gameTime: GameTime | null;
+  sceneId: string;
 }>();
 
 const emit = defineEmits<{
@@ -25,7 +26,7 @@ onMounted(() => {
 });
 
 watch(
-  () => props.gameTime,
+  () => [props.gameTime, props.sceneId],
   () => {
     if (props.gameTime) renderCurrentScene();
   },
@@ -33,8 +34,9 @@ watch(
 
 function renderCurrentScene() {
   if (!renderer || !props.gameTime) return;
-  const scene = scenes.classroom;
-  const bgKey = getBackgroundKey("classroom", props.gameTime.season, props.gameTime.period);
+  const scene = scenes[props.sceneId];
+  if (!scene) return;
+  const bgKey = getBackgroundKey(props.sceneId, props.gameTime.season, props.gameTime.period);
   renderer.renderScene(scene, `/assets/scenes/${bgKey}.png`);
 }
 

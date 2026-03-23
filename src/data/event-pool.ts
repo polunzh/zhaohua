@@ -5,6 +5,7 @@ export interface EventTemplate {
   seasons?: string[];
   periods?: string[];
   weather?: string[];
+  location?: string;
   description: string;
 }
 
@@ -92,5 +93,48 @@ export const eventPool: EventTemplate[] = [
     type: "daily",
     periods: ["evening"],
     description: "和同事聊了几句明天的课",
+  },
+  {
+    id: "flower-pool-chat",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    location: "flower-pool",
+    description: "在花池边和学生闲聊，月季花开得正好",
+  },
+  {
+    id: "water-tower-queue",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    location: "water-tower",
+    seasons: ["summer"],
+    description: "水塔前排起了长队，学生们边等边打闹",
+  },
+  {
+    id: "playground-flag",
+    type: "daily",
+    periods: ["morning"],
+    location: "playground",
+    description: "升旗仪式，全校学生站得整整齐齐",
+  },
+  {
+    id: "office-prep",
+    type: "daily",
+    periods: ["evening"],
+    location: "office",
+    description: "在办公室备课，翻着教案想明天怎么讲",
+  },
+  {
+    id: "village-road-walk",
+    type: "daily",
+    periods: ["morning", "afternoon"],
+    location: "village-road",
+    description: "走在村路上，远处有人在田里干活",
+  },
+  {
+    id: "market-browse",
+    type: "daily",
+    periods: ["afternoon"],
+    location: "market",
+    description: "集市上人来人往，有卖菜的有卖布的",
   },
 ];

@@ -29,6 +29,7 @@ export class EventEngine {
     gameTime: GameTime,
     triggeredEventIds: string[],
     weather?: string,
+    location?: string,
   ): EventTemplate | null {
     if (gameTime.period === "night") {
       return null;
@@ -44,13 +45,14 @@ export class EventEngine {
       return seasonalMatch;
     }
 
-    // Filter eligible daily events by period and weather
+    // Filter eligible daily events by period, weather, and location
     const eligible = eventPool.filter(
       (e) =>
         e.type === "daily" &&
         !triggeredEventIds.includes(e.id) &&
         (!e.periods || e.periods.includes(gameTime.period)) &&
-        (!e.weather || (weather != null && e.weather.includes(weather))),
+        (!e.weather || (weather != null && e.weather.includes(weather))) &&
+        (!e.location || e.location === location),
     );
 
     if (eligible.length === 0) {

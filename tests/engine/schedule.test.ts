@@ -38,4 +38,57 @@ describe("NPC Schedule", () => {
       expect(entry.location).toBe("home");
     }
   });
+
+  // --- New role schedule tests ---
+
+  it("teacher-colleague is in classroom during class hours", () => {
+    const colleague = npcs.find((n) => n.role === "teacher-colleague")!;
+    expect(colleague).toBeDefined();
+    const entry = getScheduleEntry(colleague, 9, 0, "weekday");
+    expect(entry.location).toBe("classroom");
+    expect(entry.activity).toBe("co-teaching");
+  });
+
+  it("teacher-colleague is in office during break", () => {
+    const colleague = npcs.find((n) => n.role === "teacher-colleague")!;
+    const entry = getScheduleEntry(colleague, 10, 0, "weekday");
+    expect(entry.location).toBe("office");
+    expect(entry.activity).toBe("break");
+  });
+
+  it("parent is at farmland during farming months", () => {
+    const parent = npcs.find((n) => n.role === "parent")!;
+    expect(parent).toBeDefined();
+    // May is a farming month (Apr-Jun)
+    const entry = getScheduleEntry(parent, 10, 0, "weekday", "spring", 5);
+    expect(entry.location).toBe("farmland");
+  });
+
+  it("parent may visit school in off-months afternoon", () => {
+    const parent = npcs.find((n) => n.role === "parent")!;
+    // December is an off-month, afternoon time
+    const entry = getScheduleEntry(parent, 15, 0, "weekday", "winter", 12);
+    // In off-months afternoon, parent could be at classroom/office or home
+    expect(["classroom", "office", "home"]).toContain(entry.location);
+  });
+
+  it("shopkeeper is at market during business hours", () => {
+    const shopkeeper = npcs.find((n) => n.role === "shopkeeper")!;
+    expect(shopkeeper).toBeDefined();
+    const entry = getScheduleEntry(shopkeeper, 12, 0, "weekday");
+    expect(entry.location).toBe("market");
+    expect(entry.activity).toBe("selling");
+  });
+
+  it("shopkeeper is at home before business hours", () => {
+    const shopkeeper = npcs.find((n) => n.role === "shopkeeper")!;
+    const entry = getScheduleEntry(shopkeeper, 6, 0, "weekday");
+    expect(entry.location).toBe("home");
+  });
+
+  it("shopkeeper is at home after business hours", () => {
+    const shopkeeper = npcs.find((n) => n.role === "shopkeeper")!;
+    const entry = getScheduleEntry(shopkeeper, 19, 0, "weekday");
+    expect(entry.location).toBe("home");
+  });
 });
