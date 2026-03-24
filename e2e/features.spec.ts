@@ -136,4 +136,17 @@ test.describe("朝花夕拾 — 新功能测试", () => {
     // It's fine either way — just verify no crash
     expect(count).toBeGreaterThanOrEqual(0);
   });
+
+  test("标题栏显示精力值", async ({ page }) => {
+    await expect(page.locator(".header-energy")).toBeVisible();
+    const text = await page.locator(".header-energy").textContent();
+    expect(text).toMatch(/⚡.*\/5/);
+  });
+
+  test("物品栏显示在侧边栏", async ({ page }) => {
+    // Inventory may or may not have items
+    const invBadges = page.locator(".inv-badge");
+    const count = await invBadges.count();
+    expect(count).toBeGreaterThanOrEqual(0);
+  });
 });

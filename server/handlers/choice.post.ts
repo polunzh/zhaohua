@@ -22,10 +22,12 @@ interface ChoiceParams {
 }
 
 export function handleChoice(db: Database.Database, params: ChoiceParams) {
-  // Use energy for this interaction
-  const hasEnergy = useEnergy(db, params.gameDate);
-  if (!hasEnergy) {
-    return { ok: false, noEnergy: true, effect: { affinityDelta: 0, mood: "neutral" } };
+  // Use energy for this interaction (apologize is free)
+  if (params.choiceId !== "apologize") {
+    const hasEnergy = useEnergy(db, params.gameDate);
+    if (!hasEnergy) {
+      return { ok: false, noEnergy: true, effect: { affinityDelta: 0, mood: "neutral" } };
+    }
   }
 
   const effect = getChoiceEffect(params.choiceId, params.npcRole || "", params.location || "");

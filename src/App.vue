@@ -25,6 +25,7 @@ import { npcs } from "./data/npcs";
 import { getInteractionChoices } from "./data/interactions";
 import { getGatedChoices, getRefusalText } from "./engine/affinity-gate";
 import { generateSceneDescription } from "./engine/scene-descriptions";
+import { checkDiscovery } from "./data/discoveries";
 import { classroomMap } from "./tilemap/maps/classroom";
 import { officeMap } from "./tilemap/maps/office";
 import { playgroundMap } from "./tilemap/maps/playground";
@@ -103,6 +104,7 @@ const seasonMap: Record<string, string> = {
   autumn: "秋",
   winter: "冬",
 };
+const discoveredIds = ref<string[]>([]);
 const showMissionComplete = ref(false);
 const showLocationName = ref(false);
 const locationLabel = ref("");
@@ -252,6 +254,25 @@ async function handleNavigate(locationId: string) {
 
   await moveToLocation(locationId);
   await loadWorld();
+
+  // Check for discovery at new location
+  if (gameTime.value) {
+    const found = checkDiscovery(
+      locationId,
+      gameTime.value.period,
+      gameTime.value.season,
+      discoveredIds.value,
+    );
+    if (found) {
+      discoveredIds.value.push(found.id);
+      dialogNpc.value = "";
+      dialogText.value = found.description;
+      showToast("✨ 发现了什么！", "success");
+      setTimeout(() => {
+        if (dialogText.value === found.description) dialogText.value = "";
+      }, 4000);
+    }
+  }
 
   // Fade in + location announcement
   sceneFading.value = false;
@@ -584,6 +605,7 @@ onMounted(async () => {
     :story-progress="briefingData.storyProgress || []"
     :stats="briefingData.stats || null"
     :exam-results="briefingData.examResults || []"
+    :weekly-summary="briefingData.weeklySummary || null"
     :conflict="briefingData.conflict || null"
     :inventory="briefingData.inventory || []"
     @start="handleStartGame"

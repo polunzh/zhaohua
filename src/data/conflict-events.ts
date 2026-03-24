@@ -151,11 +151,11 @@ export function checkConflictEvent(
   season: string,
   lastConflictDates: Record<string, string>,
 ): ConflictEvent | null {
-  // Hash-based 20% daily chance
+  // Hash-based ~14% daily chance
   let hash = 0;
   for (let i = 0; i < gameDate.length; i++)
     hash = ((hash << 5) - hash + gameDate.charCodeAt(i)) | 0;
-  if (Math.abs(hash) % 5 !== 0) return null;
+  if (Math.abs(hash) % 7 !== 0) return null;
 
   const eligible = conflictEvents.filter((e) => {
     if (e.seasons && !e.seasons.includes(season)) return false;

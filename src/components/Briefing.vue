@@ -24,6 +24,7 @@ const props = defineProps<{
     giftsReceived?: number;
   } | null;
   examResults?: { npcId: string; name: string; score: number; grade: string; change: string }[];
+  weeklySummary?: string | null;
   conflict?: {
     id: string;
     title: string;
@@ -85,6 +86,12 @@ const itemIcons: Record<string, string> = {
             {{ c.label }}
           </button>
         </div>
+      </div>
+
+      <!-- 0a. Weekly summary -->
+      <div class="briefing-section" v-if="weeklySummary">
+        <h3>📅 本周回顾</h3>
+        <p class="weekly-summary">{{ weeklySummary }}</p>
       </div>
 
       <!-- 0b. Exam results -->
@@ -392,5 +399,13 @@ h3 {
 }
 .inv-item {
   white-space: nowrap;
+}
+.weekly-summary {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #5c6b7a;
+  padding: 6px 8px;
+  background: rgba(212, 192, 142, 0.2);
+  border-radius: 4px;
 }
 </style>

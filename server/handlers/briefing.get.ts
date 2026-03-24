@@ -17,6 +17,7 @@ import { storyArcs } from "../../src/data/stories";
 import { processMissionFailure } from "../engine/mission-failure";
 import { runExams } from "../engine/exams";
 import { checkConflictEvent } from "../../src/data/conflict-events";
+import { generateWeeklySummary } from "../engine/weekly-summary";
 
 function addDays(dateStr: string, days: number): string {
   const d = new Date(dateStr + "T00:00:00");
@@ -100,6 +101,9 @@ export function handleGetBriefing(db: Database.Database) {
   // Run exams if applicable
   const examResults = runExams(db, worldStateAfter.gameDate);
 
+  // Generate weekly summary if applicable
+  const weeklySummary = generateWeeklySummary(db, worldStateAfter.gameDate);
+
   // Check for conflict event
   const conflictLastDates: Record<string, string> = {};
   const conflictLogs = db
@@ -165,6 +169,7 @@ export function handleGetBriefing(db: Database.Database) {
         }
       : null,
     examResults,
+    weeklySummary,
     conflict: conflict
       ? {
           id: conflict.id,
