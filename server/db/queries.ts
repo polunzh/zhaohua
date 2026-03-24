@@ -323,6 +323,97 @@ export function getRelationships(db: Database.Database, npcId: string): Relation
   }));
 }
 
+// --- Todos ---
+
+export interface TodoRow {
+  id: number;
+  type: string;
+  title: string;
+  description: string;
+  npcId: string | null;
+  priority: string;
+  status: string;
+  createdDate: string;
+  deadlineDate: string | null;
+}
+
+export interface TodoInput {
+  type: string;
+  title: string;
+  description: string;
+  npcId: string | null;
+  priority: string;
+  createdDate: string;
+  deadlineDate: string | null;
+}
+
+interface TodoDbRow {
+  id: number;
+  type: string;
+  title: string;
+  description: string;
+  npc_id: string | null;
+  priority: string;
+  status: string;
+  created_date: string;
+  deadline_date: string | null;
+  completed_date: string | null;
+  created_at: string;
+}
+
+function mapTodoRow(row: TodoDbRow): TodoRow {
+  return {
+    id: row.id,
+    type: row.type,
+    title: row.title,
+    description: row.description,
+    npcId: row.npc_id,
+    priority: row.priority,
+    status: row.status,
+    createdDate: row.created_date,
+    deadlineDate: row.deadline_date,
+  };
+}
+
+export function addTodo(db: Database.Database, input: TodoInput): void {
+  db.prepare(`
+    INSERT INTO todos (type, title, description, npc_id, priority, created_date, deadline_date)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    input.type,
+    input.title,
+    input.description,
+    input.npcId,
+    input.priority,
+    input.createdDate,
+    input.deadlineDate,
+  );
+}
+
+export function getTodos(db: Database.Database): TodoRow[] {
+  const rows = db.prepare("SELECT * FROM todos ORDER BY id DESC").all() as TodoDbRow[];
+  return rows.map(mapTodoRow);
+}
+
+export function getPendingTodos(db: Database.Database): TodoRow[] {
+  const rows = db
+    .prepare("SELECT * FROM todos WHERE status = 'pending' ORDER BY id DESC")
+    .all() as TodoDbRow[];
+  return rows.map(mapTodoRow);
+}
+
+export function completeTodo(db: Database.Database, id: number): void {
+  db.prepare("UPDATE todos SET status = 'done', completed_date = datetime('now') WHERE id = ?").run(
+    id,
+  );
+}
+
+export function expireTodos(db: Database.Database, currentDate: string): void {
+  db.prepare(
+    "UPDATE todos SET status = 'expired' WHERE status = 'pending' AND deadline_date < ?",
+  ).run(currentDate);
+}
+
 // --- Mail ---
 
 export interface MailRow {
@@ -398,6 +489,22 @@ export function getPendingMail(db: Database.Database): MailRow[] {
 export function getMailInTransit(db: Database.Database): MailRow[] {
   const rows = db.prepare("SELECT * FROM mail WHERE status = 'in-transit'").all() as MailDbRow[];
   return rows.map(toMailRow);
+}
+
+export function getRecentChoices(db: Database.Database, fromDate: string, toDate: string) {
+  return db
+    .prepare(
+      "SELECT * FROM player_choices WHERE game_date >= ? AND game_date <= ? AND choice_type = 'npc-interaction' ORDER BY id",
+    )
+    .all(fromDate, toDate)
+    .map((row: any) => ({
+      id: row.id as number,
+      gameDate: row.game_date as string,
+      gameTime: row.game_time as string,
+      choiceType: row.choice_type as string,
+      choiceValue: row.choice_value as string,
+      context: row.context as string | null,
+    }));
 }
 
 export function updateMailStatus(

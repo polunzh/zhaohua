@@ -53,6 +53,19 @@ export function initSchema(db: Database.Database): void {
       started_date TEXT NOT NULL,
       data TEXT DEFAULT '{}'
     );
+    CREATE TABLE IF NOT EXISTS todos (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT NOT NULL,
+      title TEXT NOT NULL,
+      description TEXT DEFAULT '',
+      npc_id TEXT,
+      priority TEXT NOT NULL DEFAULT 'normal',
+      status TEXT NOT NULL DEFAULT 'pending',
+      created_date TEXT NOT NULL,
+      deadline_date TEXT,
+      completed_date TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
     CREATE TABLE IF NOT EXISTS mail (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       type TEXT NOT NULL,
