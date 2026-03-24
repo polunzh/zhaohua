@@ -511,7 +511,7 @@ onMounted(async () => {
     <div class="transition-text">{{ transitionText }}</div>
   </div>
 
-  <Toast :message="toastMessage" :type="toastType" />
+  <Toast :message="toastMessage" :type="toastType" role="status" aria-live="polite" />
 
   <Briefing
     v-if="showBriefing && briefingData"
@@ -525,7 +525,7 @@ onMounted(async () => {
     :stats="briefingData.stats || null"
     @start="handleStartGame"
   />
-  <div class="game-layout">
+  <div class="game-layout" lang="zh-CN">
     <div class="game-header">
       <span class="game-title">朝花夕拾</span>
       <span v-if="gameTime" class="header-info">
@@ -580,7 +580,7 @@ onMounted(async () => {
         />
       </div>
     </div>
-    <div class="dialog-area">
+    <div class="dialog-area" role="dialog" aria-live="polite">
       <template v-if="dialogNpc || dialogLoading">
         <DialogBox
           :npc-name="dialogNpc"

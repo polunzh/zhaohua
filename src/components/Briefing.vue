@@ -40,7 +40,7 @@ const hasRecap = computed(
 </script>
 
 <template>
-  <div class="briefing-overlay">
+  <div class="briefing-overlay" role="dialog" aria-modal="true">
     <div class="briefing-panel">
       <div class="briefing-decoration"></div>
       <h2>{{ offlineText }}</h2>
@@ -266,7 +266,7 @@ h3 {
   font-family: "Noto Serif SC", serif;
   cursor: pointer;
   letter-spacing: 2px;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 .start-btn:hover {
   background: #a05a54;

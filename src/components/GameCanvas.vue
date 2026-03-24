@@ -1603,16 +1603,30 @@ onMounted(() => {
 });
 
 watch(
-  () => [props.mapData, props.npcs, props.currentScene, props.season],
+  () => [props.currentScene, props.season, props.mapData],
   () => {
     render();
   },
-  { deep: true },
+);
+
+// Separate lighter watch for NPC count changes (less frequent)
+watch(
+  () => props.npcs.length,
+  () => {
+    render();
+  },
 );
 </script>
 
 <template>
-  <canvas ref="canvasRef" class="game-canvas" @click="handleClick" @mousemove="handleMouseMove" />
+  <canvas
+    ref="canvasRef"
+    class="game-canvas"
+    role="img"
+    aria-label="游戏场景"
+    @click="handleClick"
+    @mousemove="handleMouseMove"
+  />
 </template>
 
 <style scoped>
@@ -1620,7 +1634,6 @@ watch(
   display: block;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  cursor: pointer;
   width: 100%;
   height: 100%;
   object-fit: contain;

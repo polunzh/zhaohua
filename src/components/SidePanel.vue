@@ -319,7 +319,7 @@ const ambientText = computed(() => {
   flex: 1;
   background: #d4c08e;
   border: 1px solid #6b5b4e;
-  border-radius: 2px;
+  border-radius: 3px;
   font-size: 9px;
   padding: 2px;
   cursor: pointer;
@@ -365,8 +365,8 @@ const ambientText = computed(() => {
   border-radius: 3px;
   margin-bottom: 3px;
   transition:
-    background 0.12s ease,
-    color 0.12s ease;
+    background 0.15s ease,
+    color 0.15s ease;
 }
 .nav-item:hover {
   color: #f5e6c8;
@@ -380,7 +380,7 @@ const ambientText = computed(() => {
   flex: 1;
   background: #d4c08e;
   border: 1px solid #6b5b4e;
-  border-radius: 2px;
+  border-radius: 3px;
   padding: 4px;
   font-size: 10px;
   cursor: pointer;
