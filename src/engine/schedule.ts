@@ -34,9 +34,13 @@ function getStudentSchedule(time: number, season?: string): ScheduleEntry {
   if (time < timeToMinutes(12, 0)) {
     return { location: "classroom", activity: "in-class" };
   }
-  // 12:00-13:59 — home for lunch
-  if (time < timeToMinutes(14, 0)) {
+  // 12:00-13:29 — home for lunch (回家吃饭)
+  if (time < timeToMinutes(13, 30)) {
     return { location: "home", activity: "lunch" };
+  }
+  // 13:30-13:59 — road back to school
+  if (time < timeToMinutes(14, 0)) {
+    return { location: "road", activity: "walking-to-school" };
   }
   // 14:00-15:44 — class
   if (time < timeToMinutes(15, 45)) {

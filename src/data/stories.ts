@@ -39,18 +39,18 @@ export const storyArcs: StoryArc[] = [
   {
     id: "love-learning",
     name: "厌学到爱学",
-    description: "朱鹏从不爱上学到慢慢喜欢学习",
+    description: "朱小龙从不爱上学到慢慢喜欢学习",
     startCondition: { afterGameDate: "1994-09-15" },
     stages: [
       {
         id: "stage-1",
-        description: "朱鹏上课总是走神，趴在桌上不听讲",
+        description: "朱小龙上课总是走神，趴在桌上不听讲",
         triggerConditions: {},
         nextStage: "stage-2",
       },
       {
         id: "stage-2",
-        description: "你发现朱鹏其实对课本上的故事很感兴趣",
+        description: "你发现朱小龙其实对课本上的故事很感兴趣",
         triggerConditions: { minDaysSinceLastStage: 7 },
         branches: [
           {
@@ -62,19 +62,19 @@ export const storyArcs: StoryArc[] = [
       },
       {
         id: "stage-3a",
-        description: "朱鹏开始主动问问题了，虽然还是有些害羞",
+        description: "朱小龙开始主动问问题了，虽然还是有些害羞",
         triggerConditions: { minDaysSinceLastStage: 14 },
         nextStage: "stage-4",
       },
       {
         id: "stage-3b",
-        description: "朱鹏还是不太愿意说话，但至少不再趴着了",
+        description: "朱小龙还是不太愿意说话，但至少不再趴着了",
         triggerConditions: { minDaysSinceLastStage: 14 },
         nextStage: "stage-4",
       },
       {
         id: "stage-4",
-        description: "期末考试，朱鹏的成绩进步了不少",
+        description: "期末考试，朱小龙的成绩进步了不少",
         triggerConditions: { minDaysSinceLastStage: 30 },
         isFinal: true,
       },

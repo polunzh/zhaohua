@@ -72,7 +72,7 @@ describe("Database", () => {
       gameTime: "08:15",
       type: "daily",
       involvedNpcs: "student-zhang-wei",
-      description: "张伟迟到了",
+      description: "张志强迟到了",
     });
     addEventLog(db, {
       eventId: "homework-missing",

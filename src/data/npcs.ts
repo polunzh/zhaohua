@@ -16,7 +16,7 @@ export interface NPC {
 export const npcs: NPC[] = [
   {
     id: "student-zhang-wei",
-    name: "张伟",
+    name: "张志强",
     role: "student",
     personality: "调皮好动，成绩一般，但很讲义气",
     age: 10,
@@ -44,14 +44,14 @@ export const npcs: NPC[] = [
   },
   {
     id: "student-zhao-na",
-    name: "赵娜",
+    name: "赵春燕",
     role: "student",
     personality: "爱画画，课本上全是涂鸦，成绩中等",
     age: 10,
   },
   {
     id: "student-zhu-peng",
-    name: "朱鹏",
+    name: "朱小龙",
     role: "student",
     personality: "家里穷但很努力，冬天手上都是冻疮",
     age: 9,
@@ -67,14 +67,14 @@ export const npcs: NPC[] = [
     id: "parent-gao",
     name: "高大爷",
     role: "parent",
-    personality: "张伟的爷爷，农忙时不来，农闲时常来学校",
+    personality: "张志强的爷爷，农忙时不来，农闲时常来学校",
     age: 65,
   },
   {
     id: "parent-tian",
     name: "田婶",
     role: "parent",
-    personality: "朱鹏的妈妈，在外打工偶尔回来",
+    personality: "朱小龙的妈妈，在外打工偶尔回来",
     age: 35,
   },
   {
