@@ -29,6 +29,20 @@ const weatherNames: Record<string, string> = {
   snowy: "❄ 雪",
   windy: "🌬 风",
 };
+const locationNames: Record<string, string> = {
+  classroom: "教室",
+  office: "办公室",
+  playground: "操场",
+  "flower-pool": "花池",
+  "water-tower": "水塔",
+  "village-road": "村路",
+  farmland: "农田",
+  "villager-house": "村民家",
+  "town-road": "镇上",
+  "post-office": "邮局",
+  market: "集市",
+  clinic: "卫生所",
+};
 </script>
 
 <template>
@@ -51,12 +65,30 @@ const weatherNames: Record<string, string> = {
       </div>
     </div>
 
-    <!-- Events -->
-    <div class="panel-section events-section" v-if="events.length">
-      <div class="panel-title">📋 最近</div>
-      <div class="event-item" v-for="e in events.slice(0, 8)" :key="e.id">
-        · {{ e.description }}
+    <!-- Current Location -->
+    <div class="panel-section">
+      <div class="panel-title">📍 当前位置</div>
+      <div class="panel-text location-name">
+        {{ locationNames[currentScene] || currentScene }}
       </div>
+    </div>
+
+    <!-- Events -->
+    <div class="panel-section events-section">
+      <div class="panel-title">📋 你不在时……</div>
+      <template v-if="events.length">
+        <div class="event-item" v-for="e in events.slice(0, 8)" :key="e.id">
+          · {{ e.description }}
+        </div>
+      </template>
+      <div v-else class="event-item hint">一切如常，没什么特别的事。</div>
+    </div>
+
+    <!-- Tips -->
+    <div class="panel-section">
+      <div class="panel-title">💡 提示</div>
+      <div class="event-item hint">点击场景中的人物可以对话</div>
+      <div class="event-item hint">点击门或出口可以换地方</div>
     </div>
 
     <!-- Navigation -->
@@ -146,6 +178,15 @@ const weatherNames: Record<string, string> = {
   font-size: 10px;
   line-height: 1.5;
   color: #5c6b7a;
+}
+.event-item.hint {
+  color: #a8b8b0;
+  font-style: italic;
+}
+.location-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #6b5b4e;
 }
 .nav-item {
   font-size: 11px;

@@ -174,7 +174,6 @@ onMounted(loadWorld);
         @skip="handleSkip"
       />
       <div class="canvas-area">
-        <div class="scene-label">📍 {{ currentScene }}</div>
         <GameCanvas
           :map-data="currentMapData"
           :npcs="visibleNpcs"
@@ -218,7 +217,7 @@ body {
 }
 
 .game-layout {
-  width: 720px;
+  max-width: 95vw;
   background: #f5e6c8;
   border: 3px solid #6b5b4e;
   border-radius: 4px;
@@ -227,23 +226,17 @@ body {
 
 .game-main {
   display: flex;
-  height: 420px;
+  min-height: 400px;
 }
 
 .canvas-area {
   flex: 1;
   position: relative;
   background: #3a3530;
-  overflow: hidden;
-}
-
-.scene-label {
-  position: absolute;
-  top: 4px;
-  left: 8px;
-  font-size: 10px;
-  color: #d4c08e;
-  z-index: 1;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .dialog-area {

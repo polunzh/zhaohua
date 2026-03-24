@@ -591,10 +591,12 @@ function render() {
   const ctx = canvasRef.value.getContext("2d")!;
   engine = new TileMapEngine(props.mapData);
 
-  const w = props.mapData.width * TILE_SIZE;
-  const h = props.mapData.height * TILE_SIZE;
+  const SCALE = 2; // 2x pixel scaling for crisp rendering
+  const w = props.mapData.width * TILE_SIZE * SCALE;
+  const h = props.mapData.height * TILE_SIZE * SCALE;
   canvasRef.value.width = w;
   canvasRef.value.height = h;
+  ctx.scale(SCALE, SCALE);
 
   // Clear
   ctx.fillStyle = "#D4C08E";
@@ -634,7 +636,8 @@ function render() {
     // For now, just draw at a default position
   }
 
-  // Apply nostalgic filter
+  // Apply nostalgic filter (operates on actual pixel buffer)
+  ctx.setTransform(1, 0, 0, 1, 0, 0); // reset scale for pixel operations
   const imageData = ctx.getImageData(0, 0, w, h);
   applyColorGrading(imageData.data);
   ctx.putImageData(imageData, 0, 0);
@@ -650,11 +653,13 @@ function render() {
 function handleClick(e: MouseEvent) {
   if (!canvasRef.value || !engine || !props.mapData) return;
   const rect = canvasRef.value.getBoundingClientRect();
-  const scaleX = canvasRef.value.width / rect.width;
-  const scaleY = canvasRef.value.height / rect.height;
-  const px = (e.clientX - rect.left) * scaleX;
-  const py = (e.clientY - rect.top) * scaleY;
-  const { tileX, tileY } = engine.pixelToTile(px, py);
+  // Convert click position to tile coordinates (accounting for CSS scaling and 2x render scale)
+  const cssToCanvasX = canvasRef.value.width / rect.width;
+  const cssToCanvasY = canvasRef.value.height / rect.height;
+  const canvasX = (e.clientX - rect.left) * cssToCanvasX;
+  const canvasY = (e.clientY - rect.top) * cssToCanvasY;
+  // Divide by 2 because canvas is rendered at 2x scale
+  const { tileX, tileY } = engine.pixelToTile(canvasX / 2, canvasY / 2);
 
   // Check NPC click
   for (const npc of props.npcs) {
@@ -694,9 +699,10 @@ watch(
 <style scoped>
 .game-canvas {
   display: block;
-  width: 100%;
-  height: 100%;
   image-rendering: pixelated;
+  image-rendering: crisp-edges;
   cursor: pointer;
+  max-width: 100%;
+  max-height: 100%;
 }
 </style>
