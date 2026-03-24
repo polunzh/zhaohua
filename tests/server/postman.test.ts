@@ -46,7 +46,7 @@ describe("Postman", () => {
     addMail(db, {
       type: "letter",
       sender: "远方的儿子",
-      recipientNpc: "parent-wang",
+      recipientNpc: "parent-gao",
       origin: "city",
       destination: "villager-house",
       content: "一封家信",
@@ -60,7 +60,7 @@ describe("Postman", () => {
     addMail(db, {
       type: "letter",
       sender: "报社",
-      recipientNpc: "parent-wang",
+      recipientNpc: "parent-gao",
       origin: "town",
       destination: "villager-house",
       content: "报纸",

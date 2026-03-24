@@ -441,7 +441,7 @@ export const eventPool: EventTemplate[] = [
     periods: ["afternoon"],
     character: "postman",
     location: "market",
-    description: "在刘叔的小卖部歇歇脚，喝碗水",
+    description: "在马叔的小卖部歇歇脚，喝碗水",
   },
   {
     id: "heavy-package",

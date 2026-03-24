@@ -55,12 +55,12 @@ describe("Database", () => {
 
   it("saves and reads NPC state", () => {
     saveNpcState(db, {
-      npcId: "student-xiaoming",
+      npcId: "student-zhiqiang",
       location: "classroom",
       mood: "happy",
       affinity: 50,
     });
-    const state = getNpcState(db, "student-xiaoming");
+    const state = getNpcState(db, "student-zhiqiang");
     expect(state!.mood).toBe("happy");
     expect(state!.affinity).toBe(50);
   });
@@ -71,16 +71,16 @@ describe("Database", () => {
       gameDate: "1994-09-15",
       gameTime: "08:15",
       type: "daily",
-      involvedNpcs: "student-xiaoming",
-      description: "小明迟到了",
+      involvedNpcs: "student-zhiqiang",
+      description: "志强迟到了",
     });
     addEventLog(db, {
       eventId: "homework-missing",
       gameDate: "1994-09-15",
       gameTime: "09:00",
       type: "daily",
-      involvedNpcs: "student-xiaohua",
-      description: "小花没交作业",
+      involvedNpcs: "student-xiuqin",
+      description: "秀芹没交作业",
     });
     const recent = getRecentEvents(db, 20);
     expect(recent).toHaveLength(2);

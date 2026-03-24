@@ -12,67 +12,67 @@ export const SPRITE_HEIGHT = 32;
 
 // NPC sprite configs — each NPC has distinct colors
 export const npcSpriteConfigs: Record<string, SpriteConfig> = {
-  "student-xiaoming": {
+  "student-zhiqiang": {
     hairColor: "#3a3530",
     bodyColor: "#C4706A",
     legColor: "#5C6B7A",
     skinColor: "#C9A882",
   },
-  "student-xiaohua": {
+  "student-xiuqin": {
     hairColor: "#3a3530",
     bodyColor: "#7A9178",
     legColor: "#5C6B7A",
     skinColor: "#C9A882",
   },
-  "student-dapeng": {
+  "student-jianjun": {
     hairColor: "#3a3530",
     bodyColor: "#5C6B7A",
     legColor: "#6B5B4E",
     skinColor: "#C9A882",
   },
-  "student-meimei": {
+  "student-chunyan": {
     hairColor: "#6B5B4E",
     bodyColor: "#d88a84",
     legColor: "#5C6B7A",
     skinColor: "#C9A882",
   },
-  "student-tiezhu": {
+  "student-shuanzhu": {
     hairColor: "#3a3530",
     bodyColor: "#8B6914",
     legColor: "#6B5B4E",
     skinColor: "#C9A882",
   },
-  "principal-zhang": {
+  "principal-sun": {
     hairColor: "#A8B8B0",
     bodyColor: "#3a3530",
     legColor: "#3a3530",
     skinColor: "#C9A882",
   },
-  "colleague-li": {
+  "colleague-zhou": {
     hairColor: "#3a3530",
     bodyColor: "#e0a0d0",
     legColor: "#5C6B7A",
     skinColor: "#C9A882",
   },
-  "parent-wang": {
+  "parent-gao": {
     hairColor: "#A8B8B0",
     bodyColor: "#6B5B4E",
     legColor: "#6B5B4E",
     skinColor: "#C9A882",
   },
-  "parent-zhao": {
+  "parent-tian": {
     hairColor: "#3a3530",
     bodyColor: "#C4706A",
     legColor: "#6B5B4E",
     skinColor: "#C9A882",
   },
-  "shopkeeper-liu": {
+  "shopkeeper-ma": {
     hairColor: "#6B5B4E",
     bodyColor: "#D4C08E",
     legColor: "#6B5B4E",
     skinColor: "#C9A882",
   },
-  "postman-chen": {
+  "postman-he": {
     hairColor: "#3a3530",
     bodyColor: "#5a7a58",
     legColor: "#3a3530",

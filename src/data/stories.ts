@@ -39,22 +39,22 @@ export const storyArcs: StoryArc[] = [
   {
     id: "love-learning",
     name: "厌学到爱学",
-    description: "铁柱从不爱上学到慢慢喜欢学习",
+    description: "栓柱从不爱上学到慢慢喜欢学习",
     startCondition: { afterGameDate: "1994-09-15" },
     stages: [
       {
         id: "stage-1",
-        description: "铁柱上课总是走神，趴在桌上不听讲",
+        description: "栓柱上课总是走神，趴在桌上不听讲",
         triggerConditions: {},
         nextStage: "stage-2",
       },
       {
         id: "stage-2",
-        description: "你发现铁柱其实对课本上的故事很感兴趣",
+        description: "你发现栓柱其实对课本上的故事很感兴趣",
         triggerConditions: { minDaysSinceLastStage: 7 },
         branches: [
           {
-            condition: { type: "affinity", npcId: "student-tiezhu", minValue: 60 },
+            condition: { type: "affinity", npcId: "student-shuanzhu", minValue: 60 },
             nextStageId: "stage-3a",
           },
         ],
@@ -62,19 +62,19 @@ export const storyArcs: StoryArc[] = [
       },
       {
         id: "stage-3a",
-        description: "铁柱开始主动问问题了，虽然还是有些害羞",
+        description: "栓柱开始主动问问题了，虽然还是有些害羞",
         triggerConditions: { minDaysSinceLastStage: 14 },
         nextStage: "stage-4",
       },
       {
         id: "stage-3b",
-        description: "铁柱还是不太愿意说话，但至少不再趴着了",
+        description: "栓柱还是不太愿意说话，但至少不再趴着了",
         triggerConditions: { minDaysSinceLastStage: 14 },
         nextStage: "stage-4",
       },
       {
         id: "stage-4",
-        description: "期末考试，铁柱的成绩进步了不少",
+        description: "期末考试，栓柱的成绩进步了不少",
         triggerConditions: { minDaysSinceLastStage: 30 },
         isFinal: true,
       },
@@ -83,18 +83,18 @@ export const storyArcs: StoryArc[] = [
   {
     id: "waiting-letter",
     name: "等信",
-    description: "王大爷一直在等远方儿子的来信",
+    description: "高大爷一直在等远方儿子的来信",
     startCondition: { afterGameDate: "1994-10-01" },
     stages: [
       {
         id: "stage-1",
-        description: "王大爷又来学校门口问有没有他的信",
+        description: "高大爷又来学校门口问有没有他的信",
         triggerConditions: {},
         nextStage: "stage-2",
       },
       {
         id: "stage-2",
-        description: "已经两个月没有儿子的消息了，王大爷有些焦虑",
+        description: "已经两个月没有儿子的消息了，高大爷有些焦虑",
         triggerConditions: { minDaysSinceLastStage: 14 },
         nextStage: "stage-3",
       },
@@ -106,7 +106,7 @@ export const storyArcs: StoryArc[] = [
       },
       {
         id: "stage-4",
-        description: "王大爷拿着信在村口的大树下看了又看，眼眶红红的",
+        description: "高大爷拿着信在村口的大树下看了又看，眼眶红红的",
         triggerConditions: { minDaysSinceLastStage: 1 },
         isFinal: true,
       },
@@ -115,18 +115,18 @@ export const storyArcs: StoryArc[] = [
   {
     id: "repair-classroom",
     name: "修教室",
-    description: "张校长争取经费修教室",
+    description: "孙校长争取经费修教室",
     startCondition: { afterGameDate: "1994-11-01" },
     stages: [
       {
         id: "stage-1",
-        description: "下雨天教室漏水了，张校长拿盆接水",
+        description: "下雨天教室漏水了，孙校长拿盆接水",
         triggerConditions: {},
         nextStage: "stage-2",
       },
       {
         id: "stage-2",
-        description: "张校长写了好几封信给教育局申请维修经费",
+        description: "孙校长写了好几封信给教育局申请维修经费",
         triggerConditions: { minDaysSinceLastStage: 14 },
         nextStage: "stage-3",
       },
@@ -144,7 +144,7 @@ export const storyArcs: StoryArc[] = [
       },
       {
         id: "stage-5",
-        description: "教室修好了，张校长站在新刷的墙前笑了",
+        description: "教室修好了，孙校长站在新刷的墙前笑了",
         triggerConditions: { minDaysSinceLastStage: 14 },
         isFinal: true,
       },

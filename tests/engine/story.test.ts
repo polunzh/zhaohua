@@ -53,7 +53,7 @@ describe("Story System", () => {
     processStories(db, "1994-09-28", "09:00"); // advance to stage-2
     // Set high affinity for tiezhu
     saveNpcState(db, {
-      npcId: "student-tiezhu",
+      npcId: "student-shuanzhu",
       location: "classroom",
       mood: "neutral",
       affinity: 70,
