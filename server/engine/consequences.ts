@@ -6,7 +6,9 @@ import {
   updateNpcMood,
   addEventLog,
   saveNpcState,
+  setNpcLocationOverride,
 } from "../db/queries";
+import { npcs } from "../../src/data/npcs";
 
 interface ConsequenceResult {
   type: "positive" | "negative";
@@ -88,6 +90,36 @@ export function processConsequences(db: Database.Database, gameDate: string): Co
       description,
     });
 
+    // Enhanced visible consequences for students
+    if (npcId.startsWith("student-")) {
+      const npcDef = npcs.find((n) => n.id === npcId);
+      const displayName = npcDef?.name || npcName;
+
+      if (!isPositive) {
+        // Student skips school after criticism — set location override to home
+        const homeLocation = getNpcHome(npcId);
+        setNpcLocationOverride(db, npcId, homeLocation, gameDate);
+        addEventLog(db, {
+          eventId: `skip-school-${choice.id}`,
+          gameDate,
+          gameTime: "08:30",
+          type: "consequence",
+          involvedNpcs: npcId,
+          description: `${displayName}今天没来上课，可能是因为上次被批评了。`,
+        });
+      } else {
+        // Positive: student progress event
+        addEventLog(db, {
+          eventId: `progress-${choice.id}`,
+          gameDate,
+          gameTime: "09:00",
+          type: "consequence",
+          involvedNpcs: npcId,
+          description: `${displayName}的成绩进步了，看来鼓励起了作用。`,
+        });
+      }
+    }
+
     results.push({ type, npcId, description });
   }
 
@@ -98,4 +130,16 @@ function addDays(dateStr: string, days: number): string {
   const d = new Date(dateStr + "T00:00:00");
   d.setDate(d.getDate() + days);
   return d.toISOString().slice(0, 10);
+}
+
+/** Map student NPC ID to their home location */
+function getNpcHome(npcId: string): string {
+  const homeMap: Record<string, string> = {
+    "student-zhang-wei": "home-zhang",
+    "student-wang-fang": "home-wang",
+    "student-li-lei": "home-li",
+    "student-zhao-na": "home-zhao",
+    "student-zhu-peng": "home-zhu",
+  };
+  return homeMap[npcId] || "home-zhang";
 }

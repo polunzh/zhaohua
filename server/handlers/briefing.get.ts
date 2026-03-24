@@ -13,6 +13,7 @@ import { performCatchUp } from "../engine/catch-up";
 import { generateDailyMission, getDailyMission } from "../engine/daily-mission";
 import { getAllActiveStories } from "../db/queries";
 import { storyArcs } from "../../src/data/stories";
+import { processMissionFailure } from "../engine/mission-failure";
 
 function addDays(dateStr: string, days: number): string {
   const d = new Date(dateStr + "T00:00:00");
@@ -78,6 +79,12 @@ export function handleGetBriefing(db: Database.Database) {
   // Get yesterday's mission result
   const yesterday = addDays(worldStateAfter.gameDate, -1);
   const yesterdayMission = getDailyMission(db, yesterday);
+
+  // Mission failure consequences
+  if (yesterdayMission && yesterdayMission.status !== "done") {
+    processMissionFailure(db, yesterdayMission, worldStateAfter.gameDate);
+  }
+
   const yesterdayResult = yesterdayMission
     ? {
         title: yesterdayMission.title,

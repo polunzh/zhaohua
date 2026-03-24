@@ -145,6 +145,7 @@ const fallbackChoices: InteractionChoice[] = [
   { id: "encourage", label: "鼓励一下", effect: { affinityDelta: 10, mood: "happy" } },
   { id: "criticize", label: "批评几句", effect: { affinityDelta: -5, mood: "upset" } },
   { id: "ignore", label: "不说了", effect: { affinityDelta: 0, mood: "neutral" } },
+  { id: "apologize", label: "道歉", effect: { affinityDelta: 8, mood: "neutral" } },
 ];
 
 export function getInteractionChoices(role: string, location: string): InteractionChoice[] {

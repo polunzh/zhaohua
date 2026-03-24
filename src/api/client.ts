@@ -91,3 +91,8 @@ export async function completeMission(missionId: string) {
   });
   return res.json();
 }
+
+export async function fetchEnergy(): Promise<{ remaining: number; max: number }> {
+  const res = await fetch(`${BASE_URL}/energy`);
+  return res.json();
+}

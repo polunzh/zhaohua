@@ -1,5 +1,5 @@
 import type Database from "better-sqlite3";
-import { getWorldState, saveWorldState, getNpcState } from "../db/queries";
+import { getWorldState, saveWorldState, getNpcState, getNpcLocationOverride } from "../db/queries";
 import { TimeEngine } from "../../src/engine/time";
 import { performCatchUp } from "../engine/catch-up";
 import { getScheduleEntry } from "../../src/engine/schedule";
@@ -47,9 +47,18 @@ export function handleGetWorld(db: Database.Database) {
       gameTime.season,
     );
     const dbState = getNpcState(db, npc.id);
+    let location = schedule.location;
+
+    // Check for temporary location override (e.g., student skipping school)
+    const override = getNpcLocationOverride(db, npc.id);
+    if (override && override.overrideUntil >= worldState.gameDate) {
+      location = override.locationOverride;
+    }
+
     return {
       ...npc,
       ...schedule,
+      location,
       mood: dbState?.mood ?? "neutral",
       affinity: dbState?.affinity ?? 50,
     };

@@ -15,12 +15,14 @@ import {
   fetchBriefing,
   completeTodo as completeTodoApi,
   completeMission as completeMissionApi,
+  fetchEnergy,
 } from "./api/client";
 import type { GameTime } from "./engine/time";
 import { getTravelEvent } from "./data/travel-events";
 import type { TileMapData } from "./tilemap/types";
 import { npcs } from "./data/npcs";
 import { getInteractionChoices } from "./data/interactions";
+import { getGatedChoices, getRefusalText } from "./engine/affinity-gate";
 import { generateSceneDescription } from "./engine/scene-descriptions";
 import { classroomMap } from "./tilemap/maps/classroom";
 import { officeMap } from "./tilemap/maps/office";
@@ -55,6 +57,7 @@ const mission = ref<any>(null);
 const toastMessage = ref("");
 const toastType = ref<"info" | "success" | "streak">("info");
 const playerStats = ref<any>(null);
+const energy = ref({ remaining: 5, max: 5 });
 const choiceIcons: Record<string, string> = {
   "check-homework": "📝",
   "ask-question": "❓",
@@ -84,6 +87,7 @@ const choiceIcons: Record<string, string> = {
   criticize: "⚠",
   "rain-story": "🌧",
   "rain-window": "🪟",
+  apologize: "🙏",
 };
 const weatherIcons: Record<string, string> = {
   sunny: "☀",
@@ -214,11 +218,16 @@ async function loadWorld() {
   activeCharacter.value = data.activeCharacter || "teacher";
   events.value = data.events || [];
   npcStates.value = data.npcs || [];
-  // Also refresh todos and mission
+  // Also refresh todos, mission, and energy
   try {
     const briefing = await fetchBriefing();
     todos.value = briefing.todos || [];
     mission.value = briefing.mission || null;
+  } catch {
+    /* ignore */
+  }
+  try {
+    energy.value = await fetchEnergy();
   } catch {
     /* ignore */
   }
@@ -345,6 +354,27 @@ async function handleClickNpc(npcId: string) {
   dialogLoading.value = true;
   dialogText.value = "";
   choices.value = [];
+
+  // Energy check — if no energy left, show tired message
+  if (energy.value.remaining <= 0) {
+    dialogLoading.value = false;
+    dialogText.value = "今天太累了，明天再聊吧";
+    showToast("今天太累了，明天再聊吧", "info");
+    return;
+  }
+
+  // Affinity gate check
+  const npcState = npcStates.value.find((n: any) => n.id === npcId);
+  const affinity = npcState?.affinity ?? 50;
+  const gated = getGatedChoices(npc.role, currentScene.value, affinity);
+
+  if (gated.refused) {
+    dialogLoading.value = false;
+    dialogText.value = gated.refusalText || getRefusalText(npc.role);
+    choices.value = gated.choices.map((c) => ({ id: c.id, label: c.label }));
+    return;
+  }
+
   try {
     const periodNames: Record<string, string> = {
       morning: "上午",
@@ -362,7 +392,6 @@ async function handleClickNpc(npcId: string) {
       market: "集市",
       "post-office": "邮局",
     };
-    const npcState = npcStates.value.find((n: any) => n.id === npcId);
     const recentEvent = events.value.length > 0 ? events.value[0].description : undefined;
     const missionText = mission.value?.status === "active" ? mission.value.title : undefined;
     const { dialogue } = await generateDialogue({
@@ -381,8 +410,8 @@ async function handleClickNpc(npcId: string) {
     dialogText.value = dialogue;
     // Delay choices for RPG pacing — dialog shows first, then options appear
     setTimeout(() => {
-      const interactionChoices = getInteractionChoices(npc.role, currentScene.value);
-      choices.value = interactionChoices.map((c) => ({ id: c.id, label: c.label }));
+      // Use gated choices (may be reduced for medium-low affinity)
+      choices.value = gated.choices.map((c) => ({ id: c.id, label: c.label }));
     }, 600);
     // Check if this NPC interaction completes a todo
     const matchingTodo = todos.value.find(
@@ -443,6 +472,17 @@ async function handleChoose(choiceId: string) {
   });
   choices.value = [];
 
+  // Handle no energy
+  if (result?.noEnergy) {
+    dialogText.value = "今天太累了，明天再聊吧";
+    showToast("今天太累了，明天再聊吧", "info");
+    setTimeout(() => {
+      dialogText.value = "";
+      dialogNpc.value = "";
+    }, 2000);
+    return;
+  }
+
   // Show gift toast if received
   if (result?.gift) {
     showToast(`🎁 收到了${result.gift.name}！`, "success");
@@ -458,6 +498,13 @@ async function handleChoose(choiceId: string) {
     else if (effect.affinityDelta < 0) effectText = ` (好感${effect.affinityDelta})`;
   }
   dialogText.value = response + effectText;
+
+  // Refresh energy display
+  try {
+    energy.value = await fetchEnergy();
+  } catch {
+    /* ignore */
+  }
 
   // Keep response visible briefly, then close
   setTimeout(() => {
@@ -540,6 +587,8 @@ onMounted(async () => {
             String(gameTime.minute).padStart(2, "0")
           }}</span
         >
+        <span class="header-sep">·</span>
+        <span class="header-energy">⚡ {{ energy.remaining }}/{{ energy.max }}</span>
       </span>
     </div>
     <div class="game-main">
@@ -669,6 +718,11 @@ body {
   font-size: 14px;
   font-weight: bold;
   color: #f5e6c8;
+  margin: 0 4px;
+}
+.header-energy {
+  font-size: 12px;
+  color: #e8c96a;
   margin: 0 4px;
 }
 

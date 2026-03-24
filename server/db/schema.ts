@@ -18,7 +18,9 @@ export function initSchema(db: Database.Database): void {
       npc_id TEXT PRIMARY KEY,
       location TEXT NOT NULL DEFAULT 'home',
       mood TEXT NOT NULL DEFAULT 'neutral',
-      affinity INTEGER NOT NULL DEFAULT 50
+      affinity INTEGER NOT NULL DEFAULT 50,
+      location_override TEXT,
+      override_until TEXT
     );
     CREATE TABLE IF NOT EXISTS event_log (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -87,7 +89,9 @@ export function initSchema(db: Database.Database): void {
       total_days_played INTEGER NOT NULL DEFAULT 0,
       last_play_date TEXT,
       missions_completed INTEGER NOT NULL DEFAULT 0,
-      npcs_talked INTEGER NOT NULL DEFAULT 0
+      npcs_talked INTEGER NOT NULL DEFAULT 0,
+      energy_remaining INTEGER NOT NULL DEFAULT 5,
+      last_energy_date TEXT
     );
     CREATE TABLE IF NOT EXISTS gifts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

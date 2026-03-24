@@ -624,6 +624,8 @@ export interface PlayerStats {
   lastPlayDate: string | null;
   missionsCompleted: number;
   npcsTalked: number;
+  energyRemaining: number;
+  lastEnergyDate: string | null;
 }
 
 interface PlayerStatsDbRow {
@@ -633,11 +635,13 @@ interface PlayerStatsDbRow {
   last_play_date: string | null;
   missions_completed: number;
   npcs_talked: number;
+  energy_remaining: number;
+  last_energy_date: string | null;
 }
 
 function ensurePlayerStats(db: Database.Database): void {
   db.prepare(
-    "INSERT OR IGNORE INTO player_stats (id, streak_days, longest_streak, total_days_played, last_play_date, missions_completed, npcs_talked) VALUES (1, 0, 0, 0, NULL, 0, 0)",
+    "INSERT OR IGNORE INTO player_stats (id, streak_days, longest_streak, total_days_played, last_play_date, missions_completed, npcs_talked, energy_remaining, last_energy_date) VALUES (1, 0, 0, 0, NULL, 0, 0, 5, NULL)",
   ).run();
 }
 
@@ -651,6 +655,8 @@ export function getPlayerStats(db: Database.Database): PlayerStats {
     lastPlayDate: row.last_play_date,
     missionsCompleted: row.missions_completed,
     npcsTalked: row.npcs_talked,
+    energyRemaining: row.energy_remaining,
+    lastEnergyDate: row.last_energy_date,
   };
 }
 
@@ -695,6 +701,8 @@ export function updateStreak(db: Database.Database, gameDate: string): PlayerSta
     lastPlayDate: gameDate,
     missionsCompleted: current.missionsCompleted,
     npcsTalked: current.npcsTalked,
+    energyRemaining: current.energyRemaining,
+    lastEnergyDate: current.lastEnergyDate,
   };
 }
 
@@ -762,4 +770,79 @@ export function updateMailStatus(
   } else {
     db.prepare("UPDATE mail SET status = ? WHERE id = ?").run(status, mailId);
   }
+}
+
+// --- Energy System ---
+
+const MAX_ENERGY = 5;
+
+export function getEnergy(db: Database.Database): { remaining: number; max: number } {
+  ensurePlayerStats(db);
+  const row = db
+    .prepare("SELECT energy_remaining, last_energy_date FROM player_stats WHERE id = 1")
+    .get() as { energy_remaining: number; last_energy_date: string | null };
+  return { remaining: row.energy_remaining, max: MAX_ENERGY };
+}
+
+export function useEnergy(db: Database.Database, gameDate: string): boolean {
+  ensurePlayerStats(db);
+  const row = db
+    .prepare("SELECT energy_remaining, last_energy_date FROM player_stats WHERE id = 1")
+    .get() as { energy_remaining: number; last_energy_date: string | null };
+
+  let remaining = row.energy_remaining;
+
+  // Reset energy on new day
+  if (row.last_energy_date !== gameDate) {
+    remaining = MAX_ENERGY;
+  }
+
+  if (remaining <= 0) {
+    // Update the date even if empty, so we don't keep resetting
+    db.prepare(
+      "UPDATE player_stats SET energy_remaining = 0, last_energy_date = ? WHERE id = 1",
+    ).run(gameDate);
+    return false;
+  }
+
+  remaining -= 1;
+  db.prepare("UPDATE player_stats SET energy_remaining = ?, last_energy_date = ? WHERE id = 1").run(
+    remaining,
+    gameDate,
+  );
+  return true;
+}
+
+// --- NPC Location Override ---
+
+export interface NpcLocationOverride {
+  locationOverride: string;
+  overrideUntil: string;
+}
+
+export function getNpcLocationOverride(
+  db: Database.Database,
+  npcId: string,
+): NpcLocationOverride | null {
+  const row = db
+    .prepare("SELECT location_override, override_until FROM npc_state WHERE npc_id = ?")
+    .get(npcId) as { location_override: string | null; override_until: string | null } | undefined;
+  if (!row || !row.location_override || !row.override_until) return null;
+  return {
+    locationOverride: row.location_override,
+    overrideUntil: row.override_until,
+  };
+}
+
+export function setNpcLocationOverride(
+  db: Database.Database,
+  npcId: string,
+  locationOverride: string,
+  overrideUntil: string,
+): void {
+  db.prepare("UPDATE npc_state SET location_override = ?, override_until = ? WHERE npc_id = ?").run(
+    locationOverride,
+    overrideUntil,
+    npcId,
+  );
 }
