@@ -34,14 +34,16 @@ describe("handleMove", () => {
     expect(getWorldState(db)!.location).toBe("playground");
   });
 
-  it("rejects move to unconnected location", () => {
-    expect(() => handleMove(db, "post-office")).toThrow();
+  it("allows move to any valid location (direct travel)", () => {
+    const result = handleMove(db, "post-office");
+    expect(result.ok).toBe(true);
+    expect(getWorldState(db)!.location).toBe("post-office");
   });
 
-  it("allows chained moves through connected locations", () => {
-    handleMove(db, "playground");
-    handleMove(db, "village-road");
-    expect(getWorldState(db)!.location).toBe("village-road");
+  it("allows move to student home", () => {
+    const result = handleMove(db, "home-zhang");
+    expect(result.ok).toBe(true);
+    expect(getWorldState(db)!.location).toBe("home-zhang");
   });
 
   it("rejects move to nonexistent location", () => {

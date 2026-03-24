@@ -140,6 +140,20 @@ const ambientText = computed(() => {
       <div class="panel-title">🎯 今日任务</div>
       <div class="mission-sidebar">{{ mission.title }}</div>
       <div class="mission-hint">{{ mission.description }}</div>
+      <button
+        v-if="mission.targetLocation && mission.targetLocation !== currentScene"
+        class="mission-go-btn"
+        @click="emit('navigate', mission.targetLocation)"
+      >
+        前往{{ locationNames[mission.targetLocation] || mission.targetLocation }} →
+      </button>
+      <div v-else-if="mission.targetLocation === currentScene" class="mission-here">
+        📍 就在这里{{ mission.targetNpc ? "，找到对应的人" : "" }}
+      </div>
+    </div>
+    <div class="panel-section" v-else-if="mission && mission.status === 'done'">
+      <div class="panel-title">✅ 今日任务已完成</div>
+      <div class="mission-done">{{ mission.title }}</div>
     </div>
 
     <!-- Events -->
@@ -333,5 +347,31 @@ const ambientText = computed(() => {
   font-size: 10px;
   color: #5c6b7a;
   line-height: 1.5;
+}
+.mission-go-btn {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 5px 8px;
+  background: #c4706a;
+  color: #f5e6c8;
+  border: none;
+  border-radius: 3px;
+  font-size: 10px;
+  font-family: "Noto Serif SC", serif;
+  cursor: pointer;
+}
+.mission-go-btn:hover {
+  background: #a05a54;
+}
+.mission-here {
+  font-size: 9px;
+  color: #7a9178;
+  margin-top: 4px;
+}
+.mission-done {
+  font-size: 10px;
+  color: #7a9178;
+  text-decoration: line-through;
 }
 </style>

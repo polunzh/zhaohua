@@ -6,12 +6,9 @@ export function handleMove(db: Database.Database, targetLocationId: string) {
   const worldState = getWorldState(db);
   if (!worldState) throw new Error("No world state");
 
-  const currentLoc = getLocation(worldState.location || "classroom");
-  if (!currentLoc) throw new Error("Invalid current location");
-
-  if (!currentLoc.connections.includes(targetLocationId)) {
-    throw new Error(`Cannot move from ${currentLoc.id} to ${targetLocationId}`);
-  }
+  // Validate target location exists
+  const targetLoc = getLocation(targetLocationId);
+  if (!targetLoc) throw new Error(`Unknown location: ${targetLocationId}`);
 
   saveWorldState(db, { ...worldState, location: targetLocationId });
   return { ok: true, location: targetLocationId };
