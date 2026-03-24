@@ -56,6 +56,48 @@ const locationNames: Record<string, string> = {
   "home-zhao": "赵春燕家",
   "home-zhu": "朱小龙家",
 };
+
+// Ambient atmosphere text — makes the world feel alive
+import { computed } from "vue";
+
+const ambientText = computed(() => {
+  if (!props.gameTime) return "";
+  const h = props.gameTime.hour;
+  const s = props.gameTime.season;
+  const w = props.weather;
+  const p = props.gameTime.period;
+
+  // Season + weather combos
+  if (s === "summer" && w === "sunny" && p === "afternoon")
+    return "太阳晒得地面发烫，知了叫个不停。";
+  if (s === "summer" && w === "rainy") return "夏天的雨来得急，噼里啪啦打在屋顶上。";
+  if (s === "winter" && w === "snowy") return "雪花飘飘洒洒，校园白了一层。";
+  if (s === "winter" && w === "sunny") return "冬天的太阳暖洋洋的，但风还是冷。";
+  if (s === "winter" && p === "morning") return "早上出门哈气成雾，手脚冻得发僵。";
+  if (s === "spring" && w === "rainy") return "春雨绵绵，空气里有泥土的味道。";
+  if (s === "spring" && p === "morning") return "柳树发了新芽，一切都在苏醒。";
+  if (s === "autumn" && w === "windy") return "秋风吹过，黄叶在操场上打转。";
+  if (s === "autumn" && p === "afternoon") return "秋天的下午，阳光透过窗户暖暖的。";
+
+  // Time-based
+  if (p === "night") return "村子安静下来了，远处偶尔传来几声狗叫。";
+  if (p === "evening") return "夕阳西下，炊烟从各家烟囱升起。";
+  if (h >= 7 && h < 8) return "早读的声音从教室传出来，书声琅琅。";
+  if (h >= 12 && h < 13) return "中午了，空气里飘着饭菜的香味。";
+
+  // Weather fallbacks
+  if (w === "rainy") return "雨淅淅沥沥地下着，路上有些泥泞。";
+  if (w === "cloudy") return "天阴沉沉的，像是要下雨。";
+  if (w === "windy") return "风吹得树叶沙沙响。";
+
+  // Season fallbacks
+  if (s === "spring") return "春天的空气里有花香。";
+  if (s === "summer") return "夏天就是热，但校园里的花开得正好。";
+  if (s === "autumn") return "秋高气爽，天特别蓝。";
+  if (s === "winter") return "冬天的日子短，天黑得早。";
+
+  return "";
+});
 </script>
 
 <template>
@@ -76,6 +118,11 @@ const locationNames: Record<string, string> = {
         <button @click="emit('skip', 'week')">下周</button>
         <button @click="emit('skip', 'semester')">下学期</button>
       </div>
+    </div>
+
+    <!-- Ambient atmosphere -->
+    <div v-if="ambientText" class="panel-section ambient">
+      <div class="ambient-text">{{ ambientText }}</div>
     </div>
 
     <!-- Current Location -->
@@ -210,6 +257,15 @@ const locationNames: Record<string, string> = {
 }
 .event-item.hint {
   color: #a8b8b0;
+  font-style: italic;
+}
+.ambient {
+  background: rgba(196, 112, 106, 0.06);
+}
+.ambient-text {
+  font-size: 10px;
+  line-height: 1.6;
+  color: #8a7a6a;
   font-style: italic;
 }
 .location-name {
