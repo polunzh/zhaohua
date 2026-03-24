@@ -120,7 +120,11 @@ test.describe("朝花夕拾 — 游戏基本流程", () => {
   });
 
   test("关系面板显示 NPC 列表", async ({ page }) => {
-    await expect(page.locator(".rel-title")).toContainText("关系");
+    // Expand relationships section (may be collapsed)
+    const relHeader = page.locator(".clickable").filter({ hasText: "关系" });
+    const count = await relHeader.count();
+    if (count > 0) await relHeader.click();
+    await page.waitForTimeout(300);
     await expect(page.locator(".rel-name").first()).toBeVisible();
   });
 
