@@ -702,19 +702,9 @@ function drawTile(
     }
 
     case TILES.BENCH: {
-      // Grass background
-      ctx.fillStyle = PAL.grass[1];
-      ctx.fillRect(x, y, s, s);
-      // Grass blades on bg
-      ctx.fillStyle = PAL.grass[2];
-      ctx.fillRect(x + 2, y + 4, 1, 3);
-      ctx.fillRect(x + 28, y + 2, 1, 3);
-      ctx.fillRect(x + 6, y + 26, 1, 3);
-      ctx.fillRect(x + 24, y + 28, 1, 3);
-      ctx.fillRect(x + 15, y + 2, 1, 2);
-      ctx.fillRect(x + 22, y + 6, 1, 2);
-      // Shadow under bench
-      ctx.fillStyle = PAL.grass[3];
+      // No background fill — ground layer already provides the correct surface
+      // Shadow under bench (uses a semi-transparent overlay)
+      ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
       ctx.fillRect(x + 4, y + 22, 24, 2);
       // Bench seat (stone) — 28x6
       ctx.fillStyle = PAL.stone[1];
@@ -1617,7 +1607,7 @@ function render() {
     // Draw interaction hint under NPC
     ctx.fillStyle = "rgba(196, 112, 106, 0.15)";
     ctx.beginPath();
-    ctx.ellipse(px + 8, py + 30, 10, 4, 0, 0, Math.PI * 2);
+    ctx.ellipse(px + 16, py + 60, 18, 6, 0, 0, Math.PI * 2);
     ctx.fill();
     drawCharacter(ctx, px, py, spriteConfig, "down", npc.name, npc.mood);
   }
@@ -1648,9 +1638,9 @@ function render() {
       };
       const label = destNames[exit.targetMapId] || exit.targetMapId;
       ctx.fillStyle = "rgba(245, 230, 200, 0.7)";
-      ctx.font = '7px "Noto Serif SC", serif';
+      ctx.font = '10px "Noto Serif SC", serif';
       ctx.textAlign = "center";
-      ctx.fillText("→" + label, ex + TILE_SIZE / 2, ey - 2);
+      ctx.fillText("→" + label, ex + TILE_SIZE / 2, ey - 4);
     }
   }
 

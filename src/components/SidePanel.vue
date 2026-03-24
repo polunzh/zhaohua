@@ -287,8 +287,10 @@ const ambientText = computed(() => {
   overflow-x: hidden;
   font-family: "Noto Serif SC", serif;
   color: #3a3530;
-  scrollbar-width: thin;
-  scrollbar-color: #d4c08e #f5e6c8;
+  scrollbar-width: none;
+}
+.side-panel::-webkit-scrollbar {
+  display: none;
 }
 .panel-section {
   padding: 12px 16px;

@@ -690,12 +690,12 @@ export function drawCharacter(
   // === LABEL + MOOD ===
   if (label) {
     const text = mood ? `${label} ${moodToEmoji(mood)}` : label;
-    ctx.font = "8px sans-serif";
+    ctx.font = '10px "Noto Serif SC", serif';
     const textWidth = ctx.measureText(text).width;
     ctx.fillStyle = "rgba(245, 230, 200, 0.9)";
-    ctx.fillRect(x + 16 - textWidth / 2 - 2, y + 65, textWidth + 4, 10);
+    ctx.fillRect(x + 16 - textWidth / 2 - 2, y + 66, textWidth + 4, 12);
     ctx.fillStyle = "#3a3530";
     ctx.textAlign = "center";
-    ctx.fillText(text, x + 16, y + 73);
+    ctx.fillText(text, x + 16, y + 76);
   }
 }
