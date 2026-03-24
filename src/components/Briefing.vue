@@ -11,6 +11,8 @@ defineProps<{
     targetLocation: string;
     status: string;
   } | null;
+  yesterdayMission: { title: string; status: string; completionText: string } | null;
+  storyProgress: { name: string; description: string; isFinal: boolean }[];
 }>();
 
 const emit = defineEmits<{ start: [] }>();
@@ -20,6 +22,23 @@ const emit = defineEmits<{ start: [] }>();
   <div class="briefing-overlay">
     <div class="briefing-panel">
       <h2>📜 {{ offlineText }}</h2>
+
+      <div class="briefing-section" v-if="yesterdayMission">
+        <h3 v-if="yesterdayMission.status === 'done'">✅ 昨天的任务完成了</h3>
+        <h3 v-else>❌ 昨天的任务没完成</h3>
+        <div class="yesterday-item" :class="yesterdayMission.status">
+          <div class="yesterday-title">{{ yesterdayMission.title }}</div>
+          <div class="yesterday-text">{{ yesterdayMission.completionText }}</div>
+        </div>
+      </div>
+
+      <div class="briefing-section" v-if="storyProgress && storyProgress.length">
+        <h3>📖 故事进展</h3>
+        <div v-for="(s, i) in storyProgress" :key="i" class="story-item">
+          <div class="story-name">{{ s.name }} {{ s.isFinal ? "（完结）" : "" }}</div>
+          <div class="story-desc">{{ s.description }}</div>
+        </div>
+      </div>
 
       <div class="briefing-section" v-if="consequences.length">
         <h3>🌱 你的选择产生了影响</h3>
@@ -157,6 +176,41 @@ h3 {
   font-size: 11px;
   color: #5c6b7a;
   margin-top: 3px;
+}
+.yesterday-item {
+  padding: 6px 8px;
+  border-radius: 3px;
+  margin-bottom: 4px;
+}
+.yesterday-item.done {
+  background: rgba(122, 145, 120, 0.1);
+}
+.yesterday-item.active {
+  background: rgba(196, 112, 106, 0.1);
+}
+.yesterday-title {
+  font-size: 12px;
+  font-weight: bold;
+}
+.yesterday-text {
+  font-size: 10px;
+  color: #5c6b7a;
+  margin-top: 2px;
+}
+.story-item {
+  padding: 4px 8px;
+  margin-bottom: 4px;
+  border-left: 2px solid #d4c08e;
+}
+.story-name {
+  font-size: 11px;
+  font-weight: bold;
+  color: #6b5b4e;
+}
+.story-desc {
+  font-size: 10px;
+  color: #5c6b7a;
+  margin-top: 2px;
 }
 .start-btn {
   display: block;

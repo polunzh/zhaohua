@@ -397,6 +397,8 @@ onMounted(async () => {
     :todos="briefingData.todos"
     :consequences="briefingData.consequences"
     :mission="briefingData.mission || null"
+    :yesterday-mission="briefingData.yesterdayMission || null"
+    :story-progress="briefingData.storyProgress || []"
     @start="handleStartGame"
   />
   <div class="game-layout">

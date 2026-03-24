@@ -3,7 +3,15 @@ import { getWorldState, getPendingTodos, getRecentEvents, expireTodos } from "..
 import { generateTodos } from "../engine/todos";
 import { processConsequences } from "../engine/consequences";
 import { performCatchUp } from "../engine/catch-up";
-import { generateDailyMission } from "../engine/daily-mission";
+import { generateDailyMission, getDailyMission } from "../engine/daily-mission";
+import { getAllActiveStories } from "../db/queries";
+import { storyArcs } from "../../src/data/stories";
+
+function addDays(dateStr: string, days: number): string {
+  const d = new Date(dateStr + "T00:00:00");
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
 
 function getSeason(dateStr: string): string {
   const month = parseInt(dateStr.slice(5, 7), 10);
@@ -57,9 +65,35 @@ export function handleGetBriefing(db: Database.Database) {
     worldStateAfter.weather,
   );
 
+  // Get yesterday's mission result
+  const yesterday = addDays(worldStateAfter.gameDate, -1);
+  const yesterdayMission = getDailyMission(db, yesterday);
+  const yesterdayResult = yesterdayMission
+    ? {
+        title: yesterdayMission.title,
+        status: yesterdayMission.status,
+        completionText:
+          yesterdayMission.status === "done" ? yesterdayMission.completionText : "没来得及完成。",
+      }
+    : null;
+
+  // Get active story progress
+  const activeStories = getAllActiveStories(db);
+  const storyProgress = activeStories.map((s) => {
+    const arc = storyArcs.find((a) => a.id === s.storyId);
+    const stage = arc?.stages.find((st) => st.id === s.currentStage);
+    return {
+      name: arc?.name || s.storyId,
+      description: stage?.description || "",
+      isFinal: stage?.isFinal || false,
+    };
+  });
+
   return {
     offlineHours,
     offlineText,
+    yesterdayMission: yesterdayResult,
+    storyProgress,
     events: events.map((e) => ({ id: e.eventId, description: e.description, type: e.type })),
     todos: todos.map((t) => ({
       id: t.id,
