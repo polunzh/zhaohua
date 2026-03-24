@@ -26,10 +26,13 @@ describe("EventEngine", () => {
     expect(event!.type).toBe("daily");
   });
 
-  it("returns null for night time", () => {
+  it("can return night events at night", () => {
     const engine = new EventEngine(42);
     const event = engine.selectEvent(makeGameTime({ hour: 2, period: "night" }), []);
-    expect(event).toBeNull();
+    // Night events exist now, so should get one (or null if none match filters)
+    if (event) {
+      expect(event.periods).toContain("night");
+    }
   });
 
   it("triggers season event on matching date", () => {

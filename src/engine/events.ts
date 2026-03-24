@@ -33,10 +33,6 @@ export class EventEngine {
     character?: string,
     affinity?: number,
   ): EventTemplate | null {
-    if (gameTime.period === "night") {
-      return null;
-    }
-
     const mmdd = gameTime.date.slice(5); // "YYYY-MM-DD" -> "MM-DD"
 
     // Check seasonal events first

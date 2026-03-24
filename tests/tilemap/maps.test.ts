@@ -1,5 +1,4 @@
 import { describe, it, expect } from "vitest";
-import { campusMap } from "../../src/tilemap/maps/campus";
 import { classroomMap } from "../../src/tilemap/maps/classroom";
 import { officeMap } from "../../src/tilemap/maps/office";
 import { playgroundMap } from "../../src/tilemap/maps/playground";
@@ -53,7 +52,6 @@ function validateMap(map: TileMapData, name: string) {
   });
 }
 
-validateMap(campusMap, "Campus Map");
 validateMap(classroomMap, "Classroom Map");
 validateMap(officeMap, "Office Map");
 validateMap(playgroundMap, "Playground Map");

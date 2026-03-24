@@ -3,6 +3,14 @@ import { test, expect } from "@playwright/test";
 test.describe("朝花夕拾 — 游戏基本流程", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
+    // Dismiss briefing if it appears
+    const startBtn = page.locator(".start-btn");
+    try {
+      await startBtn.waitFor({ timeout: 5000 });
+      await startBtn.click();
+    } catch {
+      // No briefing, continue
+    }
     // Wait for the side panel to appear (indicates world state loaded)
     await page.waitForSelector(".side-panel", { timeout: 15000 });
   });
