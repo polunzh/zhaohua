@@ -6,6 +6,7 @@ import {
   expireTodos,
   updateStreak,
   getGiftCount,
+  getInventory,
 } from "../db/queries";
 import { generateTodos } from "../engine/todos";
 import { processConsequences } from "../engine/consequences";
@@ -14,6 +15,8 @@ import { generateDailyMission, getDailyMission } from "../engine/daily-mission";
 import { getAllActiveStories } from "../db/queries";
 import { storyArcs } from "../../src/data/stories";
 import { processMissionFailure } from "../engine/mission-failure";
+import { runExams } from "../engine/exams";
+import { checkConflictEvent } from "../../src/data/conflict-events";
 
 function addDays(dateStr: string, days: number): string {
   const d = new Date(dateStr + "T00:00:00");
@@ -94,6 +97,23 @@ export function handleGetBriefing(db: Database.Database) {
       }
     : null;
 
+  // Run exams if applicable
+  const examResults = runExams(db, worldStateAfter.gameDate);
+
+  // Check for conflict event
+  const conflictLastDates: Record<string, string> = {};
+  const conflictLogs = db
+    .prepare("SELECT event_id, game_date FROM event_log WHERE type = 'conflict' ORDER BY id DESC")
+    .all() as any[];
+  for (const row of conflictLogs) {
+    const cid = (row.event_id as string).replace("conflict-", "");
+    if (!conflictLastDates[cid]) conflictLastDates[cid] = row.game_date;
+  }
+  const conflict = checkConflictEvent(worldStateAfter.gameDate, season, conflictLastDates);
+
+  // Get inventory
+  const inventory = getInventory(db);
+
   // Get active story progress
   const activeStories = getAllActiveStories(db);
   const storyProgress = activeStories.map((s) => {
@@ -144,5 +164,18 @@ export function handleGetBriefing(db: Database.Database) {
           completionText: mission.completionText,
         }
       : null,
+    examResults,
+    conflict: conflict
+      ? {
+          id: conflict.id,
+          title: conflict.title,
+          description: conflict.description,
+          choices: conflict.choices.map((c) => ({
+            id: c.id,
+            label: c.label,
+          })),
+        }
+      : null,
+    inventory: inventory.filter((i) => i.quantity > 0),
   };
 }

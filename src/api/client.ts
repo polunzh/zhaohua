@@ -96,3 +96,12 @@ export async function fetchEnergy(): Promise<{ remaining: number; max: number }>
   const res = await fetch(`${BASE_URL}/energy`);
   return res.json();
 }
+
+export async function resolveConflict(conflictId: string, choiceId: string, gameDate: string) {
+  const res = await fetch(`${BASE_URL}/conflict-resolve`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ conflictId, choiceId, gameDate }),
+  });
+  return res.json();
+}

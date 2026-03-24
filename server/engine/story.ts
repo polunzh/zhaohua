@@ -122,7 +122,7 @@ function resolveNextStage(db: Database.Database, stage: StoryStage): string | nu
   return stage.nextStage || null;
 }
 
-function evaluateBranchCondition(
+export function evaluateBranchCondition(
   db: Database.Database,
   condition: { type: string; npcId?: string; minValue?: number; maxValue?: number },
 ): boolean {
@@ -131,6 +131,16 @@ function evaluateBranchCondition(
     if (!state) return false;
     if (condition.minValue && state.affinity < condition.minValue) return false;
     if (condition.maxValue && state.affinity > condition.maxValue) return false;
+    return true;
+  }
+  if (condition.type === "choice-count" && condition.npcId) {
+    const choices = db
+      .prepare(
+        "SELECT COUNT(*) as cnt FROM player_choices WHERE context = ? AND choice_value = 'encourage'",
+      )
+      .get(condition.npcId) as any;
+    const count = choices?.cnt || 0;
+    if (condition.minValue && count < condition.minValue) return false;
     return true;
   }
   return false;

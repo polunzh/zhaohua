@@ -16,6 +16,7 @@ import {
   completeTodo as completeTodoApi,
   completeMission as completeMissionApi,
   fetchEnergy,
+  resolveConflict as resolveConflictApi,
 } from "./api/client";
 import type { GameTime } from "./engine/time";
 import { getTravelEvent } from "./data/travel-events";
@@ -530,6 +531,18 @@ async function handleClickObject(tileType: string) {
   }
 }
 
+async function handleResolveConflict(conflictId: string, choiceId: string) {
+  const gameDate = gameTime.value?.date || briefingData.value?.events?.[0]?.gameDate || "";
+  try {
+    const result = await resolveConflictApi(conflictId, choiceId, gameDate);
+    if (result?.consequence) {
+      showToast(result.consequence, "info");
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
 function handleStartGame() {
   showBriefing.value = false;
   if (briefingData.value?.mission) {
@@ -570,7 +583,11 @@ onMounted(async () => {
     :yesterday-mission="briefingData.yesterdayMission || null"
     :story-progress="briefingData.storyProgress || []"
     :stats="briefingData.stats || null"
+    :exam-results="briefingData.examResults || []"
+    :conflict="briefingData.conflict || null"
+    :inventory="briefingData.inventory || []"
     @start="handleStartGame"
+    @resolve-conflict="handleResolveConflict"
   />
   <div class="game-layout" lang="zh-CN">
     <div class="game-header">
@@ -602,6 +619,7 @@ onMounted(async () => {
         :mission="mission"
         :npcs="npcStates"
         :stats="playerStats"
+        :inventory="briefingData?.inventory || []"
         @navigate="handleNavigate"
         @switch-character="handleSwitchCharacter"
         @skip="handleSkip"

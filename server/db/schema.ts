@@ -101,6 +101,12 @@ export function initSchema(db: Database.Database): void {
       game_date TEXT NOT NULL,
       created_at TEXT DEFAULT (datetime('now'))
     );
+    CREATE TABLE IF NOT EXISTS items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      item_type TEXT NOT NULL UNIQUE,
+      quantity INTEGER NOT NULL DEFAULT 0,
+      obtained_date TEXT NOT NULL
+    );
     CREATE TABLE IF NOT EXISTS mail (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       type TEXT NOT NULL,

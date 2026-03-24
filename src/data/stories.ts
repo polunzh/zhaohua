@@ -1,6 +1,6 @@
 export interface BranchNode {
   condition: {
-    type: "affinity" | "choice" | "date" | "weather";
+    type: "affinity" | "choice" | "date" | "weather" | "choice-count";
     npcId?: string;
     minValue?: number;
     maxValue?: number;
@@ -54,7 +54,7 @@ export const storyArcs: StoryArc[] = [
         triggerConditions: { minDaysSinceLastStage: 7 },
         branches: [
           {
-            condition: { type: "affinity", npcId: "student-zhu-peng", minValue: 60 },
+            condition: { type: "choice-count", npcId: "student-zhu-peng", minValue: 3 },
             nextStageId: "stage-3a",
           },
         ],

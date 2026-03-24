@@ -5,6 +5,7 @@ import {
   saveWorldState,
   getStoryProgress,
   saveNpcState,
+  savePlayerChoice,
   getRecentEvents,
 } from "../../server/db/queries";
 import { processStories } from "../../server/engine/story";
@@ -48,16 +49,19 @@ describe("Story System", () => {
     expect(progress!.currentStage).toBe("stage-2");
   });
 
-  it("takes branch when affinity condition met", () => {
+  it("takes branch when choice-count condition met", () => {
     processStories(db, "1994-09-20", "09:00");
     processStories(db, "1994-09-28", "09:00"); // advance to stage-2
-    // Set high affinity for tiezhu
-    saveNpcState(db, {
-      npcId: "student-zhu-peng",
-      location: "classroom",
-      mood: "neutral",
-      affinity: 70,
-    });
+    // Save 3 encourage choices for zhu-peng
+    for (let i = 0; i < 3; i++) {
+      savePlayerChoice(db, {
+        gameDate: `1994-10-0${i + 1}`,
+        gameTime: "10:00",
+        choiceType: "npc-interaction",
+        choiceValue: "encourage",
+        context: "student-zhu-peng",
+      });
+    }
     processStories(db, "1994-10-12", "09:00"); // advance from stage-2
     const progress = getStoryProgress(db, "love-learning");
     expect(progress!.currentStage).toBe("stage-3a"); // took the branch

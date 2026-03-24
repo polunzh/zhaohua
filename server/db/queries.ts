@@ -846,3 +846,42 @@ export function setNpcLocationOverride(
     npcId,
   );
 }
+
+// --- Items ---
+
+export function addItem(
+  db: Database.Database,
+  itemType: string,
+  quantity: number,
+  date: string,
+): void {
+  db.prepare(`
+    INSERT INTO items (item_type, quantity, obtained_date)
+    VALUES (?, ?, ?)
+    ON CONFLICT(item_type) DO UPDATE SET
+      quantity = quantity + excluded.quantity,
+      obtained_date = excluded.obtained_date
+  `).run(itemType, quantity, date);
+}
+
+export function getItemCount(db: Database.Database, itemType: string): number {
+  const row = db.prepare("SELECT quantity FROM items WHERE item_type = ?").get(itemType) as
+    | { quantity: number }
+    | undefined;
+  return row?.quantity ?? 0;
+}
+
+export function useItem(db: Database.Database, itemType: string): boolean {
+  const current = getItemCount(db, itemType);
+  if (current <= 0) return false;
+  db.prepare("UPDATE items SET quantity = quantity - 1 WHERE item_type = ?").run(itemType);
+  return true;
+}
+
+export function getInventory(db: Database.Database): { itemType: string; quantity: number }[] {
+  const rows = db.prepare("SELECT item_type, quantity FROM items").all() as {
+    item_type: string;
+    quantity: number;
+  }[];
+  return rows.map((r) => ({ itemType: r.item_type, quantity: r.quantity }));
+}

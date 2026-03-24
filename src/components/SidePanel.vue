@@ -26,7 +26,15 @@ const props = defineProps<{
     npcsTalked: number;
     giftsReceived: number;
   } | null;
+  inventory?: { itemType: string; quantity: number }[];
 }>();
+
+const itemIcons: Record<string, string> = {
+  chalk: "\uD83D\uDD8D",
+  notebook: "\uD83D\uDCD3",
+  apple: "\uD83C\uDF4E",
+  letter: "\u2709",
+};
 
 const emit = defineEmits<{
   navigate: [locationId: string];
@@ -249,6 +257,16 @@ const ambientText = computed(() => {
       <template v-if="!collapsed.relationships">
         <RelationshipPanel :npcs="npcs" />
       </template>
+    </div>
+
+    <!-- Inventory -->
+    <div class="panel-section" v-if="inventory && inventory.length > 0">
+      <div class="panel-title">🎒 物品</div>
+      <div class="inventory-row">
+        <span v-for="item in inventory" :key="item.itemType" class="inv-badge">
+          {{ itemIcons[item.itemType] || "📦" }}{{ item.quantity }}
+        </span>
+      </div>
     </div>
 
     <!-- Character Switch -->
@@ -494,6 +512,16 @@ const ambientText = computed(() => {
   line-height: 1.8;
   color: #5c6b7a;
   padding-left: 2px;
+}
+.inventory-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.inv-badge {
+  font-size: 14px;
+  color: #6b5b4e;
+  white-space: nowrap;
 }
 .sidebar-footer {
   margin-top: auto;
