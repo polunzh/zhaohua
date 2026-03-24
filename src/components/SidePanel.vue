@@ -44,6 +44,7 @@ const locationNames: Record<string, string> = {
   "post-office": "邮局",
   market: "集市",
   clinic: "卫生所",
+  home: "家",
 };
 </script>
 

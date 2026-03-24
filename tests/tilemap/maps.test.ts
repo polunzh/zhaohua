@@ -12,6 +12,7 @@ import { townRoadMap } from "../../src/tilemap/maps/town-road";
 import { postOfficeMap } from "../../src/tilemap/maps/post-office";
 import { marketMap } from "../../src/tilemap/maps/market";
 import { clinicMap } from "../../src/tilemap/maps/clinic";
+import { homeMap } from "../../src/tilemap/maps/home";
 import type { TileMapData } from "../../src/tilemap/types";
 
 function validateMap(map: TileMapData, name: string) {
@@ -65,3 +66,4 @@ validateMap(townRoadMap, "Town Road Map");
 validateMap(postOfficeMap, "Post Office Map");
 validateMap(marketMap, "Market Map");
 validateMap(clinicMap, "Clinic Map");
+validateMap(homeMap, "Home Map");

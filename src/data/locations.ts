@@ -43,7 +43,7 @@ export const locations: Location[] = [
     id: "village-road",
     name: "村路",
     type: "village",
-    connections: ["playground", "farmland", "villager-house", "town-road"],
+    connections: ["playground", "farmland", "villager-house", "town-road", "home"],
   },
   {
     id: "farmland",
@@ -54,6 +54,13 @@ export const locations: Location[] = [
   {
     id: "villager-house",
     name: "村民家",
+    type: "village",
+    connections: ["village-road"],
+  },
+
+  {
+    id: "home",
+    name: "家",
     type: "village",
     connections: ["village-road"],
   },

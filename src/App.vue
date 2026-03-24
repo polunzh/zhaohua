@@ -29,6 +29,7 @@ import { townRoadMap } from "./tilemap/maps/town-road";
 import { postOfficeMap } from "./tilemap/maps/post-office";
 import { marketMap } from "./tilemap/maps/market";
 import { clinicMap } from "./tilemap/maps/clinic";
+import { homeMap } from "./tilemap/maps/home";
 
 const gameTime = ref<GameTime | null>(null);
 const weather = ref("sunny");
@@ -58,10 +59,51 @@ const maps: Record<string, TileMapData> = {
   "post-office": postOfficeMap,
   market: marketMap,
   clinic: clinicMap,
+  home: homeMap,
 };
 
 const currentMapData = computed(() => {
   return maps[currentScene.value] || playgroundMap;
+});
+
+// Scene status text based on time and location
+const sceneStatus = computed(() => {
+  if (!gameTime.value) return "";
+  const h = gameTime.value.hour;
+  const period = gameTime.value.period;
+  const scene = currentScene.value;
+  const npcCount = visibleNpcs.value.length;
+
+  if (period === "night") return "🌙 夜深了，村子安安静静的";
+
+  if (scene === "classroom") {
+    if (h >= 7.5 && h < 12) return `📖 上午课正在上，${npcCount} 个学生在教室里`;
+    if (h >= 12 && h < 13.5) return "🍚 午休时间，学生们回家吃饭了";
+    if (h >= 14 && h < 17) return `📖 下午课正在上，${npcCount} 个学生在教室里`;
+    if (h >= 17) return "🔔 放学了，教室空了";
+    if (h < 7.5) return "🌅 还没开始上课";
+  }
+  if (scene === "playground") {
+    if (h >= 7 && h < 7.5) return "🏁 早操/升旗时间";
+    if ((h >= 9.75 && h < 10.25) || (h >= 15.75 && h < 16.25))
+      return "⏰ 课间休息，操场上有学生在玩";
+    return npcCount > 0 ? `操场上有 ${npcCount} 个人` : "操场空空的";
+  }
+  if (scene === "home") {
+    if (h >= 12 && h < 13.5) return "🍚 午饭时间，一家人围在桌边";
+    if (h >= 17 && h < 21) return "🏠 晚上在家，灯亮着";
+    return "🏠 家里";
+  }
+  if (scene === "village-road") {
+    if (h >= 7 && h < 7.5) return "👣 学生们正走在上学的路上";
+    if (h >= 17 && h < 17.5) return "👣 放学了，学生们走在回家的路上";
+  }
+  if (scene === "flower-pool") return "🌹 花池里月季开得正好";
+  if (scene === "water-tower" && gameTime.value.season === "summer") return "💧 夏天水塔前排着长队";
+  if (scene === "market") return "🏪 集市上人来人往";
+  if (scene === "post-office") return "📮 邮局里堆着今天的信件";
+
+  return npcCount > 0 ? `这里有 ${npcCount} 个人` : "";
 });
 
 // Map NPC states to include tile positions based on their schedule location
@@ -217,6 +259,7 @@ onMounted(async () => {
         @complete-todo="handleCompleteTodo"
       />
       <div class="canvas-area">
+        <div v-if="sceneStatus" class="scene-status">{{ sceneStatus }}</div>
         <GameCanvas
           :map-data="currentMapData"
           :npcs="visibleNpcs"
@@ -280,6 +323,22 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.scene-status {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(245, 230, 200, 0.9);
+  color: #6b5b4e;
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 3px;
+  border: 1px solid #d4c08e;
+  z-index: 2;
+  white-space: nowrap;
+  font-family: "Noto Serif SC", serif;
 }
 
 .dialog-area {
