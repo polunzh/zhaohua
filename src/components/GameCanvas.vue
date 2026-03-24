@@ -202,6 +202,100 @@ function drawSingleFlower(
   ctx.fillRect(x + cx - 1, y + cy - 1, 3, 3);
 }
 
+// Seeded pseudo-random for deterministic per-tile variation
+function tileRand(seed: number): () => number {
+  let s = seed | 0;
+  return () => {
+    s = (s * 1664525 + 1013904223) & 0x7fffffff;
+    return (s >>> 0) / 0x7fffffff;
+  };
+}
+
+// Draw a professional brick wall with per-brick highlights, shadows, inner texture,
+// dithered mortar, and vertical light gradient.
+function drawBrickWall(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  s: number,
+  PAL: { brick: string[] },
+): void {
+  // 5 rows of bricks, each brick ~12×5px with 2px mortar between rows
+  // Row layout: mortarY positions at 5, 12, 19, 26 (2px mortar each)
+  // Brick rows: 0-4, 7-11, 14-18, 21-25, 28-31
+  const rows = [
+    { by: 0, bh: 5, offset: false },
+    { by: 7, bh: 5, offset: true },
+    { by: 14, bh: 5, offset: false },
+    { by: 21, bh: 5, offset: true },
+    { by: 28, bh: 4, offset: false },
+  ];
+  const mortarYs = [5, 12, 19, 26];
+  const brickW = 12;
+  const mortarW = 2;
+
+  // Base fill
+  ctx.fillStyle = PAL.brick[1];
+  ctx.fillRect(x, y, s, s);
+
+  // Vertical gradient: top bricks lighter, bottom darker
+  // Overlay a subtle darkening on the bottom half
+  ctx.fillStyle = PAL.brick[2];
+  // Very subtle: dither the bottom 8px
+  ditherRect(ctx, x, y + 24, s, 8, PAL.brick[1], PAL.brick[2]);
+
+  // Draw dithered mortar lines (horizontal)
+  for (const my of mortarYs) {
+    ditherRect(ctx, x, y + my, s, 2, PAL.brick[0], PAL.brick[1]);
+  }
+
+  // Per-row bricks
+  const rng = tileRand(x * 31 + y * 17);
+  for (let ri = 0; ri < rows.length; ri++) {
+    const row = rows[ri];
+    const startX = row.offset ? -(brickW / 2) : 0;
+    // Light falloff per row: top rows lighter
+    const rowDarken = ri * 2; // 0,2,4,6,8
+
+    for (let bx = startX; bx < s; bx += brickW + mortarW) {
+      const left = Math.max(0, bx);
+      const right = Math.min(s, bx + brickW);
+      if (right <= left) continue;
+      const w = right - left;
+
+      // Vertical mortar (dithered) at brick joints
+      if (bx >= 0 && bx < s && bx > 0) {
+        ditherRect(ctx, x + bx - mortarW, y + row.by, mortarW, row.bh, PAL.brick[0], PAL.brick[1]);
+      }
+
+      // 1px top-left highlight (lighter than base)
+      ctx.fillStyle = PAL.brick[0];
+      ctx.fillRect(x + left, y + row.by, w, 1); // top edge
+      ctx.fillRect(x + left, y + row.by, 1, row.bh); // left edge
+
+      // 1px bottom-right shadow (darker, cool-shifted)
+      ctx.fillStyle = coolShadow(PAL.brick[2], 5 + rowDarken);
+      ctx.fillRect(x + left, y + row.by + row.bh - 1, w, 1); // bottom edge
+      ctx.fillRect(x + right - 1, y + row.by, 1, row.bh); // right edge
+
+      // Inner texture: 1-2 random darker pixels within the brick face
+      const innerX1 = left + 2 + Math.floor(rng() * Math.max(1, w - 4));
+      const innerY1 = row.by + 1 + Math.floor(rng() * Math.max(1, row.bh - 2));
+      ctx.fillStyle = PAL.brick[2];
+      ctx.fillRect(x + innerX1, y + innerY1, 1, 1);
+      if (w > 6) {
+        const innerX2 = left + 2 + Math.floor(rng() * Math.max(1, w - 4));
+        const innerY2 = row.by + 1 + Math.floor(rng() * Math.max(1, row.bh - 2));
+        ctx.fillRect(x + innerX2, y + innerY2, 1, 1);
+      }
+    }
+  }
+
+  // Bottom edge shadow line with cool shadow (2px)
+  ctx.fillStyle = coolShadow(PAL.brick[3], 15);
+  ctx.fillRect(x, y + 30, s, 2);
+}
+
 function drawTile(
   ctx: CanvasRenderingContext2D,
   tileId: number,
@@ -233,118 +327,187 @@ function drawTile(
   switch (tileId) {
     // ── Ground tiles ──────────────────────────────────
     case TILES.DIRT: {
-      // Base fill
+      // 3-shade base: random patches of light/dark over base fill
       ctx.fillStyle = PAL.dirt[1];
       ctx.fillRect(x, y, s, s);
-      // Dark speckles scattered across tile (12 dots)
-      ctx.fillStyle = PAL.dirt[2];
-      ctx.fillRect(x + 4, y + 6, 2, 2);
-      ctx.fillRect(x + 18, y + 2, 2, 2);
-      ctx.fillRect(x + 26, y + 10, 2, 2);
-      ctx.fillRect(x + 10, y + 18, 2, 2);
-      ctx.fillRect(x + 2, y + 24, 2, 2);
-      ctx.fillRect(x + 22, y + 22, 2, 2);
-      ctx.fillRect(x + 14, y + 4, 1, 1);
-      ctx.fillRect(x + 8, y + 14, 1, 1);
-      ctx.fillRect(x + 28, y + 16, 1, 1);
-      ctx.fillRect(x + 6, y + 28, 1, 1);
-      ctx.fillRect(x + 20, y + 12, 1, 1);
-      ctx.fillRect(x + 30, y + 26, 1, 1);
-      // Highlight spots (lighter areas)
+      // Light patches (smooth highlights)
       ctx.fillStyle = PAL.dirt[0];
-      ctx.fillRect(x + 14, y + 4, 2, 2);
-      ctx.fillRect(x + 6, y + 14, 2, 2);
-      ctx.fillRect(x + 24, y + 8, 2, 1);
-      ctx.fillRect(x + 12, y + 26, 3, 1);
-      // Bottom edge darkening (2px shadow)
+      ctx.fillRect(x + 2, y + 2, 4, 4);
+      ctx.fillRect(x + 18, y + 6, 4, 4);
+      ctx.fillRect(x + 8, y + 20, 4, 4);
+      ctx.fillRect(x + 26, y + 14, 4, 4);
+      ctx.fillRect(x + 14, y + 12, 4, 4);
+      // Dark patches (shadow/pebble areas)
+      ctx.fillStyle = PAL.dirt[2];
+      ctx.fillRect(x + 10, y + 2, 4, 4);
+      ctx.fillRect(x + 24, y + 0, 4, 4);
+      ctx.fillRect(x + 0, y + 14, 4, 4);
+      ctx.fillRect(x + 20, y + 20, 4, 4);
+      ctx.fillRect(x + 28, y + 8, 4, 4);
+      // Pebble cluster 1: 3 pixels near top-left
       ctx.fillStyle = PAL.dirt[3];
-      ctx.fillRect(x, y + 28, s, 2);
-      ctx.fillRect(x + 6, y + 26, 4, 2);
-      ctx.fillRect(x + 20, y + 26, 6, 2);
-      // Extra deep speckles
-      ctx.fillRect(x + 12, y + 28, 2, 2);
-      ctx.fillRect(x + 28, y + 20, 2, 2);
-      ctx.fillRect(x + 3, y + 20, 1, 1);
-      ctx.fillRect(x + 16, y + 22, 1, 1);
-      // Dithered bottom edge for depth
+      ctx.fillRect(x + 5, y + 8, 2, 1);
+      ctx.fillRect(x + 6, y + 9, 1, 1);
+      ctx.fillStyle = PAL.dirt[0];
+      ctx.fillRect(x + 5, y + 7, 1, 1); // highlight on pebble
+      // Pebble cluster 2: near center-right
+      ctx.fillStyle = PAL.dirt[3];
+      ctx.fillRect(x + 22, y + 12, 2, 2);
+      ctx.fillRect(x + 24, y + 13, 1, 1);
+      ctx.fillStyle = PAL.dirt[0];
+      ctx.fillRect(x + 22, y + 11, 1, 1);
+      // Pebble cluster 3: lower-left
+      ctx.fillStyle = PAL.dirt[3];
+      ctx.fillRect(x + 4, y + 24, 2, 1);
+      ctx.fillRect(x + 3, y + 25, 1, 1);
+      ctx.fillRect(x + 5, y + 25, 1, 1);
+      // Pebble cluster 4: lower-right
+      ctx.fillStyle = PAL.dirt[3];
+      ctx.fillRect(x + 26, y + 22, 1, 2);
+      ctx.fillRect(x + 27, y + 23, 2, 1);
+      // Tire track / path marks: thin horizontal lines at 1/3 and 2/3
+      ctx.fillStyle = PAL.dirt[2];
+      ctx.fillRect(x + 1, y + 10, 30, 1); // upper track line 1
+      ctx.fillRect(x + 3, y + 11, 26, 1); // upper track line 2 (narrower)
+      ctx.fillRect(x + 1, y + 21, 30, 1); // lower track line 1
+      ctx.fillRect(x + 3, y + 22, 26, 1); // lower track line 2
+      // Subtle highlight inside tracks (worn smooth spots)
+      ctx.fillStyle = PAL.dirt[0];
+      ctx.fillRect(x + 8, y + 10, 3, 1);
+      ctx.fillRect(x + 16, y + 11, 4, 1);
+      ctx.fillRect(x + 20, y + 21, 3, 1);
+      ctx.fillRect(x + 9, y + 22, 4, 1);
+      // Bottom 2px: ambient occlusion dithered edge
       ditherRect(ctx, x, y + s - 4, s, 4, PAL.dirt[1], PAL.dirt[3]);
       break;
     }
 
     case TILES.GRASS: {
-      // Base fill
+      // 3-shade base: base fill + lighter and darker 4×4 patches
       ctx.fillStyle = PAL.grass[1];
       ctx.fillRect(x, y, s, s);
-      // Dark grass blades — 1-2px wide, 3-4px tall (16 blades)
-      ctx.fillStyle = PAL.grass[2];
-      ctx.fillRect(x + 2, y + 4, 1, 4);
-      ctx.fillRect(x + 8, y + 0, 1, 3);
-      ctx.fillRect(x + 12, y + 8, 1, 4);
-      ctx.fillRect(x + 18, y + 2, 1, 3);
-      ctx.fillRect(x + 24, y + 6, 1, 4);
-      ctx.fillRect(x + 28, y + 0, 1, 3);
-      ctx.fillRect(x + 6, y + 18, 1, 4);
-      ctx.fillRect(x + 14, y + 20, 1, 3);
-      ctx.fillRect(x + 20, y + 16, 1, 4);
-      ctx.fillRect(x + 26, y + 22, 1, 3);
-      ctx.fillRect(x + 4, y + 26, 1, 3);
-      ctx.fillRect(x + 10, y + 12, 1, 4);
-      ctx.fillRect(x + 16, y + 6, 2, 3);
-      ctx.fillRect(x + 22, y + 14, 1, 3);
-      ctx.fillRect(x + 30, y + 10, 1, 4);
-      ctx.fillRect(x + 1, y + 14, 1, 3);
-      // Highlight patches (6 patches)
+      // Lighter green patches (scattered 4×4)
       ctx.fillStyle = PAL.grass[0];
-      ctx.fillRect(x + 4, y + 12, 2, 1);
-      ctx.fillRect(x + 16, y + 6, 2, 1);
-      ctx.fillRect(x + 10, y + 24, 2, 1);
-      ctx.fillRect(x + 22, y + 14, 2, 1);
-      ctx.fillRect(x + 28, y + 4, 1, 1);
-      ctx.fillRect(x + 7, y + 2, 1, 1);
-      // Shadow dots (3 dots)
-      ctx.fillStyle = PAL.grass[3];
-      ctx.fillRect(x + 0, y + 28, 2, 2);
-      ctx.fillRect(x + 30, y + 26, 2, 2);
-      ctx.fillRect(x + 15, y + 30, 2, 1);
-      // Dithered bottom edge for smooth transition
-      ditherRect(ctx, x, y + s - 4, s, 4, PAL.grass[1], PAL.grass[2]);
+      ctx.fillRect(x + 2, y + 4, 4, 4);
+      ctx.fillRect(x + 20, y + 0, 4, 4);
+      ctx.fillRect(x + 12, y + 16, 4, 4);
+      ctx.fillRect(x + 28, y + 10, 4, 4);
+      ctx.fillRect(x + 6, y + 24, 4, 4);
+      // Darker green patches (scattered 4×4)
+      ctx.fillStyle = PAL.grass[2];
+      ctx.fillRect(x + 10, y + 2, 4, 4);
+      ctx.fillRect(x + 0, y + 14, 4, 4);
+      ctx.fillRect(x + 24, y + 20, 4, 4);
+      ctx.fillRect(x + 16, y + 8, 4, 4);
+      // Grass blades — varying height (2-5px), some 2px wide, some lean
+      ctx.fillStyle = PAL.grass[2];
+      // Tall blades (5px)
+      ctx.fillRect(x + 3, y + 3, 1, 5);
+      ctx.fillRect(x + 19, y + 1, 1, 5);
+      ctx.fillRect(x + 11, y + 13, 1, 5);
+      ctx.fillRect(x + 27, y + 17, 1, 5);
+      // Medium blades (3-4px)
+      ctx.fillRect(x + 8, y + 7, 1, 4);
+      ctx.fillRect(x + 24, y + 5, 1, 3);
+      ctx.fillRect(x + 14, y + 21, 1, 4);
+      ctx.fillRect(x + 30, y + 11, 1, 3);
+      ctx.fillRect(x + 6, y + 19, 1, 4);
+      ctx.fillRect(x + 22, y + 15, 1, 3);
+      // Short blades (2px)
+      ctx.fillRect(x + 1, y + 10, 1, 2);
+      ctx.fillRect(x + 17, y + 26, 1, 2);
+      ctx.fillRect(x + 29, y + 24, 1, 2);
+      // Wide blades (2px wide)
+      ctx.fillRect(x + 15, y + 5, 2, 4);
+      ctx.fillRect(x + 5, y + 27, 2, 3);
+      // Leaning blades (1px offset at top)
+      ctx.fillStyle = PAL.grass[2];
+      ctx.fillRect(x + 9, y + 23, 1, 3); // base
+      ctx.fillRect(x + 10, y + 22, 1, 1); // lean right
+      ctx.fillRect(x + 21, y + 9, 1, 3); // base
+      ctx.fillRect(x + 20, y + 8, 1, 1); // lean left
+      ctx.fillRect(x + 26, y + 27, 1, 3); // base
+      ctx.fillRect(x + 27, y + 26, 1, 1); // lean right
+      ctx.fillRect(x + 3, y + 16, 1, 3); // base
+      ctx.fillRect(x + 2, y + 15, 1, 1); // lean left
+      // Highlight blade tips
+      ctx.fillStyle = PAL.grass[0];
+      ctx.fillRect(x + 3, y + 3, 1, 1);
+      ctx.fillRect(x + 19, y + 1, 1, 1);
+      ctx.fillRect(x + 11, y + 13, 1, 1);
+      ctx.fillRect(x + 15, y + 5, 1, 1);
+      // Tiny wildflower dots (1×1px)
+      ctx.fillStyle = "#e8e060"; // yellow
+      ctx.fillRect(x + 13, y + 10, 1, 1);
+      ctx.fillStyle = "#f0f0e0"; // white
+      ctx.fillRect(x + 25, y + 3, 1, 1);
+      // Bottom 2px: darker dithered edge (ambient occlusion)
+      ditherRect(ctx, x, y + s - 2, s, 2, PAL.grass[1], PAL.grass[3]);
       break;
     }
 
     case TILES.FLOOR_CLASSROOM: {
-      // Base fill
+      // Base fill — warm paper tone
       ctx.fillStyle = PAL.floor[1];
       ctx.fillRect(x, y, s, s);
-      // Tile grid lines at edges and center (16px tile pattern)
+      // Sub-tile brightness variation: top-left lightest
+      ctx.fillStyle = PAL.floor[0];
+      ctx.globalAlpha = 0.12;
+      ctx.fillRect(x + 1, y + 1, 15, 15); // top-left lightest
+      ctx.globalAlpha = 0.04;
+      ctx.fillRect(x + 17, y + 1, 14, 15); // top-right slightly lighter
+      ctx.globalAlpha = 0.06;
+      ctx.fillRect(x + 17, y + 17, 14, 14); // bottom-right slightly darker via no highlight
+      ctx.globalAlpha = 1.0;
+      // Bottom-left sub-tile: very slightly darker
+      ctx.fillStyle = PAL.floor[2];
+      ctx.globalAlpha = 0.08;
+      ctx.fillRect(x + 1, y + 17, 15, 14);
+      ctx.globalAlpha = 1.0;
+      // Wood grain lines per sub-tile (2-3 thin horizontal lines each)
+      ctx.fillStyle = PAL.floor[2];
+      // Top-left sub-tile grain
+      ctx.fillRect(x + 2, y + 4, 10, 1);
+      ctx.fillRect(x + 3, y + 8, 8, 1);
+      ctx.fillRect(x + 2, y + 12, 11, 1);
+      // Top-right sub-tile grain
+      ctx.fillRect(x + 19, y + 5, 9, 1);
+      ctx.fillRect(x + 18, y + 9, 10, 1);
+      ctx.fillRect(x + 20, y + 13, 8, 1);
+      // Bottom-left sub-tile grain
+      ctx.fillRect(x + 3, y + 20, 9, 1);
+      ctx.fillRect(x + 2, y + 24, 10, 1);
+      ctx.fillRect(x + 4, y + 28, 7, 1);
+      // Bottom-right sub-tile grain
+      ctx.fillRect(x + 19, y + 21, 8, 1);
+      ctx.fillRect(x + 18, y + 25, 10, 1);
+      ctx.fillRect(x + 20, y + 29, 7, 1);
+      // Grain highlight lines (subtle lighter streaks)
+      ctx.fillStyle = PAL.floor[0];
+      ctx.fillRect(x + 5, y + 6, 6, 1);
+      ctx.fillRect(x + 21, y + 7, 5, 1);
+      ctx.fillRect(x + 4, y + 22, 7, 1);
+      ctx.fillRect(x + 22, y + 23, 5, 1);
+      // Joint lines: center cross where 4 sub-tiles meet
+      ctx.fillStyle = PAL.floor[2];
+      ctx.fillRect(x + 15, y, 2, s); // center vertical joint (2px wide)
+      ctx.fillRect(x, y + 15, s, 2); // center horizontal joint (2px wide)
+      // Joint shadow (darker inner edge)
+      ctx.fillStyle = PAL.floor[3];
+      ctx.fillRect(x + 16, y, 1, s); // right side of vertical joint
+      ctx.fillRect(x, y + 16, s, 1); // bottom side of horizontal joint
+      // Edge joints (tile border)
       ctx.fillStyle = PAL.floor[2];
       ctx.fillRect(x, y, 1, s); // left edge
       ctx.fillRect(x, y, s, 1); // top edge
       ctx.fillRect(x + 31, y, 1, s); // right edge
       ctx.fillRect(x, y + 31, s, 1); // bottom edge
-      ctx.fillRect(x + 16, y, 1, s); // center vertical
-      ctx.fillRect(x, y + 16, s, 1); // center horizontal
-      // Subtle diagonal grain in each quadrant
-      ctx.fillRect(x + 4, y + 4, 3, 1);
-      ctx.fillRect(x + 8, y + 8, 3, 1);
-      ctx.fillRect(x + 20, y + 4, 3, 1);
-      ctx.fillRect(x + 24, y + 8, 3, 1);
-      ctx.fillRect(x + 4, y + 20, 3, 1);
-      ctx.fillRect(x + 8, y + 24, 3, 1);
-      ctx.fillRect(x + 20, y + 20, 3, 1);
-      ctx.fillRect(x + 24, y + 24, 3, 1);
-      ctx.fillRect(x + 12, y + 12, 2, 1);
-      ctx.fillRect(x + 10, y + 26, 2, 1);
-      // Highlight center areas
-      ctx.fillStyle = PAL.floor[0];
-      ctx.fillRect(x + 6, y + 6, 2, 1);
-      ctx.fillRect(x + 22, y + 6, 2, 1);
-      ctx.fillRect(x + 12, y + 10, 1, 1);
-      ctx.fillRect(x + 20, y + 16, 1, 1);
-      // Shadow corners (2x2)
+      // Shadow at joint intersection (center point)
       ctx.fillStyle = PAL.floor[3];
-      ctx.fillRect(x, y + 30, 2, 2);
-      ctx.fillRect(x + 30, y + 30, 2, 2);
-      ctx.fillRect(x + 16, y + 16, 1, 1);
+      ctx.fillRect(x + 15, y + 15, 2, 2);
+      // Corner shadows
+      ctx.fillRect(x, y + 31, 1, 1);
+      ctx.fillRect(x + 31, y + 31, 1, 1);
       break;
     }
 
@@ -410,48 +573,7 @@ function drawTile(
 
     // ── Wall tiles ────────────────────────────────────
     case TILES.WALL_BRICK: {
-      // Base fill
-      ctx.fillStyle = PAL.brick[1];
-      ctx.fillRect(x, y, s, s);
-      // Mortar lines (2px gap) in highlight color
-      ctx.fillStyle = PAL.brick[0];
-      // Horizontal mortar — 5 rows of bricks, each ~6px tall
-      ctx.fillRect(x, y + 6, s, 2);
-      ctx.fillRect(x, y + 14, s, 2);
-      ctx.fillRect(x, y + 22, s, 2);
-      ctx.fillRect(x, y + 30, s, 2);
-      // Vertical mortar — offset pattern
-      ctx.fillRect(x + 14, y, 2, 6); // row 1
-      ctx.fillRect(x + 6, y + 8, 2, 6); // row 2
-      ctx.fillRect(x + 22, y + 8, 2, 6); // row 2
-      ctx.fillRect(x + 14, y + 16, 2, 6); // row 3
-      ctx.fillRect(x + 6, y + 24, 2, 6); // row 4
-      ctx.fillRect(x + 22, y + 24, 2, 6); // row 4
-      // Per-brick highlight (top-left 2px strip)
-      ctx.fillStyle = PAL.brick[0];
-      ctx.fillRect(x + 2, y + 1, 4, 1);
-      ctx.fillRect(x + 18, y + 1, 4, 1);
-      ctx.fillRect(x + 8, y + 9, 4, 1);
-      ctx.fillRect(x + 2, y + 17, 4, 1);
-      ctx.fillRect(x + 18, y + 17, 4, 1);
-      ctx.fillRect(x + 8, y + 25, 4, 1);
-      // Per-brick shadow (bottom-right 2px strip)
-      ctx.fillStyle = PAL.brick[2];
-      ctx.fillRect(x + 10, y + 4, 3, 2);
-      ctx.fillRect(x + 26, y + 4, 3, 2);
-      ctx.fillRect(x + 4, y + 12, 2, 2);
-      ctx.fillRect(x + 18, y + 12, 3, 2);
-      ctx.fillRect(x + 10, y + 20, 3, 2);
-      ctx.fillRect(x + 26, y + 20, 3, 2);
-      ctx.fillRect(x + 4, y + 28, 2, 2);
-      ctx.fillRect(x + 18, y + 28, 3, 2);
-      // Dithered mortar transition zones
-      ditherRect(ctx, x, y + 6, s, 2, PAL.brick[0], PAL.brick[1]);
-      ditherRect(ctx, x, y + 14, s, 2, PAL.brick[0], PAL.brick[1]);
-      ditherRect(ctx, x, y + 22, s, 2, PAL.brick[0], PAL.brick[1]);
-      // Bottom edge shadow line with cool shadow (2px)
-      ctx.fillStyle = coolShadow(PAL.brick[3], 15);
-      ctx.fillRect(x, y + 30, s, 2);
+      drawBrickWall(ctx, x, y, s, PAL);
       break;
     }
 
@@ -663,40 +785,71 @@ function drawTile(
       ctx.fillRect(x, y + 8, 3, 1);
       ctx.fillRect(x + 29, y + 24, 3, 1);
       ctx.fillRect(x + 1, y + 28, 2, 1);
+      // Window sill at bottom: 2px high, extends 2px wider than frame
+      ctx.fillStyle = PAL.wood[1];
+      ctx.fillRect(x + 2, y + 28, 28, 2);
+      ctx.fillStyle = PAL.wood[0];
+      ctx.fillRect(x + 2, y + 28, 28, 1); // sill top highlight
+      ctx.fillStyle = PAL.wood[3];
+      ctx.fillRect(x + 2, y + 30, 28, 1); // sill bottom shadow
       // Window frame (wood) — 24x24
       ctx.fillStyle = PAL.wood[2];
-      ctx.fillRect(x + 4, y + 4, 24, 24);
+      ctx.fillRect(x + 4, y + 3, 24, 25);
       // Frame highlight (2px)
       ctx.fillStyle = PAL.wood[1];
-      ctx.fillRect(x + 4, y + 4, 24, 2);
-      ctx.fillRect(x + 4, y + 4, 2, 24);
+      ctx.fillRect(x + 4, y + 3, 24, 2);
+      ctx.fillRect(x + 4, y + 3, 2, 25);
       // Frame shadow (2px)
       ctx.fillStyle = PAL.wood[3];
       ctx.fillRect(x + 4, y + 26, 24, 2);
-      ctx.fillRect(x + 26, y + 4, 2, 24);
-      // Glass — top lighter (sky gradient, 4 panes)
-      ctx.fillStyle = "#a8d0e8";
-      ctx.fillRect(x + 6, y + 6, 20, 9);
+      ctx.fillRect(x + 26, y + 3, 2, 25);
+      // Wood grain on outer frame: thin horizontal lines
+      ctx.fillStyle = PAL.wood[3];
+      ctx.fillRect(x + 5, y + 7, 1, 1); // left frame grain
+      ctx.fillRect(x + 5, y + 14, 1, 1);
+      ctx.fillRect(x + 5, y + 21, 1, 1);
+      ctx.fillRect(x + 27, y + 9, 1, 1); // right frame grain
+      ctx.fillRect(x + 27, y + 18, 1, 1);
+      ctx.fillStyle = PAL.wood[1];
+      ctx.fillRect(x + 8, y + 3, 4, 1); // top frame grain
+      ctx.fillRect(x + 18, y + 4, 5, 1);
+      ctx.fillRect(x + 10, y + 27, 4, 1); // bottom frame grain
+      ctx.fillRect(x + 20, y + 26, 3, 1);
+      // Glass — gradient: top lighter (sky), bottom darker
+      ctx.fillStyle = "#b0d8f0";
+      ctx.fillRect(x + 6, y + 5, 20, 5);
+      ctx.fillStyle = "#a0cce8";
+      ctx.fillRect(x + 6, y + 10, 20, 5);
       ctx.fillStyle = "#90c0d8";
-      ctx.fillRect(x + 6, y + 17, 20, 9);
+      ctx.fillRect(x + 6, y + 15, 20, 5);
+      ctx.fillStyle = "#80b4cc";
+      ctx.fillRect(x + 6, y + 20, 20, 6);
       // Cross frame (2px dividers)
       ctx.fillStyle = PAL.wood[2];
-      ctx.fillRect(x + 15, y + 6, 2, 20); // vertical
-      ctx.fillRect(x + 6, y + 15, 20, 2); // horizontal
-      // White reflection in top-left pane (4x4 lighter)
-      ctx.fillStyle = "#d8eef8";
-      ctx.fillRect(x + 8, y + 8, 4, 2);
-      ctx.fillRect(x + 8, y + 10, 2, 2);
-      // Slight blue reflection bottom-right
+      ctx.fillRect(x + 15, y + 5, 2, 21); // vertical
+      ctx.fillRect(x + 6, y + 14, 20, 2); // horizontal
+      // Wood grain on cross frame
+      ctx.fillStyle = PAL.wood[1];
+      ctx.fillRect(x + 15, y + 8, 1, 1);
+      ctx.fillRect(x + 16, y + 18, 1, 1);
+      ctx.fillRect(x + 9, y + 14, 1, 1);
+      ctx.fillRect(x + 21, y + 15, 1, 1);
+      // Clear white reflection in top-left pane (4×3px)
+      ctx.fillStyle = "#e0f4ff";
+      ctx.fillRect(x + 8, y + 7, 4, 2);
+      ctx.fillRect(x + 8, y + 9, 2, 1);
+      // Secondary subtle reflection bottom-right
       ctx.fillStyle = "#b8d8e8";
       ctx.fillRect(x + 22, y + 22, 2, 2);
-      // Curtain hints at sides
-      ctx.fillStyle = "#d8c8b0";
-      ctx.fillRect(x + 6, y + 6, 1, 20);
-      ctx.fillRect(x + 25, y + 6, 1, 20);
-      ctx.fillStyle = "#c8b8a0";
-      ctx.fillRect(x + 7, y + 7, 1, 6);
-      ctx.fillRect(x + 24, y + 7, 1, 6);
+      // Curtain hints: 2px wide faded warm strips at inner edges
+      ctx.fillStyle = "#c4706a";
+      ctx.globalAlpha = 0.3;
+      ctx.fillRect(x + 6, y + 5, 2, 21); // left curtain
+      ctx.fillRect(x + 24, y + 5, 2, 21); // right curtain
+      ctx.globalAlpha = 0.2;
+      ctx.fillRect(x + 8, y + 6, 1, 6); // left curtain fold
+      ctx.fillRect(x + 23, y + 6, 1, 6); // right curtain fold
+      ctx.globalAlpha = 1.0;
       break;
     }
 
@@ -704,49 +857,82 @@ function drawTile(
       // Wall background
       ctx.fillStyle = PAL.brick[1];
       ctx.fillRect(x, y, s, s);
-      // Door frame (darker wood) — 20x28 door
+      // Door frame (darker wood) — visibly different from door surface
       ctx.fillStyle = PAL.wood[3];
-      ctx.fillRect(x + 5, y + 2, 22, 28);
-      // Door surface
-      ctx.fillStyle = PAL.wood[2];
-      ctx.fillRect(x + 7, y + 4, 18, 24);
-      // Top panel (slightly lighter) with recessed effect
+      ctx.fillRect(x + 5, y + 2, 22, 29);
+      // Frame left edge highlight
       ctx.fillStyle = PAL.wood[1];
-      ctx.fillRect(x + 9, y + 6, 14, 8);
-      // Top panel inner highlight
-      ctx.fillStyle = PAL.wood[0];
-      ctx.fillRect(x + 9, y + 6, 14, 2);
-      ctx.fillRect(x + 9, y + 6, 2, 8);
-      // Top panel shadow
-      ctx.fillStyle = PAL.wood[3];
-      ctx.fillRect(x + 9, y + 12, 14, 2);
-      ctx.fillRect(x + 21, y + 6, 2, 8);
-      // Bottom panel with recessed effect
-      ctx.fillStyle = PAL.wood[1];
-      ctx.fillRect(x + 9, y + 18, 14, 8);
-      // Bottom panel highlight
-      ctx.fillStyle = PAL.wood[0];
-      ctx.fillRect(x + 9, y + 18, 14, 2);
-      ctx.fillRect(x + 9, y + 18, 2, 8);
-      // Bottom panel shadow
-      ctx.fillStyle = PAL.wood[3];
-      ctx.fillRect(x + 9, y + 24, 14, 2);
-      ctx.fillRect(x + 21, y + 18, 2, 8);
-      // Handle (circle-ish, 3px)
-      ctx.fillStyle = "#e8c84a";
-      ctx.fillRect(x + 20, y + 16, 3, 3);
-      ctx.fillStyle = "#d0b040";
-      ctx.fillRect(x + 21, y + 17, 2, 2);
-      ctx.fillStyle = "#f0d860";
-      ctx.fillRect(x + 20, y + 16, 1, 1);
-      // Left edge highlight on frame
-      ctx.fillStyle = PAL.wood[0];
-      ctx.fillRect(x + 5, y + 2, 1, 28); // left edge highlight
+      ctx.fillRect(x + 5, y + 2, 1, 29);
       ctx.fillRect(x + 5, y + 2, 22, 1); // top edge highlight
-      // Right side shadow on frame (2px)
+      // Frame right shadow (2px cool-shifted)
+      ctx.fillStyle = coolShadow(PAL.wood[3], 10);
+      ctx.fillRect(x + 25, y + 3, 2, 28);
+      // Door surface (lighter than frame)
+      ctx.fillStyle = PAL.wood[1];
+      ctx.fillRect(x + 7, y + 4, 18, 24);
+      // Subtle wood grain on door surface
+      ctx.fillStyle = PAL.wood[2];
+      ctx.fillRect(x + 9, y + 8, 8, 1);
+      ctx.fillRect(x + 11, y + 15, 6, 1);
+      ctx.fillRect(x + 8, y + 22, 7, 1);
+      ctx.fillRect(x + 16, y + 12, 5, 1);
+      ctx.fillRect(x + 14, y + 20, 6, 1);
+      // Top panel with recessed effect
+      ctx.fillStyle = PAL.wood[0];
+      ctx.fillRect(x + 9, y + 6, 14, 8);
+      // Top panel border (1px darker all around)
+      ctx.fillStyle = PAL.wood[2];
+      ctx.fillRect(x + 9, y + 6, 14, 1); // top
+      ctx.fillRect(x + 9, y + 13, 14, 1); // bottom
+      ctx.fillRect(x + 9, y + 6, 1, 8); // left
+      ctx.fillRect(x + 22, y + 6, 1, 8); // right
+      // Top panel inner highlight (1px)
+      ctx.fillStyle = PAL.wood[0];
+      ctx.fillRect(x + 10, y + 7, 12, 1);
+      ctx.fillRect(x + 10, y + 7, 1, 5);
+      // Top panel inner shadow (1px)
       ctx.fillStyle = PAL.wood[3];
+      ctx.fillRect(x + 10, y + 12, 12, 1);
+      ctx.fillRect(x + 21, y + 7, 1, 5);
+      // Bottom panel with recessed effect
+      ctx.fillStyle = PAL.wood[0];
+      ctx.fillRect(x + 9, y + 17, 14, 9);
+      // Bottom panel border (1px darker all around)
+      ctx.fillStyle = PAL.wood[2];
+      ctx.fillRect(x + 9, y + 17, 14, 1);
+      ctx.fillRect(x + 9, y + 25, 14, 1);
+      ctx.fillRect(x + 9, y + 17, 1, 9);
+      ctx.fillRect(x + 22, y + 17, 1, 9);
+      // Bottom panel inner highlight
+      ctx.fillStyle = PAL.wood[0];
+      ctx.fillRect(x + 10, y + 18, 12, 1);
+      ctx.fillRect(x + 10, y + 18, 1, 6);
+      // Bottom panel inner shadow
+      ctx.fillStyle = PAL.wood[3];
+      ctx.fillRect(x + 10, y + 24, 12, 1);
+      ctx.fillRect(x + 21, y + 18, 1, 6);
+      // Handle — round knob (3×3 circle with highlight)
+      ctx.fillStyle = "#d0b040";
+      ctx.fillRect(x + 20, y + 15, 3, 1);
+      ctx.fillRect(x + 19, y + 16, 1, 1);
+      ctx.fillRect(x + 20, y + 16, 3, 1);
+      ctx.fillRect(x + 23, y + 16, 1, 1);
+      ctx.fillRect(x + 20, y + 17, 3, 1);
+      // Knob highlight
+      ctx.fillStyle = "#f0d860";
+      ctx.fillRect(x + 20, y + 15, 1, 1);
+      // Knob shadow
+      ctx.fillStyle = "#a08830";
+      ctx.fillRect(x + 22, y + 17, 1, 1);
+      // Gap under the door (1px dark line)
+      ctx.fillStyle = "#1a1a20";
+      ctx.fillRect(x + 7, y + 28, 18, 1);
+      // Door frame bottom shadow
+      ctx.fillStyle = PAL.wood[3];
+      ctx.fillRect(x + 5, y + 30, 22, 1);
+      // Right-side shadow from frame (2px cool-shifted strip)
+      ctx.fillStyle = coolShadow(PAL.wood[2], 15);
       ctx.fillRect(x + 25, y + 4, 2, 24);
-      ctx.fillRect(x + 5, y + 29, 22, 1); // bottom edge shadow
       // Brick hints at top corners
       ctx.fillStyle = PAL.brick[0];
       ctx.fillRect(x, y + 8, 4, 1);
