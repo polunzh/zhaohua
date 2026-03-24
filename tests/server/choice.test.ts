@@ -26,7 +26,7 @@ describe("Choice system", () => {
       gameTime: "08:30",
       choiceType: "npc-interaction",
       choiceValue: "encourage",
-      context: "student-zhiqiang",
+      context: "student-zhang-wei",
     });
 
     const rows = db.prepare("SELECT * FROM player_choices").all() as {
@@ -35,54 +35,54 @@ describe("Choice system", () => {
     }[];
     expect(rows).toHaveLength(1);
     expect(rows[0].choice_value).toBe("encourage");
-    expect(rows[0].context).toBe("student-zhiqiang");
+    expect(rows[0].context).toBe("student-zhang-wei");
   });
 
   it("updates NPC affinity with encourage (+10)", () => {
     saveNpcState(db, {
-      npcId: "student-zhiqiang",
+      npcId: "student-zhang-wei",
       location: "classroom",
       mood: "neutral",
       affinity: 50,
     });
 
-    updateNpcAffinity(db, "student-zhiqiang", 10);
+    updateNpcAffinity(db, "student-zhang-wei", 10);
 
-    const state = getNpcState(db, "student-zhiqiang");
+    const state = getNpcState(db, "student-zhang-wei");
     expect(state!.affinity).toBe(60);
   });
 
   it("updates NPC affinity with criticize (-5)", () => {
     saveNpcState(db, {
-      npcId: "student-zhiqiang",
+      npcId: "student-zhang-wei",
       location: "classroom",
       mood: "neutral",
       affinity: 50,
     });
 
-    updateNpcAffinity(db, "student-zhiqiang", -5);
+    updateNpcAffinity(db, "student-zhang-wei", -5);
 
-    const state = getNpcState(db, "student-zhiqiang");
+    const state = getNpcState(db, "student-zhang-wei");
     expect(state!.affinity).toBe(45);
   });
 
   it("updates NPC mood", () => {
     saveNpcState(db, {
-      npcId: "student-zhiqiang",
+      npcId: "student-zhang-wei",
       location: "classroom",
       mood: "neutral",
       affinity: 50,
     });
 
-    updateNpcMood(db, "student-zhiqiang", "happy");
+    updateNpcMood(db, "student-zhang-wei", "happy");
 
-    const state = getNpcState(db, "student-zhiqiang");
+    const state = getNpcState(db, "student-zhang-wei");
     expect(state!.mood).toBe("happy");
   });
 
   it("handleChoice with encourage updates affinity and mood", () => {
     const result = handleChoice(db, {
-      npcId: "student-zhiqiang",
+      npcId: "student-zhang-wei",
       choiceId: "encourage",
       gameDate: "1994-09-15",
       gameTime: "08:30",
@@ -92,21 +92,21 @@ describe("Choice system", () => {
     expect(result.effect.affinityDelta).toBe(10);
     expect(result.effect.mood).toBe("happy");
 
-    const state = getNpcState(db, "student-zhiqiang");
+    const state = getNpcState(db, "student-zhang-wei");
     expect(state!.affinity).toBe(60);
     expect(state!.mood).toBe("happy");
   });
 
   it("handleChoice with criticize updates affinity and mood", () => {
     saveNpcState(db, {
-      npcId: "student-zhiqiang",
+      npcId: "student-zhang-wei",
       location: "classroom",
       mood: "neutral",
       affinity: 50,
     });
 
     const result = handleChoice(db, {
-      npcId: "student-zhiqiang",
+      npcId: "student-zhang-wei",
       choiceId: "criticize",
       gameDate: "1994-09-15",
       gameTime: "08:30",
@@ -116,7 +116,7 @@ describe("Choice system", () => {
     expect(result.effect.affinityDelta).toBe(-5);
     expect(result.effect.mood).toBe("upset");
 
-    const state = getNpcState(db, "student-zhiqiang");
+    const state = getNpcState(db, "student-zhang-wei");
     expect(state!.affinity).toBe(45);
     expect(state!.mood).toBe("upset");
   });

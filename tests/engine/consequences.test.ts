@@ -27,7 +27,7 @@ describe("Consequences", () => {
       activeCharacter: "teacher",
     });
     saveNpcState(db, {
-      npcId: "student-shuanzhu",
+      npcId: "student-zhu-peng",
       location: "classroom",
       mood: "neutral",
       affinity: 50,
@@ -41,12 +41,12 @@ describe("Consequences", () => {
       gameTime: "09:00",
       choiceType: "npc-interaction",
       choiceValue: "encourage",
-      context: "student-shuanzhu",
+      context: "student-zhu-peng",
     });
     const results = processConsequences(db, "1994-09-15");
     expect(results.length).toBeGreaterThan(0);
     expect(results[0].type).toBe("positive");
-    expect(results[0].npcId).toBe("student-shuanzhu");
+    expect(results[0].npcId).toBe("student-zhu-peng");
   });
 
   it("generates negative consequence after criticizing NPC", () => {
@@ -55,7 +55,7 @@ describe("Consequences", () => {
       gameTime: "09:00",
       choiceType: "npc-interaction",
       choiceValue: "criticize",
-      context: "student-shuanzhu",
+      context: "student-zhu-peng",
     });
     const results = processConsequences(db, "1994-09-15");
     expect(results.length).toBeGreaterThan(0);
@@ -68,7 +68,7 @@ describe("Consequences", () => {
       gameTime: "09:00",
       choiceType: "npc-interaction",
       choiceValue: "encourage",
-      context: "student-shuanzhu",
+      context: "student-zhu-peng",
     });
     const results = processConsequences(db, "1994-09-15"); // only 1 day later
     expect(results).toHaveLength(0);
@@ -80,7 +80,7 @@ describe("Consequences", () => {
       gameTime: "09:00",
       choiceType: "npc-interaction",
       choiceValue: "encourage",
-      context: "student-shuanzhu",
+      context: "student-zhu-peng",
     });
     const results = processConsequences(db, "1994-09-15"); // 14 days later
     expect(results).toHaveLength(0);
@@ -92,10 +92,10 @@ describe("Consequences", () => {
       gameTime: "09:00",
       choiceType: "npc-interaction",
       choiceValue: "encourage",
-      context: "student-shuanzhu",
+      context: "student-zhu-peng",
     });
     processConsequences(db, "1994-09-15");
-    const state = getNpcState(db, "student-shuanzhu");
+    const state = getNpcState(db, "student-zhu-peng");
     expect(state!.affinity).toBeGreaterThan(50);
   });
 
@@ -105,7 +105,7 @@ describe("Consequences", () => {
       gameTime: "09:00",
       choiceType: "npc-interaction",
       choiceValue: "encourage",
-      context: "student-shuanzhu",
+      context: "student-zhu-peng",
     });
     processConsequences(db, "1994-09-15");
     const events = getRecentEvents(db, 10);
@@ -119,7 +119,7 @@ describe("Consequences", () => {
       gameTime: "09:00",
       choiceType: "npc-interaction",
       choiceValue: "encourage",
-      context: "student-shuanzhu",
+      context: "student-zhu-peng",
     });
     processConsequences(db, "1994-09-15");
     const results2 = processConsequences(db, "1994-09-16");

@@ -98,10 +98,10 @@ export const classroomMap: TileMapData = {
   npcSpawns: [
     { npcId: "teacher", tileX: 8, tileY: 1 },
     // Students at desk seats (row below each desk, facing blackboard)
-    { npcId: "student-zhiqiang", tileX: 4, tileY: 4 },
-    { npcId: "student-xiuqin", tileX: 8, tileY: 4 },
-    { npcId: "student-jianjun", tileX: 12, tileY: 4 },
-    { npcId: "student-chunyan", tileX: 4, tileY: 6 },
-    { npcId: "student-shuanzhu", tileX: 8, tileY: 6 },
+    { npcId: "student-zhang-wei", tileX: 4, tileY: 4 },
+    { npcId: "student-wang-fang", tileX: 8, tileY: 4 },
+    { npcId: "student-li-lei", tileX: 12, tileY: 4 },
+    { npcId: "student-zhao-na", tileX: 4, tileY: 6 },
+    { npcId: "student-zhu-peng", tileX: 8, tileY: 6 },
   ],
 };

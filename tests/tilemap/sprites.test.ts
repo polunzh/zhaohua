@@ -12,11 +12,11 @@ import {
 describe("Sprites", () => {
   it("all NPCs have sprite configs", () => {
     const expectedNpcs = [
-      "student-zhiqiang",
-      "student-xiuqin",
-      "student-jianjun",
-      "student-chunyan",
-      "student-shuanzhu",
+      "student-zhang-wei",
+      "student-wang-fang",
+      "student-li-lei",
+      "student-zhao-na",
+      "student-zhu-peng",
       "principal-sun",
       "colleague-zhou",
       "parent-gao",
@@ -41,7 +41,7 @@ describe("Sprites", () => {
   });
 
   it("getSpriteConfig returns config for known NPC", () => {
-    const config = getSpriteConfig("student-zhiqiang");
+    const config = getSpriteConfig("student-zhang-wei");
     expect(config).toBeDefined();
     expect(config!.bodyColor).toBe("#C4706A");
   });

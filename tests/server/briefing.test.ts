@@ -64,7 +64,7 @@ describe("Briefing API", () => {
 
   it("includes consequences", () => {
     saveNpcState(db, {
-      npcId: "student-shuanzhu",
+      npcId: "student-zhu-peng",
       location: "classroom",
       mood: "neutral",
       affinity: 50,
@@ -74,7 +74,7 @@ describe("Briefing API", () => {
       gameTime: "09:00",
       choiceType: "npc-interaction",
       choiceValue: "encourage",
-      context: "student-shuanzhu",
+      context: "student-zhu-peng",
     });
     const briefing = handleGetBriefing(db);
     expect(briefing.consequences).toBeDefined();

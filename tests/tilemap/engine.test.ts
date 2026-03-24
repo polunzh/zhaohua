@@ -25,7 +25,7 @@ const testMap: TileMapData = {
     [false, false, false, false],
   ],
   exits: [{ tileX: 3, tileY: 3, targetMapId: "village", targetTileX: 0, targetTileY: 0 }],
-  npcSpawns: [{ npcId: "student-zhiqiang", tileX: 2, tileY: 2 }],
+  npcSpawns: [{ npcId: "student-zhang-wei", tileX: 2, tileY: 2 }],
 };
 
 describe("TileMapEngine", () => {
@@ -65,7 +65,7 @@ describe("TileMapEngine", () => {
 
   it("gets NPC spawn at tile", () => {
     const engine = new TileMapEngine(testMap);
-    expect(engine.getNpcAt(2, 2)).toBe("student-zhiqiang");
+    expect(engine.getNpcAt(2, 2)).toBe("student-zhang-wei");
     expect(engine.getNpcAt(0, 0)).toBeNull();
   });
 

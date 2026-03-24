@@ -13,12 +13,12 @@ describe("Relationships", () => {
 
   it("saves and reads relationship", () => {
     saveRelationship(db, {
-      npcA: "student-zhiqiang",
-      npcB: "student-xiuqin",
+      npcA: "student-zhang-wei",
+      npcB: "student-wang-fang",
       type: "friend",
       strength: 70,
     });
-    const rel = getRelationship(db, "student-zhiqiang", "student-xiuqin");
+    const rel = getRelationship(db, "student-zhang-wei", "student-wang-fang");
     expect(rel).toBeDefined();
     expect(rel!.type).toBe("friend");
     expect(rel!.strength).toBe(70);
@@ -26,18 +26,18 @@ describe("Relationships", () => {
 
   it("gets all relationships for NPC", () => {
     saveRelationship(db, {
-      npcA: "student-zhiqiang",
-      npcB: "student-xiuqin",
+      npcA: "student-zhang-wei",
+      npcB: "student-wang-fang",
       type: "friend",
       strength: 70,
     });
     saveRelationship(db, {
-      npcA: "student-zhiqiang",
-      npcB: "student-jianjun",
+      npcA: "student-zhang-wei",
+      npcB: "student-li-lei",
       type: "rival",
       strength: 30,
     });
-    const rels = getRelationships(db, "student-zhiqiang");
+    const rels = getRelationships(db, "student-zhang-wei");
     expect(rels).toHaveLength(2);
   });
 });

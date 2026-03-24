@@ -12,31 +12,31 @@ export const SPRITE_HEIGHT = 32;
 
 // NPC sprite configs — each NPC has distinct colors
 export const npcSpriteConfigs: Record<string, SpriteConfig> = {
-  "student-zhiqiang": {
+  "student-zhang-wei": {
     hairColor: "#3a3530",
     bodyColor: "#C4706A",
     legColor: "#5C6B7A",
     skinColor: "#C9A882",
   },
-  "student-xiuqin": {
+  "student-wang-fang": {
     hairColor: "#3a3530",
     bodyColor: "#7A9178",
     legColor: "#5C6B7A",
     skinColor: "#C9A882",
   },
-  "student-jianjun": {
+  "student-li-lei": {
     hairColor: "#3a3530",
     bodyColor: "#5C6B7A",
     legColor: "#6B5B4E",
     skinColor: "#C9A882",
   },
-  "student-chunyan": {
+  "student-zhao-na": {
     hairColor: "#6B5B4E",
     bodyColor: "#d88a84",
     legColor: "#5C6B7A",
     skinColor: "#C9A882",
   },
-  "student-shuanzhu": {
+  "student-zhu-peng": {
     hairColor: "#3a3530",
     bodyColor: "#8B6914",
     legColor: "#6B5B4E",

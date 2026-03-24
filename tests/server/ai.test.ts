@@ -40,13 +40,13 @@ describe("AI Adapter", () => {
 describe("Prompts", () => {
   it("builds dialogue prompt with NPC context", () => {
     const prompt = buildDialoguePrompt({
-      npcName: "志强",
+      npcName: "张伟",
       npcPersonality: "调皮好动",
       situation: "上课迟到被老师叫住",
       season: "autumn",
       gameDate: "1994-09-15",
     });
-    expect(prompt).toContain("志强");
+    expect(prompt).toContain("张伟");
     expect(prompt).toContain("调皮好动");
     expect(prompt).toContain("1994");
     expect(prompt).toContain("不要使用现代网络用语");
