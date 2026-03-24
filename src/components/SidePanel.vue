@@ -283,8 +283,8 @@ const ambientText = computed(() => {
 
 <style scoped>
 .side-panel {
-  width: 200px;
-  min-width: 200px;
+  width: 260px;
+  min-width: 260px;
   background: #f5e6c8;
   border-right: 2px solid #d4c08e;
   display: flex;

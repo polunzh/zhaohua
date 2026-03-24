@@ -1570,6 +1570,34 @@ function handleClick(e: MouseEvent) {
   emit("clickTile", tileX, tileY);
 }
 
+function handleMouseMove(e: MouseEvent) {
+  if (!canvasRef.value || !engine || !props.mapData) return;
+  const rect = canvasRef.value.getBoundingClientRect();
+  const cssToCanvasX = canvasRef.value.width / rect.width;
+  const cssToCanvasY = canvasRef.value.height / rect.height;
+  const canvasX = (e.clientX - rect.left) * cssToCanvasX;
+  const canvasY = (e.clientY - rect.top) * cssToCanvasY;
+  const { tileX, tileY } = engine.pixelToTile(canvasX / 2, canvasY / 2);
+
+  // Check what's under the cursor
+  for (const npc of props.npcs) {
+    if (npc.tileX === tileX && (npc.tileY === tileY || npc.tileY === tileY + 1)) {
+      canvasRef.value.style.cursor = "pointer";
+      return;
+    }
+  }
+  if (engine.getExitAt(tileX, tileY)) {
+    canvasRef.value.style.cursor = "pointer";
+    return;
+  }
+  const objId = engine.getObjectTile(tileX, tileY);
+  if (objId !== 0) {
+    canvasRef.value.style.cursor = "pointer";
+    return;
+  }
+  canvasRef.value.style.cursor = "default";
+}
+
 onMounted(() => {
   render();
 });
@@ -1584,7 +1612,7 @@ watch(
 </script>
 
 <template>
-  <canvas ref="canvasRef" class="game-canvas" @click="handleClick" />
+  <canvas ref="canvasRef" class="game-canvas" @click="handleClick" @mousemove="handleMouseMove" />
 </template>
 
 <style scoped>

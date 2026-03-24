@@ -58,6 +58,7 @@ const playerStats = ref<any>(null);
 const showLocationName = ref(false);
 const locationLabel = ref("");
 const isLoading = ref(false);
+const sceneFading = ref(false);
 
 const locationNames: Record<string, string> = {
   classroom: "教室",
@@ -183,10 +184,15 @@ async function handleNavigate(locationId: string) {
     gameTime.value?.date || "",
   );
 
+  // Fade out
+  sceneFading.value = true;
+  await new Promise((r) => setTimeout(r, 250));
+
   await moveToLocation(locationId);
   await loadWorld();
 
-  // Flash location name announcement
+  // Fade in + location announcement
+  sceneFading.value = false;
   locationLabel.value = locationNames[locationId] || locationId;
   showLocationName.value = true;
   setTimeout(() => {
@@ -321,8 +327,11 @@ async function handleClickNpc(npcId: string) {
       mission: missionText,
     });
     dialogText.value = dialogue;
-    const interactionChoices = getInteractionChoices(npc.role, currentScene.value);
-    choices.value = interactionChoices.map((c) => ({ id: c.id, label: c.label }));
+    // Delay choices for RPG pacing — dialog shows first, then options appear
+    setTimeout(() => {
+      const interactionChoices = getInteractionChoices(npc.role, currentScene.value);
+      choices.value = interactionChoices.map((c) => ({ id: c.id, label: c.label }));
+    }, 600);
     // Check if this NPC interaction completes a todo
     const matchingTodo = todos.value.find(
       (t: any) => t.location === currentScene.value && t.actionType === "click-npc",
@@ -465,6 +474,13 @@ onMounted(async () => {
     @start="handleStartGame"
   />
   <div class="game-layout">
+    <div class="game-header">
+      <span class="game-title">朝花夕拾</span>
+      <span v-if="gameTime" class="header-info">
+        {{ gameTime.date }} ·
+        {{ { spring: "春", summer: "夏", autumn: "秋", winter: "冬" }[gameTime.season] || "" }}
+      </span>
+    </div>
     <div class="game-main">
       <SidePanel
         :game-time="gameTime"
@@ -480,7 +496,7 @@ onMounted(async () => {
         @switch-character="handleSwitchCharacter"
         @skip="handleSkip"
       />
-      <div class="canvas-area">
+      <div class="canvas-area" :class="{ 'scene-fade': sceneFading }">
         <div v-if="isLoading" class="loading-indicator">
           <div class="loading-text">……</div>
         </div>
@@ -525,26 +541,46 @@ onMounted(async () => {
 
 body {
   background: #3a3530;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
   font-family: "Noto Serif SC", serif;
+  overflow: hidden;
 }
 
 .game-layout {
-  width: 900px;
-  max-width: 98vw;
+  width: 100vw;
+  height: 100vh;
   background: #f5e6c8;
-  border: 3px solid #6b5b4e;
-  border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+}
+
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 16px;
+  background: linear-gradient(180deg, #6b5b4e 0%, #5a4a3e 100%);
+  border-bottom: 2px solid #4a3a2e;
+}
+
+.game-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #f5e6c8;
+  letter-spacing: 4px;
+  font-family: "Noto Serif SC", serif;
+}
+
+.header-info {
+  font-size: 10px;
+  color: #d4c08e;
+  font-family: "Noto Serif SC", serif;
 }
 
 .game-main {
   display: flex;
-  height: 480px;
+  flex: 1;
+  overflow: hidden;
 }
 
 .canvas-area {
@@ -555,6 +591,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: opacity 0.25s ease;
+}
+.canvas-area.scene-fade {
+  opacity: 0;
 }
 
 .scene-status {
