@@ -566,31 +566,31 @@ body {
 }
 
 .dialog-area {
-  border-top: 2px solid #6b5b4e;
-  background: #f5e6c8;
-  padding: 12px 16px;
-  min-height: 60px;
+  background: transparent;
+  padding: 0 12px 12px;
 }
 
 .choices {
   display: flex;
   gap: 8px;
   margin-top: 8px;
+  padding: 0 12px;
 }
 
 .choices button {
-  background: #d4c08e;
+  background: rgba(58, 53, 48, 0.85);
   border: 1px solid #6b5b4e;
   border-radius: 3px;
-  padding: 4px 16px;
+  padding: 6px 16px;
   font-family: "Noto Serif SC", serif;
   font-size: 12px;
-  color: #3a3530;
+  color: #f5e6c8;
   cursor: pointer;
 }
 
 .choices button:hover {
-  background: #c9a882;
+  background: #c4706a;
+  border-color: #c4706a;
 }
 
 .transition-overlay {
