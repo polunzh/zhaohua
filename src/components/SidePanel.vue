@@ -172,7 +172,7 @@ const ambientText = computed(() => {
     <!-- Events -->
     <div class="panel-section events-section">
       <div class="panel-title clickable" @click="toggleSection('events')">
-        📋 你不在时…… {{ collapsed.events ? "▸" : "▾" }}
+        📋 你不在时…… <span class="collapse-indicator">{{ collapsed.events ? "▸" : "▾" }}</span>
       </div>
       <template v-if="!collapsed.events">
         <template v-if="events.length">
@@ -187,7 +187,7 @@ const ambientText = computed(() => {
     <!-- Todos -->
     <div class="panel-section" v-if="todos.length">
       <div class="panel-title clickable" @click="toggleSection('todos')">
-        📝 待处理 {{ collapsed.todos ? "▸" : "▾" }}
+        📝 待处理 <span class="collapse-indicator">{{ collapsed.todos ? "▸" : "▾" }}</span>
       </div>
       <template v-if="!collapsed.todos">
         <div v-for="t in todos" :key="t.id" class="todo-sidebar-item">
@@ -207,7 +207,7 @@ const ambientText = computed(() => {
     <!-- Navigation -->
     <div class="panel-section">
       <div class="panel-title clickable" @click="toggleSection('navigation')">
-        🚶 可以去 {{ collapsed.navigation ? "▸" : "▾" }}
+        🚶 可以去 <span class="collapse-indicator">{{ collapsed.navigation ? "▸" : "▾" }}</span>
       </div>
       <template v-if="!collapsed.navigation">
         <div
@@ -224,7 +224,7 @@ const ambientText = computed(() => {
     <!-- Stats -->
     <div class="panel-section" v-if="stats">
       <div class="panel-title clickable" @click="toggleSection('stats')">
-        📊 记录 {{ collapsed.stats ? "▸" : "▾" }}
+        📊 记录 <span class="collapse-indicator">{{ collapsed.stats ? "▸" : "▾" }}</span>
       </div>
       <template v-if="!collapsed.stats">
         <StatsPanel :stats="stats" />
@@ -244,7 +244,7 @@ const ambientText = computed(() => {
     <!-- Relationships -->
     <div class="panel-section">
       <div class="panel-title clickable" @click="toggleSection('relationships')">
-        💛 关系 {{ collapsed.relationships ? "▸" : "▾" }}
+        💛 关系 <span class="collapse-indicator">{{ collapsed.relationships ? "▸" : "▾" }}</span>
       </div>
       <template v-if="!collapsed.relationships">
         <RelationshipPanel :npcs="npcs" />
@@ -295,10 +295,13 @@ const ambientText = computed(() => {
   border-bottom: 1px solid rgba(212, 192, 142, 0.5);
 }
 .panel-title {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: bold;
   color: #c4706a;
   margin-bottom: 6px;
+  border-left: 3px solid #c4706a;
+  padding-left: 10px;
+  text-transform: none;
 }
 .panel-text {
   font-size: 13px;
@@ -312,22 +315,32 @@ const ambientText = computed(() => {
 }
 .skip-row {
   display: flex;
-  gap: 4px;
-  margin-top: 6px;
+  gap: 6px;
+  margin-top: 4px;
 }
 .skip-row button {
   flex: 1;
-  background: #d4c08e;
-  border: 1px solid #6b5b4e;
-  border-radius: 3px;
+  background: linear-gradient(180deg, #e8dcc4 0%, #d4c08e 100%);
+  border: 1px solid rgba(107, 91, 78, 0.3);
+  border-radius: 4px;
   font-size: 12px;
-  padding: 4px 6px;
+  padding: 6px 4px;
   cursor: pointer;
   font-family: "Noto Serif SC", serif;
-  color: #3a3530;
+  color: #5a4a3e;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 .skip-row button:hover {
-  background: #c9a882;
+  background: linear-gradient(180deg, #c4706a 0%, #a05a54 100%);
+  color: #f5e6c8;
+  border-color: #a05a54;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.skip-row button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 .events-section {
   flex: 1;
@@ -362,15 +375,14 @@ const ambientText = computed(() => {
   cursor: pointer;
   padding: 6px 10px;
   background: #ede4d0;
-  border-radius: 3px;
+  border-radius: 4px;
   margin-bottom: 3px;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
+  transition: all 0.15s ease;
 }
 .nav-item:hover {
   color: #f5e6c8;
   background: #c4706a;
+  transform: translateX(4px);
 }
 .character-switch {
   display: flex;
@@ -378,18 +390,26 @@ const ambientText = computed(() => {
 }
 .character-switch button {
   flex: 1;
-  background: #d4c08e;
-  border: 1px solid #6b5b4e;
-  border-radius: 3px;
-  padding: 4px;
-  font-size: 12px;
+  background: linear-gradient(180deg, #e8dcc4 0%, #d4c08e 100%);
+  border: 1px solid rgba(107, 91, 78, 0.3);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 13px;
   cursor: pointer;
   font-family: "Noto Serif SC", serif;
-  color: #3a3530;
+  color: #5a4a3e;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 .character-switch button.active {
-  background: #c4706a;
+  background: linear-gradient(180deg, #c4706a 0%, #a05a54 100%);
   color: #f5e6c8;
+  border-color: #a05a54;
+  box-shadow: 0 1px 4px rgba(196, 112, 106, 0.3);
+}
+.character-switch button:hover:not(.active) {
+  background: linear-gradient(180deg, #d4c08e 0%, #c9a882 100%);
+  transform: translateY(-1px);
 }
 .todo-sidebar-item {
   font-size: 12px;
@@ -424,18 +444,23 @@ const ambientText = computed(() => {
 .mission-go-btn {
   display: block;
   width: 100%;
-  margin-top: 6px;
-  padding: 6px 10px;
-  background: #c4706a;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: linear-gradient(180deg, #c4706a 0%, #a05a54 100%);
   color: #f5e6c8;
   border: none;
-  border-radius: 3px;
-  font-size: 12px;
+  border-radius: 4px;
+  font-size: 13px;
   font-family: "Noto Serif SC", serif;
   cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(196, 112, 106, 0.3);
+  letter-spacing: 1px;
 }
 .mission-go-btn:hover {
-  background: #a05a54;
+  background: linear-gradient(180deg, #d4806a 0%, #b06a5a 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(196, 112, 106, 0.4);
 }
 .mission-here {
   font-size: 11px;
@@ -450,9 +475,14 @@ const ambientText = computed(() => {
 .clickable {
   cursor: pointer;
   user-select: none;
+  font-size: 14px;
 }
 .clickable:hover {
   color: #a05a54;
+}
+.collapse-indicator {
+  color: #b0a090;
+  font-size: 12px;
 }
 .tutorial {
   background: rgba(196, 112, 106, 0.06);

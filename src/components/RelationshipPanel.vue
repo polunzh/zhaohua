@@ -54,9 +54,11 @@ function getGrade(affinity: number): string {
         {{ npc.name }}
         <span class="rel-mood">{{ moodEmoji[npc.mood] || "😐" }}</span>
         <span v-if="npc.role === 'student'" class="rel-grade">[{{ getGrade(npc.affinity) }}]</span>
+        <span class="rel-label">{{ affinityLabel(npc.affinity) }}</span>
       </div>
-      <div class="rel-bar" :title="`好感 ${npc.affinity}`">{{ affinityBar(npc.affinity) }}</div>
-      <div class="rel-label">{{ affinityLabel(npc.affinity) }}</div>
+      <div class="rel-bar-container" :title="`好感 ${npc.affinity}`">
+        <div class="rel-bar-fill" :style="{ width: npc.affinity + '%' }"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -72,12 +74,18 @@ function getGrade(affinity: number): string {
   margin-bottom: 6px;
 }
 .rel-item {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  background: rgba(212, 192, 142, 0.15);
+  padding: 6px 8px;
+  border-radius: 4px;
 }
 .rel-name {
   font-size: 13px;
   color: #3a3530;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 .rel-mood {
   font-size: 12px;
@@ -87,13 +95,23 @@ function getGrade(affinity: number): string {
   color: #c4706a;
   margin-left: 2px;
 }
-.rel-bar {
-  font-size: 11px;
-  color: #c4706a;
-  line-height: 1;
-}
 .rel-label {
   font-size: 11px;
   color: #a8b8b0;
+  margin-left: auto;
+}
+.rel-bar-container {
+  width: 100%;
+  height: 4px;
+  background: rgba(107, 91, 78, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 2px 0;
+}
+.rel-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #c4706a, #d4915a);
+  border-radius: 2px;
+  transition: width 0.3s ease;
 }
 </style>

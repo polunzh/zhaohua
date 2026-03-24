@@ -629,17 +629,18 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 16px;
+  padding: 8px 20px;
   background: linear-gradient(180deg, #6b5b4e 0%, #5a4a3e 100%);
   border-bottom: 2px solid #4a3a2e;
 }
 
 .game-title {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: bold;
   color: #f5e6c8;
   letter-spacing: 4px;
   font-family: "Noto Serif SC", serif;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .header-info {
@@ -652,15 +653,23 @@ body {
 }
 .header-date {
   opacity: 0.7;
+  margin: 0 4px;
 }
 .header-sep {
   opacity: 0.4;
-  margin: 0 2px;
+  margin: 0 4px;
+}
+.header-season {
+  margin: 0 4px;
+}
+.header-weather {
+  margin: 0 4px;
 }
 .header-time {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
   color: #f5e6c8;
+  margin: 0 4px;
 }
 
 .game-main {
@@ -678,8 +687,8 @@ body {
   align-items: center;
   justify-content: center;
   transition: opacity 0.25s ease;
-  border: 1px solid #1a1816;
-  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.3);
+  border: none;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
 }
 .canvas-area.scene-fade {
   opacity: 0;
@@ -690,11 +699,12 @@ body {
   bottom: 6px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(46, 42, 38, 0.8);
+  background: rgba(46, 42, 38, 0.85);
   color: #d4c08e;
-  font-size: 12px;
-  padding: 3px 10px;
-  border-radius: 10px;
+  font-size: 13px;
+  padding: 5px 14px;
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
   z-index: 2;
   white-space: nowrap;
   font-family: "Noto Serif SC", serif;
@@ -702,10 +712,10 @@ body {
 }
 
 .dialog-area {
-  background: #2e2a26;
+  background: linear-gradient(180deg, #3a3530 0%, #2e2a26 100%);
   padding: 8px 16px 12px;
   border-top: 2px solid #4a4440;
-  min-height: 64px;
+  min-height: 72px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -715,8 +725,19 @@ body {
 }
 .dialog-placeholder {
   color: #5a5450;
-  font-size: 13px;
+  font-size: 14px;
   font-family: "Noto Serif SC", serif;
+  animation: placeholderPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes placeholderPulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .choices {
@@ -757,7 +778,7 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 200;
-  animation: fadeIn 0.8s ease;
+  animation: fadeIn 1s ease;
 }
 
 .transition-overlay::after {
@@ -775,6 +796,7 @@ body {
   max-width: 400px;
   text-align: center;
   line-height: 2;
+  letter-spacing: 2px;
   animation: slideUp 0.8s ease;
   position: relative;
   z-index: 1;
@@ -805,14 +827,14 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 28px;
+  font-size: 32px;
   font-weight: bold;
   color: #f5e6c8;
   font-family: "Noto Serif SC", serif;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
   z-index: 10;
   pointer-events: none;
-  animation: locationFade 1.5s ease forwards;
+  animation: locationFade 2s ease forwards;
 }
 
 .loading-indicator {
@@ -869,7 +891,7 @@ body {
   z-index: 15;
 }
 .mission-complete-text {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: bold;
   color: #f5e6c8;
   text-shadow: 0 2px 12px rgba(196, 112, 106, 0.8);

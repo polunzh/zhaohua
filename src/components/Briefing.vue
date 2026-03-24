@@ -105,20 +105,21 @@ const hasRecap = computed(
 .briefing-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(58, 53, 48, 0.85);
+  background: rgba(20, 18, 16, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100;
   font-family: "Noto Serif SC", serif;
+  backdrop-filter: blur(8px);
 }
 .briefing-panel {
   background: linear-gradient(180deg, #f5e6c8 0%, #ede0c0 100%);
   border: 1px solid rgba(107, 91, 78, 0.3);
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
-  padding: 24px 32px;
-  max-width: 480px;
+  padding: 28px 36px;
+  max-width: 520px;
   width: 90%;
   max-height: 80vh;
   overflow-y: auto;
@@ -126,25 +127,8 @@ const hasRecap = computed(
 }
 .briefing-decoration {
   height: 1px;
-  background: #d4c08e;
+  background: linear-gradient(90deg, transparent, #c4706a, transparent);
   margin-bottom: 16px;
-  position: relative;
-}
-.briefing-decoration::before,
-.briefing-decoration::after {
-  content: "";
-  position: absolute;
-  top: -2px;
-  width: 5px;
-  height: 5px;
-  background: #d4c08e;
-  border-radius: 50%;
-}
-.briefing-decoration::before {
-  left: 25%;
-}
-.briefing-decoration::after {
-  right: 25%;
 }
 h2 {
   font-size: 18px;
@@ -266,7 +250,8 @@ h3 {
   font-weight: bold;
   font-family: "Noto Serif SC", serif;
   cursor: pointer;
-  letter-spacing: 2px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
   transition: all 0.15s ease;
 }
 .start-btn:hover {

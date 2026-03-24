@@ -32,15 +32,16 @@ watch(
   top: 16px;
   left: 50%;
   transform: translateX(-50%);
-  padding: 8px 20px;
-  border-radius: 4px;
-  font-size: 12px;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  backdrop-filter: blur(8px);
   font-family: "Noto Serif SC", serif;
   z-index: 300;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 .toast.info {
-  background: #f5e6c8;
+  background: rgba(245, 230, 200, 0.85);
   color: #6b5b4e;
   border: 1px solid #d4c08e;
 }
