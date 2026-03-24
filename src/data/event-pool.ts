@@ -578,4 +578,66 @@ export const eventPool: EventTemplate[] = [
     location: "village-road",
     description: "远处传来几声狗叫，村子安安静静",
   },
+
+  // === Festivals & Special Days ===
+  {
+    id: "national-day",
+    type: "seasonal",
+    triggerDate: "10-01",
+    description: "国庆节，学校放假了，操场上挂着红旗。",
+  },
+  {
+    id: "mid-autumn",
+    type: "seasonal",
+    triggerDate: "08-15",
+    description: "中秋节快到了，有人送来了月饼。",
+  },
+  {
+    id: "spring-festival-prep",
+    type: "seasonal",
+    triggerDate: "01-20",
+    description: "快过年了，学生们在写春联，空气里有年味了。",
+  },
+  {
+    id: "lantern-festival",
+    type: "seasonal",
+    triggerDate: "02-15",
+    description: "元宵节，村里有人在扎灯笼。",
+  },
+  {
+    id: "childrens-day",
+    type: "seasonal",
+    triggerDate: "06-01",
+    description: "六一儿童节，学校组织了联欢会，学生们特别开心。",
+  },
+  {
+    id: "teachers-day",
+    type: "seasonal",
+    triggerDate: "09-10",
+    description: "教师节，学生们送来了自制的贺卡，上面写满了歪歪扭扭的祝福。",
+  },
+  {
+    id: "tree-planting",
+    type: "seasonal",
+    triggerDate: "03-12",
+    description: "植树节，全校师生到山坡上种了几棵树。",
+  },
+  {
+    id: "qingming",
+    type: "seasonal",
+    triggerDate: "04-05",
+    description: "清明节前后，雨水多了起来，田里的麦子绿油油的。",
+  },
+  {
+    id: "labor-day",
+    type: "seasonal",
+    triggerDate: "05-01",
+    description: "五一劳动节，放了一天假。",
+  },
+  {
+    id: "dragon-boat",
+    type: "seasonal",
+    triggerDate: "06-15",
+    description: "端午节，有人送来了粽子，糯米的香味飘满教室。",
+  },
 ];

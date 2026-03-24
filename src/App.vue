@@ -53,6 +53,29 @@ const todos = ref<any[]>([]);
 const mission = ref<any>(null);
 const toastMessage = ref("");
 const toastType = ref<"info" | "success" | "streak">("info");
+const playerStats = ref<any>(null);
+const showLocationName = ref(false);
+const locationLabel = ref("");
+
+const locationNames: Record<string, string> = {
+  classroom: "教室",
+  office: "办公室",
+  playground: "操场",
+  "flower-pool": "花池",
+  "water-tower": "水塔",
+  "village-road": "村路",
+  farmland: "农田",
+  "villager-house": "村民家",
+  "town-road": "镇上",
+  "post-office": "邮局",
+  market: "集市",
+  clinic: "卫生所",
+  "home-zhang": "张志强家",
+  "home-wang": "王芳家",
+  "home-li": "李磊家",
+  "home-zhao": "赵春燕家",
+  "home-zhu": "朱小龙家",
+};
 
 function showToast(msg: string, type: "info" | "success" | "streak" = "info") {
   toastMessage.value = "";
@@ -186,6 +209,13 @@ async function handleNavigate(locationId: string) {
 
   await moveToLocation(locationId);
   await loadWorld();
+
+  // Flash location name announcement
+  locationLabel.value = locationNames[locationId] || locationId;
+  showLocationName.value = true;
+  setTimeout(() => {
+    showLocationName.value = false;
+  }, 1500);
 
   // Show travel event if one occurred
   if (travelEvent) {
@@ -421,6 +451,7 @@ function handleStartGame() {
   if (briefingData.value?.mission) {
     mission.value = briefingData.value.mission;
   }
+  playerStats.value = briefingData.value?.stats || null;
   if (briefingData.value?.stats) {
     checkStreakMilestone(briefingData.value.stats.streakDays);
   }
@@ -468,11 +499,15 @@ onMounted(async () => {
         :todos="todos"
         :mission="mission"
         :npcs="npcStates"
+        :stats="playerStats"
         @navigate="handleNavigate"
         @switch-character="handleSwitchCharacter"
         @skip="handleSkip"
       />
       <div class="canvas-area">
+        <div v-if="showLocationName" class="location-announce">
+          {{ locationLabel }}
+        </div>
         <div v-if="sceneStatus" class="scene-status">{{ sceneStatus }}</div>
         <GameCanvas
           :map-data="currentMapData"
@@ -623,6 +658,38 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.location-announce {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  font-weight: bold;
+  color: #f5e6c8;
+  font-family: "Noto Serif SC", serif;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+  z-index: 10;
+  pointer-events: none;
+  animation: locationFade 1.5s ease forwards;
+}
+
+@keyframes locationFade {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
 </style>

@@ -2,6 +2,7 @@
 import type { GameTime } from "../engine/time";
 import { getConnectedLocations, getLocation } from "../data/locations";
 import RelationshipPanel from "./RelationshipPanel.vue";
+import StatsPanel from "./StatsPanel.vue";
 
 const props = defineProps<{
   gameTime: GameTime | null;
@@ -17,6 +18,13 @@ const props = defineProps<{
     description: string;
     targetLocation: string;
     status: string;
+  } | null;
+  stats: {
+    streakDays: number;
+    totalDaysPlayed: number;
+    missionsCompleted: number;
+    npcsTalked: number;
+    giftsReceived: number;
   } | null;
 }>();
 
@@ -196,6 +204,19 @@ const ambientText = computed(() => {
       </div>
     </div>
 
+    <!-- Stats -->
+    <StatsPanel :stats="stats" />
+
+    <!-- Tutorial (first day only) -->
+    <div class="panel-section tutorial" v-if="stats && stats.totalDaysPlayed <= 1">
+      <div class="panel-title">📖 新手指引</div>
+      <div class="tutorial-step">1. 点击左侧地点可以移动</div>
+      <div class="tutorial-step">2. 点击场景中的人物可以对话</div>
+      <div class="tutorial-step">3. 对话后选择互动方式</div>
+      <div class="tutorial-step">4. 完成🎯今日任务获得成就感</div>
+      <div class="tutorial-step">5. 每天来看看，保持连续签到🔥</div>
+    </div>
+
     <!-- Relationships -->
     <RelationshipPanel :npcs="npcs" />
 
@@ -373,5 +394,14 @@ const ambientText = computed(() => {
   font-size: 10px;
   color: #7a9178;
   text-decoration: line-through;
+}
+.tutorial {
+  background: rgba(196, 112, 106, 0.06);
+}
+.tutorial-step {
+  font-size: 10px;
+  line-height: 1.8;
+  color: #5c6b7a;
+  padding-left: 2px;
 }
 </style>
