@@ -16,6 +16,7 @@ export async function skipTime(type: "day" | "week" | "semester") {
 
 export async function generateDialogue(params: {
   npcName: string;
+  npcId?: string;
   npcPersonality: string;
   situation: string;
   season: string;

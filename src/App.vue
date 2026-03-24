@@ -259,6 +259,7 @@ async function handleClickNpc(npcId: string) {
     const missionText = mission.value?.status === "active" ? mission.value.title : undefined;
     const { dialogue } = await generateDialogue({
       npcName: npc.name,
+      npcId: npcId,
       npcPersonality: npc.personality,
       situation: `在${locationCN[currentScene.value] || currentScene.value}，${periodNames[gameTime.value.period] || ""}`,
       season: gameTime.value.season,

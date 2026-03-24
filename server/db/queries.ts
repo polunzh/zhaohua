@@ -586,6 +586,19 @@ export function getMailInTransit(db: Database.Database): MailRow[] {
   return rows.map(toMailRow);
 }
 
+export function getLastChoiceForNpc(
+  db: Database.Database,
+  npcId: string,
+): { choiceValue: string; gameDate: string } | null {
+  const row = db
+    .prepare(
+      "SELECT choice_value, game_date FROM player_choices WHERE context = ? AND choice_type = 'npc-interaction' ORDER BY id DESC LIMIT 1",
+    )
+    .get(npcId) as any;
+  if (!row) return null;
+  return { choiceValue: row.choice_value, gameDate: row.game_date };
+}
+
 export function getRecentChoices(db: Database.Database, fromDate: string, toDate: string) {
   return db
     .prepare(
