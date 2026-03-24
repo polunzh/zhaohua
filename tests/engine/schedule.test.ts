@@ -35,11 +35,11 @@ describe("NPC Schedule", () => {
   it("everyone is at home at night", () => {
     for (const npc of npcs) {
       const entry = getScheduleEntry(npc, 22, 0, "weekday");
-      // Students have specific homes (home-zhang etc), others have generic "home"
+      // Students have specific homes (home-zhang etc), others go to villager-house
       if (npc.role === "student") {
         expect(entry.location).toMatch(/^home-/);
       } else {
-        expect(entry.location).toBe("home");
+        expect(entry.location).toBe("villager-house");
       }
     }
   });
@@ -88,12 +88,12 @@ describe("NPC Schedule", () => {
   it("shopkeeper is at home before business hours", () => {
     const shopkeeper = npcs.find((n) => n.role === "shopkeeper")!;
     const entry = getScheduleEntry(shopkeeper, 6, 0, "weekday");
-    expect(entry.location).toBe("home");
+    expect(entry.location).toBe("villager-house");
   });
 
   it("shopkeeper is at home after business hours", () => {
     const shopkeeper = npcs.find((n) => n.role === "shopkeeper")!;
     const entry = getScheduleEntry(shopkeeper, 19, 0, "weekday");
-    expect(entry.location).toBe("home");
+    expect(entry.location).toBe("villager-house");
   });
 });

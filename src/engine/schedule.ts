@@ -212,6 +212,7 @@ function getPostmanSchedule(time: number, hour: number, minute: number): Schedul
 }
 
 // Map NPC ID to their home location ID
+// Students have individual homes; adults go to villager-house (they live in the village)
 const npcHomeMap: Record<string, string> = {
   "student-zhang-wei": "home-zhang",
   "student-wang-fang": "home-wang",
@@ -221,7 +222,7 @@ const npcHomeMap: Record<string, string> = {
 };
 
 function getNpcHome(npcId: string): string {
-  return npcHomeMap[npcId] || "home-zhang";
+  return npcHomeMap[npcId] || "villager-house";
 }
 
 export function getScheduleEntry(
@@ -234,32 +235,39 @@ export function getScheduleEntry(
 ): ScheduleEntry {
   // Weekend: everyone at their own home
   if (dayType === "weekend") {
-    const home = npc.role === "student" ? getNpcHome(npc.id) : "home-zhang";
-    return { location: home, activity: "resting" };
+    return { location: getNpcHome(npc.id), activity: "resting" };
   }
 
   const time = timeToMinutes(hour, minute);
 
+  let entry: ScheduleEntry;
   switch (npc.role) {
     case "principal":
-      return getPrincipalSchedule(time);
+      entry = getPrincipalSchedule(time);
+      break;
     case "teacher-colleague":
-      return getTeacherColleagueSchedule(time);
+      entry = getTeacherColleagueSchedule(time);
+      break;
     case "parent":
-      return getParentSchedule(time, month);
+      entry = getParentSchedule(time, month);
+      break;
     case "villager":
-      return getVillagerSchedule(time);
+      entry = getVillagerSchedule(time);
+      break;
     case "shopkeeper":
-      return getShopkeeperSchedule(time);
+      entry = getShopkeeperSchedule(time);
+      break;
     case "postman":
-      return getPostmanSchedule(time, hour, minute);
-    default: {
-      const entry = getStudentSchedule(time, season);
-      // Replace generic "home" with student-specific home
-      if (entry.location === "home") {
-        return { ...entry, location: getNpcHome(npc.id) };
-      }
-      return entry;
-    }
+      entry = getPostmanSchedule(time, hour, minute);
+      break;
+    default:
+      entry = getStudentSchedule(time, season);
+      break;
   }
+
+  // Replace generic "home" with NPC-specific home location
+  if (entry.location === "home") {
+    return { ...entry, location: getNpcHome(npc.id) };
+  }
+  return entry;
 }
