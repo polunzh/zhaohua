@@ -25,13 +25,13 @@ test.describe("朝花夕拾 — 游戏基本流程", () => {
   test("页面加载后显示游戏界面", async ({ page }) => {
     await expect(page.locator(".side-panel")).toBeVisible();
     await expect(page.locator("canvas.game-canvas")).toBeVisible();
-    await expect(page.locator(".panel-title").first()).toContainText("时间");
+    await expect(page.locator(".game-header")).toBeVisible();
   });
 
-  test("侧边栏显示时间和天气", async ({ page }) => {
-    await expect(page.locator(".side-panel")).toContainText("1994");
-    const panelText = await page.locator(".side-panel").textContent();
-    const hasSeason = ["春", "夏", "秋", "冬"].some((s) => panelText?.includes(s));
+  test("标题栏显示时间和天气", async ({ page }) => {
+    await expect(page.locator(".game-header")).toContainText("1994");
+    const headerText = await page.locator(".game-header").textContent();
+    const hasSeason = ["春", "夏", "秋", "冬"].some((s) => headerText?.includes(s));
     expect(hasSeason).toBe(true);
   });
 
