@@ -283,15 +283,19 @@ const ambientText = computed(() => {
 
 <style scoped>
 .side-panel {
-  width: 180px;
+  width: 200px;
+  min-width: 200px;
   background: #f5e6c8;
-  border-right: 2px solid #6b5b4e;
+  border-right: 2px solid #d4c08e;
   display: flex;
   flex-direction: column;
   gap: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   font-family: "Noto Serif SC", serif;
   color: #3a3530;
+  scrollbar-width: thin;
+  scrollbar-color: #d4c08e #f5e6c8;
 }
 .panel-section {
   padding: 10px 12px;

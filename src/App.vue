@@ -527,23 +527,25 @@ body {
 }
 
 .game-layout {
-  max-width: 95vw;
+  width: 900px;
+  max-width: 98vw;
   background: #f5e6c8;
   border: 3px solid #6b5b4e;
-  border-radius: 4px;
+  border-radius: 6px;
   overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .game-main {
   display: flex;
-  min-height: 400px;
+  height: 480px;
 }
 
 .canvas-area {
   flex: 1;
   position: relative;
-  background: #3a3530;
-  overflow: auto;
+  background: #2e2a26;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -551,23 +553,24 @@ body {
 
 .scene-status {
   position: absolute;
-  bottom: 8px;
+  bottom: 6px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(245, 230, 200, 0.9);
-  color: #6b5b4e;
-  font-size: 11px;
-  padding: 4px 12px;
-  border-radius: 3px;
-  border: 1px solid #d4c08e;
+  background: rgba(46, 42, 38, 0.8);
+  color: #d4c08e;
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 10px;
   z-index: 2;
   white-space: nowrap;
   font-family: "Noto Serif SC", serif;
+  letter-spacing: 0.5px;
 }
 
 .dialog-area {
-  background: transparent;
-  padding: 0 12px 12px;
+  background: #2e2a26;
+  padding: 8px 12px 12px;
+  border-top: 2px solid #4a4440;
 }
 
 .choices {
