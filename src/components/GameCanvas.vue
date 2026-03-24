@@ -461,6 +461,14 @@ function drawTile(
       // Shadow on floor beneath desk with cool shift
       ctx.fillStyle = coolShadow(PAL.floor[3], 10);
       ctx.fillRect(x + 8, y + 26, 16, 2);
+      // Top-left light edge on desk top
+      ctx.fillStyle = PAL.wood[0];
+      ctx.fillRect(x + 4, y + 8, 24, 1); // top edge highlight
+      ctx.fillRect(x + 4, y + 8, 1, 18); // left edge highlight
+      // Bottom-right shadow edge on desk
+      ctx.fillStyle = PAL.wood[3];
+      ctx.fillRect(x + 4, y + 25, 24, 1); // bottom edge shadow
+      ctx.fillRect(x + 27, y + 8, 1, 18); // right edge shadow
       break;
     }
 
@@ -600,9 +608,14 @@ function drawTile(
       ctx.fillRect(x + 21, y + 17, 2, 2);
       ctx.fillStyle = "#f0d860";
       ctx.fillRect(x + 20, y + 16, 1, 1);
+      // Left edge highlight on frame
+      ctx.fillStyle = PAL.wood[0];
+      ctx.fillRect(x + 5, y + 2, 1, 28); // left edge highlight
+      ctx.fillRect(x + 5, y + 2, 22, 1); // top edge highlight
       // Right side shadow on frame (2px)
       ctx.fillStyle = PAL.wood[3];
       ctx.fillRect(x + 25, y + 4, 2, 24);
+      ctx.fillRect(x + 5, y + 29, 22, 1); // bottom edge shadow
       // Brick hints at top corners
       ctx.fillStyle = PAL.brick[0];
       ctx.fillRect(x, y + 8, 4, 1);
@@ -663,6 +676,16 @@ function drawTile(
       ctx.fillStyle = "#8a8880";
       ctx.fillRect(x + 6, y + 28, 8, 2);
       ctx.fillRect(x + 18, y + 28, 6, 2);
+      // Top-left light edge on stove body
+      ctx.fillStyle = PAL.metal[0];
+      ctx.fillRect(x + 4, y + 8, 24, 1); // top edge highlight
+      // Bottom-right shadow edge on stove body
+      ctx.fillStyle = PAL.metal[3];
+      ctx.fillRect(x + 4, y + 27, 24, 1); // bottom edge shadow
+      ctx.fillRect(x + 27, y + 8, 1, 20); // right edge shadow
+      // Ambient occlusion: shadow on floor below stove
+      ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+      ctx.fillRect(x + 6, y + 28, 20, 2);
       break;
     }
 
@@ -738,14 +761,17 @@ function drawTile(
       ctx.fillStyle = "#5C6B7A";
       ctx.fillRect(x + 27, y + 22, 1, 6);
       ctx.fillRect(x + 26, y + 24, 1, 4);
+      // Ambient occlusion: shadow on floor below bookshelf
+      ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+      ctx.fillRect(x + 4, y + 28, 24, 2);
       break;
     }
 
     case TILES.BENCH: {
       // No background fill — ground layer already provides the correct surface
-      // Shadow under bench (uses a semi-transparent overlay)
-      ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
-      ctx.fillRect(x + 4, y + 22, 24, 2);
+      // Ambient occlusion: shadow under bench
+      ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+      ctx.fillRect(x + 4, y + 24, 24, 2);
       // Bench seat (stone) — 28x6
       ctx.fillStyle = PAL.stone[1];
       ctx.fillRect(x + 2, y + 12, 28, 6);
@@ -1323,6 +1349,10 @@ function drawTile(
       // Pole base shadow
       ctx.fillStyle = PAL.grass[3];
       ctx.fillRect(x + 12, y + 30, 8, 2);
+      // Ambient occlusion: subtle circular shadow at base
+      ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+      ctx.fillRect(x + 11, y + 30, 10, 2);
+      ctx.fillRect(x + 13, y + 29, 6, 1);
       break;
     }
 
@@ -1501,6 +1531,9 @@ function drawTile(
       // Shadow on grass
       ctx.fillStyle = PAL.grass[3];
       ctx.fillRect(x + 6, y + 30, 20, 2);
+      // Ambient occlusion: shadow at base of stone
+      ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+      ctx.fillRect(x + 8, y + 28, 16, 2);
       break;
     }
 
