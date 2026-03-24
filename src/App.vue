@@ -4,6 +4,7 @@ import SidePanel from "./components/SidePanel.vue";
 import GameCanvas from "./components/GameCanvas.vue";
 import DialogBox from "./components/DialogBox.vue";
 import Briefing from "./components/Briefing.vue";
+import Toast from "./components/Toast.vue";
 import {
   fetchWorldState,
   skipTime,
@@ -49,6 +50,24 @@ const showBriefing = ref(true);
 const briefingData = ref<any>(null);
 const todos = ref<any[]>([]);
 const mission = ref<any>(null);
+const toastMessage = ref("");
+const toastType = ref<"info" | "success" | "streak">("info");
+
+function showToast(msg: string, type: "info" | "success" | "streak" = "info") {
+  toastMessage.value = "";
+  // Force reactivity by toggling in next tick
+  setTimeout(() => {
+    toastMessage.value = msg;
+    toastType.value = type;
+  }, 10);
+}
+
+function checkStreakMilestone(streakDays: number) {
+  if (streakDays === 3) showToast("连续3天！继续保持", "streak");
+  else if (streakDays === 7) showToast("连续一周了！", "streak");
+  else if (streakDays === 14) showToast("连续两周！你是真正的老师", "streak");
+  else if (streakDays === 30) showToast("连续一个月！了不起", "streak");
+}
 
 const maps: Record<string, TileMapData> = {
   classroom: classroomMap,
@@ -171,6 +190,7 @@ async function checkMissionCompletion() {
     dialogText.value = m.completionText || "完成了今天的任务。";
     dialogLoading.value = false;
     choices.value = [];
+    showToast("任务完成！", "success");
   }
 }
 
@@ -285,6 +305,7 @@ async function handleClickNpc(npcId: string) {
     if (mission.value?.status === "active" && mission.value.targetNpc === npcId) {
       await completeMissionApi(mission.value.id);
       mission.value = { ...mission.value, status: "done" };
+      showToast("任务完成！", "success");
     }
   } catch {
     dialogText.value = "（沉默）";
@@ -371,6 +392,9 @@ function handleStartGame() {
   if (briefingData.value?.mission) {
     mission.value = briefingData.value.mission;
   }
+  if (briefingData.value?.stats) {
+    checkStreakMilestone(briefingData.value.stats.streakDays);
+  }
   loadWorld();
 }
 
@@ -390,6 +414,8 @@ onMounted(async () => {
     <div class="transition-text">{{ transitionText }}</div>
   </div>
 
+  <Toast :message="toastMessage" :type="toastType" />
+
   <Briefing
     v-if="showBriefing && briefingData"
     :offline-text="briefingData.offlineText"
@@ -399,6 +425,7 @@ onMounted(async () => {
     :mission="briefingData.mission || null"
     :yesterday-mission="briefingData.yesterdayMission || null"
     :story-progress="briefingData.storyProgress || []"
+    :stats="briefingData.stats || null"
     @start="handleStartGame"
   />
   <div class="game-layout">

@@ -615,6 +615,97 @@ export function getRecentChoices(db: Database.Database, fromDate: string, toDate
     }));
 }
 
+// --- Player Stats ---
+
+export interface PlayerStats {
+  streakDays: number;
+  longestStreak: number;
+  totalDaysPlayed: number;
+  lastPlayDate: string | null;
+  missionsCompleted: number;
+  npcsTalked: number;
+}
+
+interface PlayerStatsDbRow {
+  streak_days: number;
+  longest_streak: number;
+  total_days_played: number;
+  last_play_date: string | null;
+  missions_completed: number;
+  npcs_talked: number;
+}
+
+function ensurePlayerStats(db: Database.Database): void {
+  db.prepare(
+    "INSERT OR IGNORE INTO player_stats (id, streak_days, longest_streak, total_days_played, last_play_date, missions_completed, npcs_talked) VALUES (1, 0, 0, 0, NULL, 0, 0)",
+  ).run();
+}
+
+export function getPlayerStats(db: Database.Database): PlayerStats {
+  ensurePlayerStats(db);
+  const row = db.prepare("SELECT * FROM player_stats WHERE id = 1").get() as PlayerStatsDbRow;
+  return {
+    streakDays: row.streak_days,
+    longestStreak: row.longest_streak,
+    totalDaysPlayed: row.total_days_played,
+    lastPlayDate: row.last_play_date,
+    missionsCompleted: row.missions_completed,
+    npcsTalked: row.npcs_talked,
+  };
+}
+
+function addDaysToDate(dateStr: string, days: number): string {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const date = new Date(y, m - 1, d + days);
+  const yy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yy}-${mm}-${dd}`;
+}
+
+export function updateStreak(db: Database.Database, gameDate: string): PlayerStats {
+  ensurePlayerStats(db);
+  const current = getPlayerStats(db);
+
+  if (current.lastPlayDate === gameDate) {
+    // Same day — no change
+    return current;
+  }
+
+  let newStreak: number;
+  if (current.lastPlayDate && addDaysToDate(current.lastPlayDate, 1) === gameDate) {
+    // Consecutive day
+    newStreak = current.streakDays + 1;
+  } else {
+    // First day or gap
+    newStreak = 1;
+  }
+
+  const newLongest = Math.max(current.longestStreak, newStreak);
+  const newTotal = current.totalDaysPlayed + 1;
+
+  db.prepare(
+    "UPDATE player_stats SET streak_days = ?, longest_streak = ?, total_days_played = ?, last_play_date = ? WHERE id = 1",
+  ).run(newStreak, newLongest, newTotal, gameDate);
+
+  return {
+    streakDays: newStreak,
+    longestStreak: newLongest,
+    totalDaysPlayed: newTotal,
+    lastPlayDate: gameDate,
+    missionsCompleted: current.missionsCompleted,
+    npcsTalked: current.npcsTalked,
+  };
+}
+
+export function incrementStat(
+  db: Database.Database,
+  stat: "missions_completed" | "npcs_talked",
+): void {
+  ensurePlayerStats(db);
+  db.prepare(`UPDATE player_stats SET ${stat} = ${stat} + 1 WHERE id = 1`).run();
+}
+
 export function updateMailStatus(
   db: Database.Database,
   mailId: number,

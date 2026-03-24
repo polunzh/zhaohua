@@ -5,6 +5,7 @@ import {
   saveNpcState,
   updateNpcAffinity,
   updateNpcMood,
+  incrementStat,
 } from "../db/queries";
 import { getChoiceEffect } from "../../src/data/interactions";
 
@@ -41,6 +42,9 @@ export function handleChoice(db: Database.Database, params: ChoiceParams) {
 
   updateNpcAffinity(db, params.npcId, effect.affinityDelta);
   updateNpcMood(db, params.npcId, effect.mood);
+
+  // Track NPC interaction
+  incrementStat(db, "npcs_talked");
 
   return { ok: true, effect };
 }

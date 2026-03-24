@@ -80,6 +80,15 @@ export function initSchema(db: Database.Database): void {
       status TEXT NOT NULL DEFAULT 'active',
       created_at TEXT DEFAULT (datetime('now'))
     );
+    CREATE TABLE IF NOT EXISTS player_stats (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      streak_days INTEGER NOT NULL DEFAULT 0,
+      longest_streak INTEGER NOT NULL DEFAULT 0,
+      total_days_played INTEGER NOT NULL DEFAULT 0,
+      last_play_date TEXT,
+      missions_completed INTEGER NOT NULL DEFAULT 0,
+      npcs_talked INTEGER NOT NULL DEFAULT 0
+    );
     CREATE TABLE IF NOT EXISTS mail (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       type TEXT NOT NULL,

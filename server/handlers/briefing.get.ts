@@ -1,5 +1,11 @@
 import type Database from "better-sqlite3";
-import { getWorldState, getPendingTodos, getRecentEvents, expireTodos } from "../db/queries";
+import {
+  getWorldState,
+  getPendingTodos,
+  getRecentEvents,
+  expireTodos,
+  updateStreak,
+} from "../db/queries";
 import { generateTodos } from "../engine/todos";
 import { processConsequences } from "../engine/consequences";
 import { performCatchUp } from "../engine/catch-up";
@@ -65,6 +71,9 @@ export function handleGetBriefing(db: Database.Database) {
     worldStateAfter.weather,
   );
 
+  // Update streak
+  const stats = updateStreak(db, worldStateAfter.gameDate);
+
   // Get yesterday's mission result
   const yesterday = addDays(worldStateAfter.gameDate, -1);
   const yesterdayMission = getDailyMission(db, yesterday);
@@ -107,6 +116,13 @@ export function handleGetBriefing(db: Database.Database) {
       npcId: c.npcId,
       description: c.description,
     })),
+    stats: {
+      streakDays: stats.streakDays,
+      longestStreak: stats.longestStreak,
+      totalDaysPlayed: stats.totalDaysPlayed,
+      missionsCompleted: stats.missionsCompleted,
+      npcsTalked: stats.npcsTalked,
+    },
     mission: mission
       ? {
           id: mission.id,

@@ -13,6 +13,13 @@ defineProps<{
   } | null;
   yesterdayMission: { title: string; status: string; completionText: string } | null;
   storyProgress: { name: string; description: string; isFinal: boolean }[];
+  stats: {
+    streakDays: number;
+    longestStreak: number;
+    totalDaysPlayed: number;
+    missionsCompleted: number;
+    npcsTalked: number;
+  } | null;
 }>();
 
 const emit = defineEmits<{ start: [] }>();
@@ -22,6 +29,9 @@ const emit = defineEmits<{ start: [] }>();
   <div class="briefing-overlay">
     <div class="briefing-panel">
       <h2>📜 {{ offlineText }}</h2>
+      <div v-if="stats && stats.streakDays > 1" class="streak-badge">
+        连续第 {{ stats.streakDays }} 天
+      </div>
 
       <div class="briefing-section" v-if="yesterdayMission">
         <h3 v-if="yesterdayMission.status === 'done'">✅ 昨天的任务完成了</h3>
@@ -227,5 +237,12 @@ h3 {
 }
 .start-btn:hover {
   background: #a05a54;
+}
+.streak-badge {
+  text-align: center;
+  font-size: 12px;
+  color: #c4706a;
+  margin-bottom: 12px;
+  font-weight: bold;
 }
 </style>
