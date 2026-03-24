@@ -211,6 +211,19 @@ function getPostmanSchedule(time: number, hour: number, minute: number): Schedul
   return { location: "home", activity: "resting" };
 }
 
+// Map NPC ID to their home location ID
+const npcHomeMap: Record<string, string> = {
+  "student-zhang-wei": "home-zhang",
+  "student-wang-fang": "home-wang",
+  "student-li-lei": "home-li",
+  "student-zhao-na": "home-zhao",
+  "student-zhu-peng": "home-zhu",
+};
+
+function getNpcHome(npcId: string): string {
+  return npcHomeMap[npcId] || "home-zhang";
+}
+
 export function getScheduleEntry(
   npc: NPC,
   hour: number,
@@ -219,9 +232,10 @@ export function getScheduleEntry(
   season?: string,
   month?: number,
 ): ScheduleEntry {
-  // Weekend: everyone home
+  // Weekend: everyone at their own home
   if (dayType === "weekend") {
-    return { location: "home", activity: "resting" };
+    const home = npc.role === "student" ? getNpcHome(npc.id) : "home-zhang";
+    return { location: home, activity: "resting" };
   }
 
   const time = timeToMinutes(hour, minute);
@@ -239,7 +253,13 @@ export function getScheduleEntry(
       return getShopkeeperSchedule(time);
     case "postman":
       return getPostmanSchedule(time, hour, minute);
-    default:
-      return getStudentSchedule(time, season);
+    default: {
+      const entry = getStudentSchedule(time, season);
+      // Replace generic "home" with student-specific home
+      if (entry.location === "home") {
+        return { ...entry, location: getNpcHome(npc.id) };
+      }
+      return entry;
+    }
   }
 }

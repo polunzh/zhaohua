@@ -30,6 +30,7 @@ import { postOfficeMap } from "./tilemap/maps/post-office";
 import { marketMap } from "./tilemap/maps/market";
 import { clinicMap } from "./tilemap/maps/clinic";
 import { homeMap } from "./tilemap/maps/home";
+// All student homes share the same map layout (rural houses look similar)
 
 const gameTime = ref<GameTime | null>(null);
 const weather = ref("sunny");
@@ -59,7 +60,11 @@ const maps: Record<string, TileMapData> = {
   "post-office": postOfficeMap,
   market: marketMap,
   clinic: clinicMap,
-  home: homeMap,
+  "home-zhang": homeMap,
+  "home-wang": homeMap,
+  "home-li": homeMap,
+  "home-zhao": homeMap,
+  "home-zhu": homeMap,
 };
 
 const currentMapData = computed(() => {
@@ -89,8 +94,9 @@ const sceneStatus = computed(() => {
       return "⏰ 课间休息，操场上有学生在玩";
     return npcCount > 0 ? `操场上有 ${npcCount} 个人` : "操场空空的";
   }
-  if (scene === "home") {
-    if (h >= 12 && h < 13.5) return "🍚 午饭时间，一家人围在桌边";
+  if (scene.startsWith("home-")) {
+    if (h >= 12 && h < 13.5)
+      return `🍚 午饭时间${npcCount > 0 ? "，" + visibleNpcs.value[0]?.name + "在吃饭" : ""}`;
     if (h >= 17 && h < 21) return "🏠 晚上在家，灯亮着";
     return "🏠 家里";
   }

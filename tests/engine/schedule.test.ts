@@ -3,9 +3,9 @@ import { getScheduleEntry } from "../../src/engine/schedule";
 import { npcs } from "../../src/data/npcs";
 
 describe("NPC Schedule", () => {
-  it("student is at home before school", () => {
+  it("student is at their own home before school", () => {
     const entry = getScheduleEntry(npcs[0], 6, 30, "weekday");
-    expect(entry.location).toBe("home");
+    expect(entry.location).toMatch(/^home-/);
   });
 
   it("student is on road to school at 7:15", () => {
@@ -35,7 +35,12 @@ describe("NPC Schedule", () => {
   it("everyone is at home at night", () => {
     for (const npc of npcs) {
       const entry = getScheduleEntry(npc, 22, 0, "weekday");
-      expect(entry.location).toBe("home");
+      // Students have specific homes (home-zhang etc), others have generic "home"
+      if (npc.role === "student") {
+        expect(entry.location).toMatch(/^home-/);
+      } else {
+        expect(entry.location).toBe("home");
+      }
     }
   });
 
