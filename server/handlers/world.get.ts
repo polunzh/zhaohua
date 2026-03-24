@@ -59,6 +59,7 @@ export function handleGetWorld(db: Database.Database) {
     gameTime,
     weather: worldState.weather,
     location: worldState.location,
+    activeCharacter: worldState.activeCharacter,
     npcs: npcStates,
     events: catchUpResult.summary,
     coarseMode: catchUpResult.coarseMode,
