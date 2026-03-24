@@ -126,21 +126,12 @@ const ambientText = computed(() => {
 
 <template>
   <div class="side-panel">
-    <!-- Time & Weather -->
+    <!-- Skip time -->
     <div class="panel-section" v-if="gameTime">
-      <div class="panel-title">📅 时间</div>
-      <div class="panel-text">{{ gameTime.date }}</div>
-      <div class="panel-text">
-        {{ seasonNames[gameTime.season] || gameTime.season }} ·
-        {{ weatherNames[weather] || weather }}
-      </div>
-      <div class="panel-time-large">
-        {{ String(gameTime.hour).padStart(2, "0") }}:{{ String(gameTime.minute).padStart(2, "0") }}
-      </div>
       <div class="skip-row">
-        <button @click="emit('skip', 'day')">明天</button>
-        <button @click="emit('skip', 'week')">下周</button>
-        <button @click="emit('skip', 'semester')">下学期</button>
+        <button @click="emit('skip', 'day')">⏩ 明天</button>
+        <button @click="emit('skip', 'week')">⏩ 下周</button>
+        <button @click="emit('skip', 'semester')">⏩ 下学期</button>
       </div>
     </div>
 

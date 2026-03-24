@@ -55,6 +55,19 @@ const mission = ref<any>(null);
 const toastMessage = ref("");
 const toastType = ref<"info" | "success" | "streak">("info");
 const playerStats = ref<any>(null);
+const weatherIcons: Record<string, string> = {
+  sunny: "☀",
+  cloudy: "☁",
+  rainy: "🌧",
+  snowy: "❄",
+  windy: "🌬",
+};
+const seasonMap: Record<string, string> = {
+  spring: "春",
+  summer: "夏",
+  autumn: "秋",
+  winter: "冬",
+};
 const showLocationName = ref(false);
 const locationLabel = ref("");
 const isLoading = ref(false);
@@ -477,8 +490,17 @@ onMounted(async () => {
     <div class="game-header">
       <span class="game-title">朝花夕拾</span>
       <span v-if="gameTime" class="header-info">
-        {{ gameTime.date }} ·
-        {{ { spring: "春", summer: "夏", autumn: "秋", winter: "冬" }[gameTime.season] || "" }}
+        <span class="header-date">{{ gameTime.date }}</span>
+        <span class="header-sep">·</span>
+        <span class="header-season">{{ seasonMap[gameTime.season] }}</span>
+        <span class="header-sep">·</span>
+        <span class="header-weather">{{ weatherIcons[weather] || weather }}</span>
+        <span class="header-sep">·</span>
+        <span class="header-time"
+          >{{ String(gameTime.hour).padStart(2, "0") }}:{{
+            String(gameTime.minute).padStart(2, "0")
+          }}</span
+        >
       </span>
     </div>
     <div class="game-main">
@@ -516,15 +538,22 @@ onMounted(async () => {
         />
       </div>
     </div>
-    <div class="dialog-area" v-if="dialogNpc || dialogLoading">
-      <DialogBox
-        :npc-name="dialogNpc"
-        :text="dialogText"
-        :loading="dialogLoading"
-        @close="handleCloseDialog"
-      />
-      <div class="choices" v-if="choices.length && !dialogLoading">
-        <button v-for="c in choices" :key="c.id" @click="handleChoose(c.id)">{{ c.label }}</button>
+    <div class="dialog-area">
+      <template v-if="dialogNpc || dialogLoading">
+        <DialogBox
+          :npc-name="dialogNpc"
+          :text="dialogText"
+          :loading="dialogLoading"
+          @close="handleCloseDialog"
+        />
+        <div class="choices" v-if="choices.length && !dialogLoading">
+          <button v-for="c in choices" :key="c.id" @click="handleChoose(c.id)">
+            {{ c.label }}
+          </button>
+        </div>
+      </template>
+      <div v-else class="dialog-empty">
+        <span class="dialog-placeholder">点击场景中的人物开始对话</span>
       </div>
     </div>
   </div>
@@ -575,6 +604,21 @@ body {
   font-size: 10px;
   color: #d4c08e;
   font-family: "Noto Serif SC", serif;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.header-date {
+  opacity: 0.7;
+}
+.header-sep {
+  opacity: 0.4;
+  margin: 0 2px;
+}
+.header-time {
+  font-size: 12px;
+  font-weight: bold;
+  color: #f5e6c8;
 }
 
 .game-main {
@@ -615,8 +659,20 @@ body {
 
 .dialog-area {
   background: #2e2a26;
-  padding: 8px 12px 16px;
+  padding: 8px 16px 12px;
   border-top: 2px solid #4a4440;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.dialog-empty {
+  text-align: center;
+}
+.dialog-placeholder {
+  color: #5a5450;
+  font-size: 11px;
+  font-family: "Noto Serif SC", serif;
 }
 
 .choices {
