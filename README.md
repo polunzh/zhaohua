@@ -1,3 +1,5 @@
+[中文](./README.zh-CN.md) | **English**
+
 # Zhaohua (朝花夕拾)
 
 A web-based life simulation set in 1990s rural China. Experience the daily life of a village primary school teacher and a town postman.

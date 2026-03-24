@@ -179,9 +179,54 @@ async function handleSwitchCharacter(character: string) {
   await loadWorld();
 }
 
+// Time skip narration — brief passage-of-time text
+const skipNarrations: Record<string, string[]> = {
+  day: [
+    "夜里下了一场小雨，早上起来空气格外新鲜。",
+    "一觉睡到天亮，新的一天开始了。",
+    "昨晚批了半夜作业，今天得打起精神。",
+    "窗外的鸡叫了，又是新的一天。",
+    "早起走在路上，远处有人已经开始干活了。",
+  ],
+  week: [
+    "一周过得很快，日子就这么一天天过。",
+    "这一周过得平平淡淡，倒也踏实。",
+    "周末在家歇了歇，周一又精神了。",
+    "一周下来，学生们又长进了不少。",
+  ],
+  semester: [
+    "日子像流水一样，一个学期就这么过去了。",
+    "翻翻日历，不知不觉已经过了好几个月。",
+    "学生们又长高了一截，时间过得真快。",
+    "寒来暑往，校园里的树又换了一身衣裳。",
+  ],
+};
+
+const showTransition = ref(false);
+const transitionText = ref("");
+
 async function handleSkip(type: "day" | "week" | "semester") {
+  // Show narration
+  const narrations = skipNarrations[type];
+  transitionText.value = narrations[Math.floor(Math.random() * narrations.length)];
+  showTransition.value = true;
+
   await skipTime(type);
   await loadWorld();
+
+  // Re-generate mission for new day
+  try {
+    const briefing = await fetchBriefing();
+    todos.value = briefing.todos || [];
+    if (briefing.mission) mission.value = briefing.mission;
+  } catch {
+    /* ignore */
+  }
+
+  // Hide transition after a moment
+  setTimeout(() => {
+    showTransition.value = false;
+  }, 2500);
 }
 
 async function handleClickNpc(npcId: string) {
@@ -339,6 +384,11 @@ onMounted(async () => {
 </script>
 
 <template>
+  <!-- Time skip transition -->
+  <div v-if="showTransition" class="transition-overlay">
+    <div class="transition-text">{{ transitionText }}</div>
+  </div>
+
   <Briefing
     v-if="showBriefing && briefingData"
     :offline-text="briefingData.offlineText"
@@ -473,5 +523,46 @@ body {
 
 .choices button:hover {
   background: #c9a882;
+}
+
+.transition-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(58, 53, 48, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: fadeIn 0.5s ease;
+}
+
+.transition-text {
+  color: #f5e6c8;
+  font-size: 16px;
+  font-family: "Noto Serif SC", serif;
+  max-width: 400px;
+  text-align: center;
+  line-height: 1.8;
+  animation: slideUp 0.8s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>
