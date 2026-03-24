@@ -17,6 +17,7 @@ import {
 import type { GameTime } from "./engine/time";
 import type { TileMapData } from "./tilemap/types";
 import { npcs } from "./data/npcs";
+import { getInteractionChoices } from "./data/interactions";
 import { classroomMap } from "./tilemap/maps/classroom";
 import { officeMap } from "./tilemap/maps/office";
 import { playgroundMap } from "./tilemap/maps/playground";
@@ -182,11 +183,8 @@ async function handleClickNpc(npcId: string) {
       gameDate: gameTime.value.date,
     });
     dialogText.value = dialogue;
-    choices.value = [
-      { id: "encourage", label: "鼓励一下" },
-      { id: "criticize", label: "批评几句" },
-      { id: "ignore", label: "不说了" },
-    ];
+    const interactionChoices = getInteractionChoices(npc.role, currentScene.value);
+    choices.value = interactionChoices.map((c) => ({ id: c.id, label: c.label }));
   } catch {
     dialogText.value = "（沉默）";
   }
@@ -205,6 +203,8 @@ async function handleChoose(choiceId: string) {
     choiceId,
     gameDate: gameTime.value.date,
     gameTime: `${String(gameTime.value.hour).padStart(2, "0")}:${String(gameTime.value.minute).padStart(2, "0")}`,
+    npcRole: npcs.find((n) => n.id === currentNpcId.value)?.role || "",
+    location: currentScene.value,
   });
   choices.value = [];
   dialogText.value = "";

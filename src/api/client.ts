@@ -43,6 +43,8 @@ export async function submitChoice(params: {
   choiceId: string;
   gameDate: string;
   gameTime: string;
+  npcRole?: string;
+  location?: string;
 }) {
   const res = await fetch(`${BASE_URL}/choice`, {
     method: "POST",

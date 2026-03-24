@@ -6,22 +6,19 @@ import {
   updateNpcAffinity,
   updateNpcMood,
 } from "../db/queries";
+import { getChoiceEffect } from "../../src/data/interactions";
 
 interface ChoiceParams {
   npcId: string;
   choiceId: string;
   gameDate: string;
   gameTime: string;
+  npcRole?: string;
+  location?: string;
 }
 
-const effects: Record<string, { affinityDelta: number; mood: string }> = {
-  encourage: { affinityDelta: 10, mood: "happy" },
-  criticize: { affinityDelta: -5, mood: "upset" },
-  ignore: { affinityDelta: 0, mood: "neutral" },
-};
-
 export function handleChoice(db: Database.Database, params: ChoiceParams) {
-  const effect = effects[params.choiceId] || effects["ignore"];
+  const effect = getChoiceEffect(params.choiceId, params.npcRole || "", params.location || "");
 
   savePlayerChoice(db, {
     gameDate: params.gameDate,
