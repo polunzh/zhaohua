@@ -7,6 +7,8 @@ interface TodoTemplate {
   description: string;
   priority: string;
   daysUntilDeadline: number;
+  location: string;
+  actionType: string;
 }
 
 const teacherTodos: TodoTemplate[] = [
@@ -16,6 +18,8 @@ const teacherTodos: TodoTemplate[] = [
     description: "学生们交上来的作业需要批改",
     priority: "normal",
     daysUntilDeadline: 1,
+    location: "office",
+    actionType: "click-object",
   },
   {
     type: "prep-class",
@@ -23,6 +27,8 @@ const teacherTodos: TodoTemplate[] = [
     description: "准备明天的课程内容",
     priority: "normal",
     daysUntilDeadline: 1,
+    location: "office",
+    actionType: "click-object",
   },
   {
     type: "student-issue",
@@ -30,6 +36,8 @@ const teacherTodos: TodoTemplate[] = [
     description: "有学生需要你关注",
     priority: "high",
     daysUntilDeadline: 2,
+    location: "classroom",
+    actionType: "click-npc",
   },
   {
     type: "parent-meeting",
@@ -37,6 +45,8 @@ const teacherTodos: TodoTemplate[] = [
     description: "有家长想了解孩子的情况",
     priority: "normal",
     daysUntilDeadline: 1,
+    location: "classroom",
+    actionType: "click-npc",
   },
   {
     type: "write-comments",
@@ -44,6 +54,8 @@ const teacherTodos: TodoTemplate[] = [
     description: "给学生们写这学期的评语",
     priority: "low",
     daysUntilDeadline: 7,
+    location: "office",
+    actionType: "click-object",
   },
 ];
 
@@ -54,6 +66,8 @@ const postmanTodos: TodoTemplate[] = [
     description: "今天有几封信需要送到",
     priority: "high",
     daysUntilDeadline: 1,
+    location: "villager-house",
+    actionType: "click-door",
   },
   {
     type: "deliver-newspaper",
@@ -61,6 +75,8 @@ const postmanTodos: TodoTemplate[] = [
     description: "今天的报纸到了",
     priority: "normal",
     daysUntilDeadline: 1,
+    location: "villager-house",
+    actionType: "click-door",
   },
   {
     type: "problem-mail",
@@ -68,6 +84,8 @@ const postmanTodos: TodoTemplate[] = [
     description: "有一封信地址不清楚，需要想办法",
     priority: "normal",
     daysUntilDeadline: 2,
+    location: "post-office",
+    actionType: "click-object",
   },
 ];
 
@@ -113,6 +131,8 @@ export function generateTodos(
       priority: tmpl.priority,
       createdDate: gameDate,
       deadlineDate: addDays(gameDate, tmpl.daysUntilDeadline),
+      location: tmpl.location,
+      actionType: tmpl.actionType,
     });
   }
 }

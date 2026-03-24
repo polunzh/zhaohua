@@ -335,6 +335,8 @@ export interface TodoRow {
   status: string;
   createdDate: string;
   deadlineDate: string | null;
+  location: string;
+  actionType: string;
 }
 
 export interface TodoInput {
@@ -345,6 +347,8 @@ export interface TodoInput {
   priority: string;
   createdDate: string;
   deadlineDate: string | null;
+  location: string;
+  actionType: string;
 }
 
 interface TodoDbRow {
@@ -358,6 +362,8 @@ interface TodoDbRow {
   created_date: string;
   deadline_date: string | null;
   completed_date: string | null;
+  location: string;
+  action_type: string;
   created_at: string;
 }
 
@@ -372,13 +378,15 @@ function mapTodoRow(row: TodoDbRow): TodoRow {
     status: row.status,
     createdDate: row.created_date,
     deadlineDate: row.deadline_date,
+    location: row.location,
+    actionType: row.action_type,
   };
 }
 
 export function addTodo(db: Database.Database, input: TodoInput): void {
   db.prepare(`
-    INSERT INTO todos (type, title, description, npc_id, priority, created_date, deadline_date)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO todos (type, title, description, npc_id, priority, created_date, deadline_date, location, action_type)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     input.type,
     input.title,
@@ -387,7 +395,22 @@ export function addTodo(db: Database.Database, input: TodoInput): void {
     input.priority,
     input.createdDate,
     input.deadlineDate,
+    input.location,
+    input.actionType,
   );
+}
+
+export function getMatchingTodo(
+  db: Database.Database,
+  location: string,
+  actionType: string,
+): TodoRow | null {
+  const row = db
+    .prepare(
+      "SELECT * FROM todos WHERE status = 'pending' AND location = ? AND action_type = ? LIMIT 1",
+    )
+    .get(location, actionType) as any;
+  return row ? mapTodoRow(row) : null;
 }
 
 export function getTodos(db: Database.Database): TodoRow[] {

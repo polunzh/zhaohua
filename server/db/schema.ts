@@ -64,6 +64,8 @@ export function initSchema(db: Database.Database): void {
       created_date TEXT NOT NULL,
       deadline_date TEXT,
       completed_date TEXT,
+      location TEXT DEFAULT '',
+      action_type TEXT DEFAULT 'auto',
       created_at TEXT DEFAULT (datetime('now'))
     );
     CREATE TABLE IF NOT EXISTS mail (

@@ -8,14 +8,13 @@ const props = defineProps<{
   currentScene: string;
   activeCharacter: string;
   events: { id: string; description: string }[];
-  todos: { id: number; title: string; priority: string }[];
+  todos: { id: number; title: string; priority: string; location: string; actionType: string }[];
 }>();
 
 const emit = defineEmits<{
   navigate: [locationId: string];
   switchCharacter: [character: string];
   skip: [type: "day" | "week" | "semester"];
-  completeTodo: [todoId: number];
 }>();
 
 const seasonNames: Record<string, string> = {
@@ -94,13 +93,9 @@ const locationNames: Record<string, string> = {
     <!-- Todos -->
     <div class="panel-section" v-if="todos.length">
       <div class="panel-title">📝 待处理</div>
-      <div
-        v-for="t in todos"
-        :key="t.id"
-        class="todo-sidebar-item"
-        @click="emit('completeTodo', t.id)"
-      >
+      <div v-for="t in todos" :key="t.id" class="todo-sidebar-item">
         <span class="todo-dot" :class="t.priority">●</span> {{ t.title }}
+        <span class="todo-location">({{ locationNames[t.location] || t.location }})</span>
       </div>
     </div>
 
@@ -240,12 +235,11 @@ const locationNames: Record<string, string> = {
   font-size: 10px;
   line-height: 1.8;
   color: #3a3530;
-  cursor: pointer;
   padding: 1px 0;
 }
-.todo-sidebar-item:hover {
-  color: #c4706a;
-  text-decoration: line-through;
+.todo-location {
+  font-size: 9px;
+  color: #a8b8b0;
 }
 .todo-dot {
   font-size: 8px;

@@ -60,4 +60,24 @@ describe("Sprites", () => {
     expect(SPRITE_WIDTH).toBe(16);
     expect(SPRITE_HEIGHT).toBe(32);
   });
+
+  it("all NPCs have hairStyle field", () => {
+    for (const [id, config] of Object.entries(npcSpriteConfigs)) {
+      expect(config.hairStyle, `${id} missing hairStyle`).toBeDefined();
+    }
+  });
+
+  it("all NPCs have gender field", () => {
+    for (const [id, config] of Object.entries(npcSpriteConfigs)) {
+      expect(config.gender, `${id} missing gender`).toBeDefined();
+    }
+  });
+
+  it("principal has bald hairStyle", () => {
+    expect(npcSpriteConfigs["principal-sun"].hairStyle).toBe("bald");
+  });
+
+  it("colleague-zhou has glasses accessory", () => {
+    expect(npcSpriteConfigs["colleague-zhou"].accessory).toBe("glasses");
+  });
 });

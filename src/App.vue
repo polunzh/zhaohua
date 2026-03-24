@@ -185,6 +185,14 @@ async function handleClickNpc(npcId: string) {
     dialogText.value = dialogue;
     const interactionChoices = getInteractionChoices(npc.role, currentScene.value);
     choices.value = interactionChoices.map((c) => ({ id: c.id, label: c.label }));
+    // Check if this NPC interaction completes a todo
+    const matchingTodo = todos.value.find(
+      (t: any) => t.location === currentScene.value && t.actionType === "click-npc",
+    );
+    if (matchingTodo) {
+      await completeTodoApi(matchingTodo.id);
+      await loadWorld();
+    }
   } catch {
     dialogText.value = "（沉默）";
   }
@@ -218,12 +226,14 @@ function handleCloseDialog() {
   choices.value = [];
 }
 
-async function handleCompleteTodo(todoId: number) {
-  await completeTodoApi(todoId);
-  await loadWorld();
-  // Refresh todos
-  const briefing = await fetchBriefing();
-  todos.value = briefing.todos || [];
+async function handleClickObject(tileType: string) {
+  const matchingTodo = todos.value.find(
+    (t: any) => t.location === currentScene.value && t.actionType === "click-object",
+  );
+  if (matchingTodo) {
+    await completeTodoApi(matchingTodo.id);
+    await loadWorld();
+  }
 }
 
 function handleStartGame() {
@@ -262,7 +272,6 @@ onMounted(async () => {
         @navigate="handleNavigate"
         @switch-character="handleSwitchCharacter"
         @skip="handleSkip"
-        @complete-todo="handleCompleteTodo"
       />
       <div class="canvas-area">
         <div v-if="sceneStatus" class="scene-status">{{ sceneStatus }}</div>
@@ -271,8 +280,10 @@ onMounted(async () => {
           :npcs="visibleNpcs"
           :active-character="activeCharacter"
           :current-scene="currentScene"
+          :season="gameTime?.season || 'autumn'"
           @click-npc="handleClickNpc"
           @click-exit="handleClickExit"
+          @click-object="handleClickObject"
         />
       </div>
     </div>

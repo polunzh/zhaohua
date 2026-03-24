@@ -11,6 +11,8 @@ import {
 import { TILE_SIZE } from "../tilemap/types";
 import type { TileMapData } from "../tilemap/types";
 import { applyColorGrading } from "../scene/filter";
+import { getSeasonalPalette } from "../tilemap/season-palette";
+import type { SeasonalPalette } from "../tilemap/season-palette";
 
 const props = defineProps<{
   mapData: TileMapData | null;
@@ -24,30 +26,45 @@ const props = defineProps<{
   }[];
   activeCharacter: string;
   currentScene: string;
+  season?: string;
 }>();
 
 const emit = defineEmits<{
   clickTile: [tileX: number, tileY: number];
   clickNpc: [npcId: string];
   clickExit: [targetMapId: string];
+  clickObject: [tileName: string];
 }>();
 
 const canvasRef = ref<HTMLCanvasElement>();
 let engine: TileMapEngine | null = null;
 
-function drawTile(ctx: CanvasRenderingContext2D, tileId: number, x: number, y: number, s: number) {
+function drawTile(
+  ctx: CanvasRenderingContext2D,
+  tileId: number,
+  x: number,
+  y: number,
+  s: number,
+  seasonPal: SeasonalPalette,
+) {
   const config = getTileConfig(tileId);
   if (!config || config.color === "transparent") return;
 
-  // Stardew Valley palette — 4 levels per material: highlight / base / dark / shadow
+  // Convert SeasonalPalette material objects to array format [light, base, dark, shadow]
+  const toArr = (m: { light: string; base: string; dark: string; shadow: string }) => [
+    m.light,
+    m.base,
+    m.dark,
+    m.shadow,
+  ];
   const PAL = {
-    grass: ["#9abc96", "#7A9178", "#5a7a58", "#4a6a48"],
-    dirt: ["#dcd0a8", "#D4C08E", "#C9A882", "#b89870"],
-    brick: ["#d89088", "#C4706A", "#a05a54", "#8a4a44"],
-    wood: ["#b89840", "#8B6914", "#6B5B4E", "#5a4a3e"],
-    floor: ["#f5ecd8", "#F5E6C8", "#e8d8b0", "#d4c898"],
-    stone: ["#c0d0c8", "#A8B8B0", "#8a9a92", "#6a7a72"],
-    metal: ["#7888a0", "#5C6B7A", "#4a5868", "#3a4858"],
+    grass: toArr(seasonPal.grass),
+    dirt: toArr(seasonPal.dirt),
+    brick: toArr(seasonPal.brick),
+    wood: toArr(seasonPal.wood),
+    floor: toArr(seasonPal.floor),
+    stone: toArr(seasonPal.stone),
+    metal: toArr(seasonPal.metal),
   };
 
   switch (tileId) {
@@ -298,6 +315,16 @@ function drawTile(ctx: CanvasRenderingContext2D, tileId: number, x: number, y: n
       ctx.fillRect(x + 6, y + 3, 2, 1);
       ctx.fillRect(x + 2, y + 7, 2, 1);
       ctx.fillRect(x + 14, y + 11, 2, 1);
+      // Snow on roof (winter)
+      if (seasonPal.showSnow) {
+        ctx.fillStyle = "#e8e8e8";
+        ctx.fillRect(x + 1, y, 14, 1);
+        ctx.fillRect(x + 0, y + 1, 16, 1);
+        ctx.fillRect(x + 2, y + 2, 12, 1);
+        ctx.fillStyle = "#d0d0d0";
+        ctx.fillRect(x + 4, y + 2, 3, 1);
+        ctx.fillRect(x + 10, y + 2, 3, 1);
+      }
       break;
     }
 
@@ -622,42 +649,74 @@ function drawTile(ctx: CanvasRenderingContext2D, tileId: number, x: number, y: n
       // Grass bg
       ctx.fillStyle = PAL.grass[1];
       ctx.fillRect(x, y, s, s);
-      // Canopy dark outline (rounded shape)
-      ctx.fillStyle = PAL.grass[3];
-      ctx.fillRect(x + 4, y + 0, 8, 1);
-      ctx.fillRect(x + 2, y + 1, 12, 1);
-      ctx.fillRect(x + 1, y + 2, 14, 1);
-      ctx.fillRect(x + 0, y + 3, 16, 8);
-      ctx.fillRect(x + 1, y + 11, 14, 1);
-      ctx.fillRect(x + 2, y + 12, 12, 1);
-      ctx.fillRect(x + 4, y + 13, 8, 1);
-      ctx.fillRect(x + 6, y + 14, 4, 1);
-      // Main canopy fill
-      ctx.fillStyle = PAL.grass[1];
-      ctx.fillRect(x + 4, y + 1, 8, 1);
-      ctx.fillRect(x + 2, y + 2, 12, 1);
-      ctx.fillRect(x + 1, y + 3, 14, 8);
-      ctx.fillRect(x + 2, y + 11, 12, 1);
-      ctx.fillRect(x + 4, y + 12, 8, 1);
-      // Inner highlight patches (top-left feel)
-      ctx.fillStyle = PAL.grass[0];
-      ctx.fillRect(x + 4, y + 3, 3, 2);
-      ctx.fillRect(x + 3, y + 4, 2, 3);
-      ctx.fillRect(x + 6, y + 2, 2, 1);
-      ctx.fillRect(x + 8, y + 5, 2, 1);
-      ctx.fillRect(x + 5, y + 7, 1, 1);
-      ctx.fillRect(x + 10, y + 4, 1, 1);
-      // Mid-tone detail (darker leaf clusters)
-      ctx.fillStyle = PAL.grass[2];
-      ctx.fillRect(x + 9, y + 7, 3, 2);
-      ctx.fillRect(x + 6, y + 9, 2, 2);
-      ctx.fillRect(x + 12, y + 5, 2, 3);
-      ctx.fillRect(x + 3, y + 9, 2, 2);
-      ctx.fillRect(x + 7, y + 11, 3, 1);
-      // Deep shadow at bottom
-      ctx.fillStyle = PAL.grass[3];
-      ctx.fillRect(x + 5, y + 12, 6, 1);
-      ctx.fillRect(x + 11, y + 8, 2, 2);
+
+      if (seasonPal.showBareTree) {
+        // Bare tree: draw branches instead of foliage
+        const treeLeaf = toArr(seasonPal.treeLeaf);
+        // Main branches extending from center
+        ctx.fillStyle = treeLeaf[2];
+        // Central trunk top
+        ctx.fillRect(x + 7, y + 10, 2, 6);
+        // Left branch
+        ctx.fillRect(x + 4, y + 4, 1, 7);
+        ctx.fillRect(x + 5, y + 6, 1, 5);
+        ctx.fillRect(x + 3, y + 3, 1, 3);
+        ctx.fillRect(x + 2, y + 2, 1, 2);
+        // Right branch
+        ctx.fillRect(x + 11, y + 4, 1, 7);
+        ctx.fillRect(x + 10, y + 6, 1, 5);
+        ctx.fillRect(x + 12, y + 3, 1, 3);
+        ctx.fillRect(x + 13, y + 2, 1, 2);
+        // Upper small twigs
+        ctx.fillStyle = treeLeaf[3];
+        ctx.fillRect(x + 6, y + 7, 1, 4);
+        ctx.fillRect(x + 9, y + 7, 1, 4);
+        ctx.fillRect(x + 3, y + 1, 1, 2);
+        ctx.fillRect(x + 12, y + 1, 1, 2);
+        // Highlight on left branches
+        ctx.fillStyle = treeLeaf[1];
+        ctx.fillRect(x + 4, y + 4, 1, 1);
+        ctx.fillRect(x + 11, y + 4, 1, 1);
+      } else {
+        // Use treeLeaf palette for canopy colors
+        const treeLeaf = toArr(seasonPal.treeLeaf);
+        // Canopy dark outline (rounded shape)
+        ctx.fillStyle = treeLeaf[3];
+        ctx.fillRect(x + 4, y + 0, 8, 1);
+        ctx.fillRect(x + 2, y + 1, 12, 1);
+        ctx.fillRect(x + 1, y + 2, 14, 1);
+        ctx.fillRect(x + 0, y + 3, 16, 8);
+        ctx.fillRect(x + 1, y + 11, 14, 1);
+        ctx.fillRect(x + 2, y + 12, 12, 1);
+        ctx.fillRect(x + 4, y + 13, 8, 1);
+        ctx.fillRect(x + 6, y + 14, 4, 1);
+        // Main canopy fill
+        ctx.fillStyle = treeLeaf[1];
+        ctx.fillRect(x + 4, y + 1, 8, 1);
+        ctx.fillRect(x + 2, y + 2, 12, 1);
+        ctx.fillRect(x + 1, y + 3, 14, 8);
+        ctx.fillRect(x + 2, y + 11, 12, 1);
+        ctx.fillRect(x + 4, y + 12, 8, 1);
+        // Inner highlight patches (top-left feel)
+        ctx.fillStyle = treeLeaf[0];
+        ctx.fillRect(x + 4, y + 3, 3, 2);
+        ctx.fillRect(x + 3, y + 4, 2, 3);
+        ctx.fillRect(x + 6, y + 2, 2, 1);
+        ctx.fillRect(x + 8, y + 5, 2, 1);
+        ctx.fillRect(x + 5, y + 7, 1, 1);
+        ctx.fillRect(x + 10, y + 4, 1, 1);
+        // Mid-tone detail (darker leaf clusters)
+        ctx.fillStyle = treeLeaf[2];
+        ctx.fillRect(x + 9, y + 7, 3, 2);
+        ctx.fillRect(x + 6, y + 9, 2, 2);
+        ctx.fillRect(x + 12, y + 5, 2, 3);
+        ctx.fillRect(x + 3, y + 9, 2, 2);
+        ctx.fillRect(x + 7, y + 11, 3, 1);
+        // Deep shadow at bottom
+        ctx.fillStyle = treeLeaf[3];
+        ctx.fillRect(x + 5, y + 12, 6, 1);
+        ctx.fillRect(x + 11, y + 8, 2, 2);
+      }
       break;
     }
 
@@ -717,48 +776,67 @@ function drawTile(ctx: CanvasRenderingContext2D, tileId: number, x: number, y: n
       ctx.fillRect(x + 3, y + 7, 1, 6);
       ctx.fillRect(x + 8, y + 5, 1, 8);
       ctx.fillRect(x + 12, y + 6, 1, 7);
-      // Leaves on stems
-      ctx.fillStyle = PAL.grass[0];
-      ctx.fillRect(x + 4, y + 9, 2, 1);
-      ctx.fillRect(x + 6, y + 8, 2, 1);
-      ctx.fillRect(x + 13, y + 9, 2, 1);
-      // Flower 1 — petals
-      ctx.fillStyle = "#C4706A";
-      ctx.fillRect(x + 2, y + 4, 1, 3);
-      ctx.fillRect(x + 3, y + 5, 1, 1);
-      ctx.fillRect(x + 4, y + 4, 1, 3);
-      ctx.fillRect(x + 3, y + 4, 1, 1);
-      ctx.fillRect(x + 3, y + 6, 1, 1);
-      ctx.fillStyle = "#a05a54"; // darker petal shade
-      ctx.fillRect(x + 2, y + 6, 1, 1);
-      ctx.fillRect(x + 4, y + 6, 1, 1);
-      // Center
-      ctx.fillStyle = "#e8c84a";
-      ctx.fillRect(x + 3, y + 5, 1, 1);
-      // Flower 2
-      ctx.fillStyle = "#C4706A";
-      ctx.fillRect(x + 7, y + 2, 1, 3);
-      ctx.fillRect(x + 8, y + 3, 1, 1);
-      ctx.fillRect(x + 9, y + 2, 1, 3);
-      ctx.fillRect(x + 8, y + 2, 1, 1);
-      ctx.fillRect(x + 8, y + 4, 1, 1);
-      ctx.fillStyle = "#a05a54";
-      ctx.fillRect(x + 7, y + 4, 1, 1);
-      ctx.fillRect(x + 9, y + 4, 1, 1);
-      ctx.fillStyle = "#e8c84a";
-      ctx.fillRect(x + 8, y + 3, 1, 1);
-      // Flower 3
-      ctx.fillStyle = "#C4706A";
-      ctx.fillRect(x + 11, y + 3, 1, 3);
-      ctx.fillRect(x + 12, y + 4, 1, 1);
-      ctx.fillRect(x + 13, y + 3, 1, 3);
-      ctx.fillRect(x + 12, y + 3, 1, 1);
-      ctx.fillRect(x + 12, y + 5, 1, 1);
-      ctx.fillStyle = "#a05a54";
-      ctx.fillRect(x + 11, y + 5, 1, 1);
-      ctx.fillRect(x + 13, y + 5, 1, 1);
-      ctx.fillStyle = "#e8c84a";
-      ctx.fillRect(x + 12, y + 4, 1, 1);
+      if (seasonPal.flowerState === "bare") {
+        // Just stems, no flowers
+      } else if (seasonPal.flowerState === "bud") {
+        // Small buds at stem tops
+        ctx.fillStyle = "#C4706A";
+        ctx.fillRect(x + 3, y + 6, 1, 1);
+        ctx.fillRect(x + 8, y + 4, 1, 1);
+        ctx.fillRect(x + 12, y + 5, 1, 1);
+      } else if (seasonPal.flowerState === "wilt") {
+        // Drooping flowers — shifted down, muted color
+        ctx.fillStyle = "#a07060";
+        ctx.fillRect(x + 3, y + 6, 2, 1);
+        ctx.fillRect(x + 4, y + 7, 1, 1);
+        ctx.fillRect(x + 8, y + 4, 2, 1);
+        ctx.fillRect(x + 9, y + 5, 1, 1);
+        ctx.fillRect(x + 12, y + 5, 2, 1);
+        ctx.fillRect(x + 13, y + 6, 1, 1);
+      } else {
+        // bloom (default)
+        // Leaves on stems
+        ctx.fillStyle = PAL.grass[0];
+        ctx.fillRect(x + 4, y + 9, 2, 1);
+        ctx.fillRect(x + 6, y + 8, 2, 1);
+        ctx.fillRect(x + 13, y + 9, 2, 1);
+        // Flower 1 — petals
+        ctx.fillStyle = "#C4706A";
+        ctx.fillRect(x + 2, y + 4, 1, 3);
+        ctx.fillRect(x + 3, y + 5, 1, 1);
+        ctx.fillRect(x + 4, y + 4, 1, 3);
+        ctx.fillRect(x + 3, y + 4, 1, 1);
+        ctx.fillRect(x + 3, y + 6, 1, 1);
+        ctx.fillStyle = "#a05a54";
+        ctx.fillRect(x + 2, y + 6, 1, 1);
+        ctx.fillRect(x + 4, y + 6, 1, 1);
+        ctx.fillStyle = "#e8c84a";
+        ctx.fillRect(x + 3, y + 5, 1, 1);
+        // Flower 2
+        ctx.fillStyle = "#C4706A";
+        ctx.fillRect(x + 7, y + 2, 1, 3);
+        ctx.fillRect(x + 8, y + 3, 1, 1);
+        ctx.fillRect(x + 9, y + 2, 1, 3);
+        ctx.fillRect(x + 8, y + 2, 1, 1);
+        ctx.fillRect(x + 8, y + 4, 1, 1);
+        ctx.fillStyle = "#a05a54";
+        ctx.fillRect(x + 7, y + 4, 1, 1);
+        ctx.fillRect(x + 9, y + 4, 1, 1);
+        ctx.fillStyle = "#e8c84a";
+        ctx.fillRect(x + 8, y + 3, 1, 1);
+        // Flower 3
+        ctx.fillStyle = "#C4706A";
+        ctx.fillRect(x + 11, y + 3, 1, 3);
+        ctx.fillRect(x + 12, y + 4, 1, 1);
+        ctx.fillRect(x + 13, y + 3, 1, 3);
+        ctx.fillRect(x + 12, y + 3, 1, 1);
+        ctx.fillRect(x + 12, y + 5, 1, 1);
+        ctx.fillStyle = "#a05a54";
+        ctx.fillRect(x + 11, y + 5, 1, 1);
+        ctx.fillRect(x + 13, y + 5, 1, 1);
+        ctx.fillStyle = "#e8c84a";
+        ctx.fillRect(x + 12, y + 4, 1, 1);
+      }
       break;
     }
 
@@ -774,6 +852,28 @@ function drawTile(ctx: CanvasRenderingContext2D, tileId: number, x: number, y: n
       ctx.fillRect(x + 4, y + 6, 1, 7);
       ctx.fillRect(x + 8, y + 7, 1, 6);
       ctx.fillRect(x + 12, y + 5, 1, 8);
+      if (seasonPal.flowerState === "bare") {
+        // Just stems
+        break;
+      }
+      if (seasonPal.flowerState === "bud") {
+        ctx.fillStyle = "#d88a84";
+        ctx.fillRect(x + 4, y + 5, 1, 1);
+        ctx.fillRect(x + 8, y + 6, 1, 1);
+        ctx.fillRect(x + 12, y + 4, 1, 1);
+        break;
+      }
+      if (seasonPal.flowerState === "wilt") {
+        ctx.fillStyle = "#a07060";
+        ctx.fillRect(x + 4, y + 5, 2, 1);
+        ctx.fillRect(x + 5, y + 6, 1, 1);
+        ctx.fillRect(x + 8, y + 6, 2, 1);
+        ctx.fillRect(x + 9, y + 7, 1, 1);
+        ctx.fillRect(x + 12, y + 4, 2, 1);
+        ctx.fillRect(x + 13, y + 5, 1, 1);
+        break;
+      }
+      // bloom (default)
       // Leaves
       ctx.fillStyle = PAL.grass[0];
       ctx.fillRect(x + 5, y + 8, 2, 1);
@@ -827,6 +927,27 @@ function drawTile(ctx: CanvasRenderingContext2D, tileId: number, x: number, y: n
       ctx.fillRect(x + 2, y + 7, 1, 6);
       ctx.fillRect(x + 7, y + 6, 1, 7);
       ctx.fillRect(x + 13, y + 5, 1, 8);
+      if (seasonPal.flowerState === "bare") {
+        break;
+      }
+      if (seasonPal.flowerState === "bud") {
+        ctx.fillStyle = "#e8c84a";
+        ctx.fillRect(x + 2, y + 6, 1, 1);
+        ctx.fillRect(x + 7, y + 5, 1, 1);
+        ctx.fillRect(x + 13, y + 4, 1, 1);
+        break;
+      }
+      if (seasonPal.flowerState === "wilt") {
+        ctx.fillStyle = "#b0a040";
+        ctx.fillRect(x + 2, y + 6, 2, 1);
+        ctx.fillRect(x + 3, y + 7, 1, 1);
+        ctx.fillRect(x + 7, y + 5, 2, 1);
+        ctx.fillRect(x + 8, y + 6, 1, 1);
+        ctx.fillRect(x + 13, y + 4, 2, 1);
+        ctx.fillRect(x + 14, y + 5, 1, 1);
+        break;
+      }
+      // bloom (default)
       // Leaves
       ctx.fillStyle = PAL.grass[0];
       ctx.fillRect(x + 3, y + 9, 2, 1);
@@ -880,6 +1001,27 @@ function drawTile(ctx: CanvasRenderingContext2D, tileId: number, x: number, y: n
       ctx.fillRect(x + 3, y + 6, 1, 7);
       ctx.fillRect(x + 9, y + 5, 1, 8);
       ctx.fillRect(x + 13, y + 7, 1, 6);
+      if (seasonPal.flowerState === "bare") {
+        break;
+      }
+      if (seasonPal.flowerState === "bud") {
+        ctx.fillStyle = "#e0a0d0";
+        ctx.fillRect(x + 3, y + 5, 1, 1);
+        ctx.fillRect(x + 9, y + 4, 1, 1);
+        ctx.fillRect(x + 13, y + 6, 1, 1);
+        break;
+      }
+      if (seasonPal.flowerState === "wilt") {
+        ctx.fillStyle = "#a07890";
+        ctx.fillRect(x + 3, y + 5, 2, 1);
+        ctx.fillRect(x + 4, y + 6, 1, 1);
+        ctx.fillRect(x + 9, y + 4, 2, 1);
+        ctx.fillRect(x + 10, y + 5, 1, 1);
+        ctx.fillRect(x + 13, y + 6, 2, 1);
+        ctx.fillRect(x + 14, y + 7, 1, 1);
+        break;
+      }
+      // bloom (default)
       // Leaves
       ctx.fillStyle = PAL.grass[0];
       ctx.fillRect(x + 4, y + 8, 2, 1);
@@ -1291,6 +1433,8 @@ function render() {
   const ctx = canvasRef.value.getContext("2d")!;
   engine = new TileMapEngine(props.mapData);
 
+  const seasonPal = getSeasonalPalette(props.season || "summer");
+
   const SCALE = 2; // 2x pixel scaling for crisp rendering
   const w = props.mapData.width * TILE_SIZE * SCALE;
   const h = props.mapData.height * TILE_SIZE * SCALE;
@@ -1306,7 +1450,7 @@ function render() {
   for (let y = 0; y < props.mapData.height; y++) {
     for (let x = 0; x < props.mapData.width; x++) {
       const tileId = engine.getGroundTile(x, y);
-      drawTile(ctx, tileId, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE);
+      drawTile(ctx, tileId, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, seasonPal);
     }
   }
 
@@ -1315,7 +1459,7 @@ function render() {
     for (let x = 0; x < props.mapData.width; x++) {
       const tileId = engine.getObjectTile(x, y);
       if (tileId === 0) continue;
-      drawTile(ctx, tileId, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE);
+      drawTile(ctx, tileId, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, seasonPal);
     }
   }
 
@@ -1376,6 +1520,16 @@ function handleClick(e: MouseEvent) {
     return;
   }
 
+  // Check object click
+  const objectTileId = engine.getObjectTile(tileX, tileY);
+  if (objectTileId !== 0) {
+    const config = getTileConfig(objectTileId);
+    if (config) {
+      emit("clickObject", config.name);
+      return;
+    }
+  }
+
   emit("clickTile", tileX, tileY);
 }
 
@@ -1384,7 +1538,7 @@ onMounted(() => {
 });
 
 watch(
-  () => [props.mapData, props.npcs, props.currentScene],
+  () => [props.mapData, props.npcs, props.currentScene, props.season],
   () => {
     render();
   },
