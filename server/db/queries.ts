@@ -706,6 +706,47 @@ export function incrementStat(
   db.prepare(`UPDATE player_stats SET ${stat} = ${stat} + 1 WHERE id = 1`).run();
 }
 
+// --- Gifts ---
+
+export interface Gift {
+  id: number;
+  npcId: string;
+  giftName: string;
+  giftDescription: string;
+  gameDate: string;
+}
+
+interface GiftDbRow {
+  id: number;
+  npc_id: string;
+  gift_name: string;
+  gift_description: string;
+  game_date: string;
+}
+
+export function addGift(db: Database.Database, gift: Omit<Gift, "id">): void {
+  db.prepare(`
+    INSERT INTO gifts (npc_id, gift_name, gift_description, game_date)
+    VALUES (?, ?, ?, ?)
+  `).run(gift.npcId, gift.giftName, gift.giftDescription, gift.gameDate);
+}
+
+export function getGifts(db: Database.Database): Gift[] {
+  const rows = db.prepare("SELECT * FROM gifts ORDER BY id DESC").all() as GiftDbRow[];
+  return rows.map((row) => ({
+    id: row.id,
+    npcId: row.npc_id,
+    giftName: row.gift_name,
+    giftDescription: row.gift_description,
+    gameDate: row.game_date,
+  }));
+}
+
+export function getGiftCount(db: Database.Database): number {
+  const row = db.prepare("SELECT COUNT(*) as count FROM gifts").get() as { count: number };
+  return row.count;
+}
+
 export function updateMailStatus(
   db: Database.Database,
   mailId: number,

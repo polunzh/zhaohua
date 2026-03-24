@@ -89,6 +89,14 @@ export function initSchema(db: Database.Database): void {
       missions_completed INTEGER NOT NULL DEFAULT 0,
       npcs_talked INTEGER NOT NULL DEFAULT 0
     );
+    CREATE TABLE IF NOT EXISTS gifts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      npc_id TEXT NOT NULL,
+      gift_name TEXT NOT NULL,
+      gift_description TEXT NOT NULL,
+      game_date TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
     CREATE TABLE IF NOT EXISTS mail (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       type TEXT NOT NULL,

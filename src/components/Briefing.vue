@@ -19,6 +19,7 @@ defineProps<{
     totalDaysPlayed: number;
     missionsCompleted: number;
     npcsTalked: number;
+    giftsReceived?: number;
   } | null;
 }>();
 
@@ -82,6 +83,10 @@ const emit = defineEmits<{ start: [] }>();
           <div class="mission-title">{{ mission.title }}</div>
           <div class="mission-desc">{{ mission.description }}</div>
         </div>
+      </div>
+
+      <div class="briefing-section" v-if="stats && (stats.giftsReceived ?? 0) > 0">
+        <div class="stats-line">🎁 收到 {{ stats.giftsReceived }} 个礼物</div>
       </div>
 
       <button class="start-btn" @click="emit('start')">好的，开始</button>
@@ -244,5 +249,10 @@ h3 {
   color: #c4706a;
   margin-bottom: 12px;
   font-weight: bold;
+}
+.stats-line {
+  font-size: 12px;
+  color: #6b5b4e;
+  text-align: center;
 }
 </style>

@@ -5,6 +5,7 @@ import {
   getRecentEvents,
   expireTodos,
   updateStreak,
+  getGiftCount,
 } from "../db/queries";
 import { generateTodos } from "../engine/todos";
 import { processConsequences } from "../engine/consequences";
@@ -122,6 +123,7 @@ export function handleGetBriefing(db: Database.Database) {
       totalDaysPlayed: stats.totalDaysPlayed,
       missionsCompleted: stats.missionsCompleted,
       npcsTalked: stats.npcsTalked,
+      giftsReceived: getGiftCount(db),
     },
     mission: mission
       ? {

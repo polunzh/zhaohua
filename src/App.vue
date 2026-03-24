@@ -376,6 +376,11 @@ async function handleChoose(choiceId: string) {
   });
   choices.value = [];
 
+  // Show gift toast if received
+  if (result?.gift) {
+    showToast(`🎁 收到了${result.gift.name}！`, "success");
+  }
+
   // Show NPC response + effect
   const responses = choiceResponses[choiceId] || ["……"];
   const response = responses[Math.floor(Math.random() * responses.length)];

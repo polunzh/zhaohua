@@ -38,6 +38,13 @@ function affinityLabel(value: number): string {
   if (value >= 20) return "疏远";
   return "陌生";
 }
+
+function getGrade(affinity: number): string {
+  if (affinity >= 80) return "优";
+  if (affinity >= 60) return "良";
+  if (affinity >= 40) return "中";
+  return "差";
+}
 </script>
 
 <template>
@@ -47,6 +54,7 @@ function affinityLabel(value: number): string {
       <div class="rel-name">
         {{ npc.name }}
         <span class="rel-mood">{{ moodEmoji[npc.mood] || "😐" }}</span>
+        <span v-if="npc.role === 'student'" class="rel-grade">[{{ getGrade(npc.affinity) }}]</span>
       </div>
       <div class="rel-bar" :title="`好感 ${npc.affinity}`">{{ affinityBar(npc.affinity) }}</div>
       <div class="rel-label">{{ affinityLabel(npc.affinity) }}</div>
@@ -75,6 +83,11 @@ function affinityLabel(value: number): string {
 }
 .rel-mood {
   font-size: 9px;
+}
+.rel-grade {
+  font-size: 9px;
+  color: #c4706a;
+  margin-left: 2px;
 }
 .rel-bar {
   font-size: 8px;

@@ -6,7 +6,9 @@ import {
   updateNpcAffinity,
   updateNpcMood,
   incrementStat,
+  addGift,
 } from "../db/queries";
+import { checkGift } from "../../src/data/gifts";
 import { getChoiceEffect } from "../../src/data/interactions";
 
 interface ChoiceParams {
@@ -45,6 +47,21 @@ export function handleChoice(db: Database.Database, params: ChoiceParams) {
 
   // Track NPC interaction
   incrementStat(db, "npcs_talked");
+
+  // Check for gift from high-affinity NPC
+  const updatedState = getNpcState(db, params.npcId);
+  if (updatedState) {
+    const gift = checkGift(params.npcRole || "", updatedState.affinity, Date.now());
+    if (gift) {
+      addGift(db, {
+        npcId: params.npcId,
+        giftName: gift.name,
+        giftDescription: gift.description,
+        gameDate: params.gameDate,
+      });
+      return { ok: true, effect, gift: { name: gift.name, description: gift.description } };
+    }
+  }
 
   return { ok: true, effect };
 }
