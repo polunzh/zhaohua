@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from "vue";
 import SidePanel from "./components/SidePanel.vue";
 import GameCanvas from "./components/GameCanvas.vue";
 import DialogBox from "./components/DialogBox.vue";
+import Briefing from "./components/Briefing.vue";
 import {
   fetchWorldState,
   skipTime,
@@ -10,6 +11,8 @@ import {
   moveToLocation,
   switchCharacter,
   submitChoice,
+  fetchBriefing,
+  completeTodo as completeTodoApi,
 } from "./api/client";
 import type { GameTime } from "./engine/time";
 import type { TileMapData } from "./tilemap/types";
@@ -38,6 +41,9 @@ const dialogLoading = ref(false);
 const currentNpcId = ref("");
 const choices = ref<{ id: string; label: string }[]>([]);
 const npcStates = ref<any[]>([]);
+const showBriefing = ref(true);
+const briefingData = ref<any>(null);
+const todos = ref<any[]>([]);
 
 const maps: Record<string, TileMapData> = {
   classroom: classroomMap,
@@ -86,6 +92,13 @@ async function loadWorld() {
   activeCharacter.value = data.activeCharacter || "teacher";
   events.value = data.events || [];
   npcStates.value = data.npcs || [];
+  // Also refresh todos
+  try {
+    const briefing = await fetchBriefing();
+    todos.value = briefing.todos || [];
+  } catch {
+    /* ignore */
+  }
 }
 
 async function handleNavigate(locationId: string) {
@@ -157,10 +170,38 @@ function handleCloseDialog() {
   choices.value = [];
 }
 
-onMounted(loadWorld);
+async function handleCompleteTodo(todoId: number) {
+  await completeTodoApi(todoId);
+  await loadWorld();
+  // Refresh todos
+  const briefing = await fetchBriefing();
+  todos.value = briefing.todos || [];
+}
+
+function handleStartGame() {
+  showBriefing.value = false;
+  loadWorld();
+}
+
+onMounted(async () => {
+  try {
+    briefingData.value = await fetchBriefing();
+  } catch {
+    showBriefing.value = false;
+    await loadWorld();
+  }
+});
 </script>
 
 <template>
+  <Briefing
+    v-if="showBriefing && briefingData"
+    :offline-text="briefingData.offlineText"
+    :events="briefingData.events"
+    :todos="briefingData.todos"
+    :consequences="briefingData.consequences"
+    @start="handleStartGame"
+  />
   <div class="game-layout">
     <div class="game-main">
       <SidePanel
@@ -169,9 +210,11 @@ onMounted(loadWorld);
         :current-scene="currentScene"
         :active-character="activeCharacter"
         :events="events"
+        :todos="todos"
         @navigate="handleNavigate"
         @switch-character="handleSwitchCharacter"
         @skip="handleSkip"
+        @complete-todo="handleCompleteTodo"
       />
       <div class="canvas-area">
         <GameCanvas

@@ -8,12 +8,14 @@ const props = defineProps<{
   currentScene: string;
   activeCharacter: string;
   events: { id: string; description: string }[];
+  todos: { id: number; title: string; priority: string }[];
 }>();
 
 const emit = defineEmits<{
   navigate: [locationId: string];
   switchCharacter: [character: string];
   skip: [type: "day" | "week" | "semester"];
+  completeTodo: [todoId: number];
 }>();
 
 const seasonNames: Record<string, string> = {
@@ -82,6 +84,19 @@ const locationNames: Record<string, string> = {
         </div>
       </template>
       <div v-else class="event-item hint">一切如常，没什么特别的事。</div>
+    </div>
+
+    <!-- Todos -->
+    <div class="panel-section" v-if="todos.length">
+      <div class="panel-title">📝 待处理</div>
+      <div
+        v-for="t in todos"
+        :key="t.id"
+        class="todo-sidebar-item"
+        @click="emit('completeTodo', t.id)"
+      >
+        <span class="todo-dot" :class="t.priority">●</span> {{ t.title }}
+      </div>
     </div>
 
     <!-- Tips -->
@@ -215,5 +230,23 @@ const locationNames: Record<string, string> = {
 .character-switch button.active {
   background: #c4706a;
   color: #f5e6c8;
+}
+.todo-sidebar-item {
+  font-size: 10px;
+  line-height: 1.8;
+  color: #3a3530;
+  cursor: pointer;
+  padding: 1px 0;
+}
+.todo-sidebar-item:hover {
+  color: #c4706a;
+  text-decoration: line-through;
+}
+.todo-dot {
+  font-size: 8px;
+  color: #d4c08e;
+}
+.todo-dot.high {
+  color: #c4706a;
 }
 </style>

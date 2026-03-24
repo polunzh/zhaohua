@@ -60,3 +60,17 @@ export async function switchCharacter(character: "teacher" | "postman") {
   });
   return res.json();
 }
+
+export async function fetchBriefing() {
+  const res = await fetch(`${BASE_URL}/briefing`);
+  return res.json();
+}
+
+export async function completeTodo(todoId: number) {
+  const res = await fetch(`${BASE_URL}/todo-complete`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ todoId }),
+  });
+  return res.json();
+}
