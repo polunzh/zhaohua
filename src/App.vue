@@ -643,7 +643,7 @@ body {
 }
 
 .header-info {
-  font-size: 10px;
+  font-size: 12px;
   color: #d4c08e;
   font-family: "Noto Serif SC", serif;
   display: flex;
@@ -692,7 +692,7 @@ body {
   transform: translateX(-50%);
   background: rgba(46, 42, 38, 0.8);
   color: #d4c08e;
-  font-size: 10px;
+  font-size: 12px;
   padding: 3px 10px;
   border-radius: 10px;
   z-index: 2;
@@ -715,7 +715,7 @@ body {
 }
 .dialog-placeholder {
   color: #5a5450;
-  font-size: 11px;
+  font-size: 13px;
   font-family: "Noto Serif SC", serif;
 }
 
@@ -731,34 +731,22 @@ body {
   background: rgba(58, 53, 48, 0.9);
   border: 1px solid #5a5450;
   border-radius: 4px;
-  padding: 6px 14px;
+  padding: 8px 16px;
   font-family: "Noto Serif SC", serif;
-  font-size: 11px;
+  font-size: 13px;
   color: #f5e6c8;
   cursor: pointer;
   transition: all 0.15s ease;
-  animation: choicePulse 2s ease-in-out infinite;
 }
 
 .choices button:hover {
   background: #c4706a;
   border-color: #c4706a;
   transform: translateY(-1px);
-  animation: none;
 }
 
 .choices button:active {
   transform: translateY(0);
-}
-
-@keyframes choicePulse {
-  0%,
-  100% {
-    border-color: #5a5450;
-  }
-  50% {
-    border-color: #8a7a6a;
-  }
 }
 
 .transition-overlay {

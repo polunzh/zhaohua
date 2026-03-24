@@ -114,8 +114,9 @@ const hasRecap = computed(
 }
 .briefing-panel {
   background: linear-gradient(180deg, #f5e6c8 0%, #ede0c0 100%);
-  border: 3px solid #6b5b4e;
+  border: 1px solid rgba(107, 91, 78, 0.3);
   border-radius: 8px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
   padding: 24px 32px;
   max-width: 480px;
   width: 90%;
@@ -156,7 +157,7 @@ h2 {
   margin-bottom: 16px;
 }
 h3 {
-  font-size: 12px;
+  font-size: 13px;
   color: #c4706a;
   margin-bottom: 6px;
 }
@@ -167,12 +168,12 @@ h3 {
   border-radius: 0 4px 4px 0;
 }
 .mission-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: bold;
   color: #3a3530;
 }
 .mission-desc {
-  font-size: 11px;
+  font-size: 12px;
   color: #5c6b7a;
   margin-top: 3px;
 }
@@ -188,16 +189,16 @@ h3 {
   background: rgba(196, 112, 106, 0.1);
 }
 .yesterday-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: bold;
 }
 .yesterday-text {
-  font-size: 10px;
+  font-size: 12px;
   color: #5c6b7a;
   margin-top: 2px;
 }
 .consequence-item {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
   padding: 4px 8px;
   border-radius: 4px;
@@ -212,7 +213,7 @@ h3 {
   color: #c4706a;
 }
 .story-item {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.5;
   color: #5c6b7a;
   padding: 2px 8px;
@@ -222,12 +223,12 @@ h3 {
   color: #6b5b4e;
 }
 .event-item {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.5;
   color: #5c6b7a;
 }
 .event-more {
-  font-size: 10px;
+  font-size: 12px;
   color: #a8b8b0;
   font-style: italic;
   margin-top: 2px;
@@ -239,7 +240,7 @@ h3 {
   font-style: italic;
 }
 .stats-line {
-  font-size: 12px;
+  font-size: 13px;
   color: #6b5b4e;
   text-align: center;
   margin-bottom: 4px;

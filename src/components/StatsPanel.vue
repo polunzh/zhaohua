@@ -50,24 +50,24 @@ defineProps<{
 .stats-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 6px;
 }
 .stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 30px;
-  padding: 2px 4px;
+  min-width: 40px;
+  padding: 4px 8px;
   background: rgba(212, 192, 142, 0.3);
   border-radius: 3px;
 }
 .stat-value {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
   color: #6b5b4e;
 }
 .stat-label {
-  font-size: 8px;
+  font-size: 11px;
   color: #a8b8b0;
 }
 </style>

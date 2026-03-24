@@ -32,8 +32,8 @@ const emit = defineEmits<{ close: [] }>();
   display: inline-block;
   background: #c4706a;
   color: #f5e6c8;
-  padding: 3px 12px;
-  font-size: 11px;
+  padding: 5px 14px;
+  font-size: 13px;
   font-weight: bold;
   border-radius: 4px 4px 0 0;
   font-family: "Noto Serif SC", serif;
@@ -41,15 +41,16 @@ const emit = defineEmits<{ close: [] }>();
 }
 .dialog-body {
   background: rgba(58, 53, 48, 0.92);
-  border: 2px solid #6b5b4e;
+  border: 1px solid rgba(107, 91, 78, 0.5);
   border-radius: 4px;
   padding: 12px 16px;
   min-height: 48px;
   position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 .dialog-content {
   color: #f5e6c8;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.7;
   font-family: "Noto Serif SC", serif;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);

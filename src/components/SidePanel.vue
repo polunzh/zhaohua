@@ -276,8 +276,8 @@ const ambientText = computed(() => {
 
 <style scoped>
 .side-panel {
-  width: 260px;
-  min-width: 260px;
+  width: 300px;
+  min-width: 300px;
   background: #f5e6c8;
   border-right: 2px solid #d4c08e;
   display: flex;
@@ -291,17 +291,17 @@ const ambientText = computed(() => {
   scrollbar-color: #d4c08e #f5e6c8;
 }
 .panel-section {
-  padding: 8px 12px;
-  border-bottom: 1px solid #d4c08e;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(212, 192, 142, 0.5);
 }
 .panel-title {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: bold;
   color: #c4706a;
   margin-bottom: 6px;
 }
 .panel-text {
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.5;
 }
 .panel-time-large {
@@ -320,8 +320,8 @@ const ambientText = computed(() => {
   background: #d4c08e;
   border: 1px solid #6b5b4e;
   border-radius: 3px;
-  font-size: 9px;
-  padding: 2px;
+  font-size: 12px;
+  padding: 4px 6px;
   cursor: pointer;
   font-family: "Noto Serif SC", serif;
   color: #3a3530;
@@ -334,7 +334,7 @@ const ambientText = computed(() => {
   overflow-y: auto;
 }
 .event-item {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
   color: #5c6b7a;
 }
@@ -346,21 +346,21 @@ const ambientText = computed(() => {
   background: rgba(196, 112, 106, 0.06);
 }
 .ambient-text {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.6;
   color: #8a7a6a;
   font-style: italic;
 }
 .location-name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: bold;
   color: #6b5b4e;
 }
 .nav-item {
-  font-size: 11px;
+  font-size: 13px;
   color: #5c6b7a;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 6px 10px;
   background: #ede4d0;
   border-radius: 3px;
   margin-bottom: 3px;
@@ -382,7 +382,7 @@ const ambientText = computed(() => {
   border: 1px solid #6b5b4e;
   border-radius: 3px;
   padding: 4px;
-  font-size: 10px;
+  font-size: 12px;
   cursor: pointer;
   font-family: "Noto Serif SC", serif;
   color: #3a3530;
@@ -392,45 +392,45 @@ const ambientText = computed(() => {
   color: #f5e6c8;
 }
 .todo-sidebar-item {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.8;
   color: #3a3530;
   padding: 1px 0;
 }
 .todo-location {
-  font-size: 9px;
+  font-size: 11px;
   color: #a8b8b0;
 }
 .todo-dot {
-  font-size: 8px;
+  font-size: 11px;
   color: #d4c08e;
 }
 .todo-dot.high {
   color: #c4706a;
 }
 .mission-sidebar {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: bold;
   color: #3a3530;
   padding: 4px 0 4px 8px;
   border-left: 3px solid #c4706a;
 }
 .mission-hint {
-  font-size: 10px;
+  font-size: 12px;
   color: #5c6b7a;
   line-height: 1.5;
-  padding-left: 11px;
+  padding-left: 13px;
 }
 .mission-go-btn {
   display: block;
   width: 100%;
   margin-top: 6px;
-  padding: 5px 8px;
+  padding: 6px 10px;
   background: #c4706a;
   color: #f5e6c8;
   border: none;
   border-radius: 3px;
-  font-size: 10px;
+  font-size: 12px;
   font-family: "Noto Serif SC", serif;
   cursor: pointer;
 }
@@ -438,12 +438,12 @@ const ambientText = computed(() => {
   background: #a05a54;
 }
 .mission-here {
-  font-size: 9px;
+  font-size: 11px;
   color: #7a9178;
   margin-top: 4px;
 }
 .mission-done {
-  font-size: 10px;
+  font-size: 12px;
   color: #7a9178;
   text-decoration: line-through;
 }
@@ -458,17 +458,17 @@ const ambientText = computed(() => {
   background: rgba(196, 112, 106, 0.06);
 }
 .tutorial-step {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.8;
   color: #5c6b7a;
   padding-left: 2px;
 }
 .sidebar-footer {
   margin-top: auto;
-  padding: 8px 12px;
+  padding: 12px 16px;
   background: linear-gradient(180deg, transparent, #ede0c0);
   border-top: 1px solid #d4c08e;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: bold;
   color: #6b5b4e;
   text-align: center;

@@ -72,29 +72,28 @@ function getGrade(affinity: number): string {
   margin-bottom: 6px;
 }
 .rel-item {
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 .rel-name {
-  font-size: 10px;
+  font-size: 13px;
   color: #3a3530;
   font-weight: bold;
 }
 .rel-mood {
-  font-size: 9px;
+  font-size: 12px;
 }
 .rel-grade {
-  font-size: 9px;
+  font-size: 12px;
   color: #c4706a;
   margin-left: 2px;
 }
 .rel-bar {
-  font-size: 8px;
-  letter-spacing: -1px;
+  font-size: 11px;
   color: #c4706a;
   line-height: 1;
 }
 .rel-label {
-  font-size: 8px;
+  font-size: 11px;
   color: #a8b8b0;
 }
 </style>
