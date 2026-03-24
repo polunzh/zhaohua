@@ -13,6 +13,7 @@ interface InteractionTemplate {
   roles: string[];
   locations: string[]; // empty = any location
   choices: InteractionChoice[];
+  minAffinity?: number;
 }
 
 const templates: InteractionTemplate[] = [
@@ -138,6 +139,53 @@ const templates: InteractionTemplate[] = [
       { id: "chat", label: "聊聊天", effect: { affinityDelta: 5, mood: "happy" } },
     ],
   },
+  // --- High-affinity NPC requests (R10) ---
+  // High affinity student requests
+  {
+    roles: ["student"],
+    locations: ["classroom"],
+    minAffinity: 60,
+    choices: [
+      { id: "help-homework", label: "帮他补补课", effect: { affinityDelta: 10, mood: "happy" } },
+      { id: "lend-notebook", label: "借他一本笔记本", effect: { affinityDelta: 8, mood: "happy" } },
+      { id: "check-homework", label: "检查作业", effect: { affinityDelta: 0, mood: "neutral" } },
+      { id: "encourage", label: "鼓励一下", effect: { affinityDelta: 5, mood: "happy" } },
+    ],
+  },
+  // High affinity principal requests
+  {
+    roles: ["principal"],
+    locations: ["office"],
+    minAffinity: 60,
+    choices: [
+      { id: "share-concerns", label: "说说心里话", effect: { affinityDelta: 10, mood: "happy" } },
+      {
+        id: "plan-together",
+        label: "一起规划学校发展",
+        effect: { affinityDelta: 8, mood: "happy" },
+      },
+      { id: "report-work", label: "汇报工作", effect: { affinityDelta: 3, mood: "neutral" } },
+    ],
+  },
+  // High affinity parent requests
+  {
+    roles: ["parent"],
+    locations: ["classroom", "office", "playground"],
+    minAffinity: 60,
+    choices: [
+      {
+        id: "invite-dinner",
+        label: "请老师来家吃饭",
+        effect: { affinityDelta: 10, mood: "happy" },
+      },
+      { id: "deep-talk", label: "深入聊聊孩子", effect: { affinityDelta: 8, mood: "happy" } },
+      {
+        id: "introduce-situation",
+        label: "介绍孩子情况",
+        effect: { affinityDelta: 5, mood: "neutral" },
+      },
+    ],
+  },
 ];
 
 // Fallback choices
@@ -148,15 +196,38 @@ const fallbackChoices: InteractionChoice[] = [
   { id: "apologize", label: "道歉", effect: { affinityDelta: 8, mood: "neutral" } },
 ];
 
-export function getInteractionChoices(role: string, location: string): InteractionChoice[] {
-  // Find specific match: role + location
+export function getInteractionChoices(
+  role: string,
+  location: string,
+  affinity?: number,
+): InteractionChoice[] {
+  // If affinity provided, check for high-affinity templates first
+  if (affinity !== undefined) {
+    const highAffinity = templates.find(
+      (t) =>
+        t.roles.includes(role) &&
+        t.locations.length > 0 &&
+        t.locations.includes(location) &&
+        t.minAffinity !== undefined &&
+        affinity >= t.minAffinity,
+    );
+    if (highAffinity) return highAffinity.choices;
+  }
+
+  // Find specific match: role + location (skip high-affinity templates)
   const specific = templates.find(
-    (t) => t.roles.includes(role) && t.locations.length > 0 && t.locations.includes(location),
+    (t) =>
+      t.roles.includes(role) &&
+      t.locations.length > 0 &&
+      t.locations.includes(location) &&
+      !t.minAffinity,
   );
   if (specific) return specific.choices;
 
-  // Find role match with any location
-  const roleAny = templates.find((t) => t.roles.includes(role) && t.locations.length === 0);
+  // Find role match with any location (skip high-affinity templates)
+  const roleAny = templates.find(
+    (t) => t.roles.includes(role) && t.locations.length === 0 && !t.minAffinity,
+  );
   if (roleAny) return roleAny.choices;
 
   return fallbackChoices;
@@ -166,8 +237,9 @@ export function getChoiceEffect(
   choiceId: string,
   role: string,
   location: string,
+  affinity?: number,
 ): InteractionEffect {
-  const choices = getInteractionChoices(role, location);
+  const choices = getInteractionChoices(role, location, affinity);
   const choice = choices.find((c) => c.id === choiceId);
   if (choice) return choice.effect;
   // Fallback effect

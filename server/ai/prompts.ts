@@ -50,8 +50,12 @@ export function buildDialoguePrompt(ctx: DialogueContext): string {
   prompt += `。\n角色：${ctx.npcName}，性格：${ctx.npcPersonality}。`;
   if (ctx.mood) prompt += `\n当前心情：${moodName[ctx.mood] || ctx.mood}。`;
   if (ctx.affinity !== undefined) {
-    if (ctx.affinity >= 70) prompt += `\n和老师关系很好，信任老师。`;
-    else if (ctx.affinity <= 30) prompt += `\n和老师关系一般，有些疏远。`;
+    if (ctx.affinity >= 80)
+      prompt += `\n和老师关系非常亲密，把老师当自己人，说话很放松，可能会开玩笑或分享秘密。`;
+    else if (ctx.affinity >= 60) prompt += `\n和老师关系不错，态度友好，愿意聊天。`;
+    else if (ctx.affinity >= 40) prompt += `\n和老师关系一般，比较拘谨，话不多。`;
+    else if (ctx.affinity >= 20) prompt += `\n和老师关系不太好，有点防备，不太想说话。`;
+    else prompt += `\n和老师关系很差，很抵触，可能会顶嘴或沉默。`;
   }
   prompt += `\n场景：${ctx.situation}。`;
   if (ctx.recentEvent) prompt += `\n最近发生的事：${ctx.recentEvent}。`;
