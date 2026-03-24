@@ -134,7 +134,7 @@ const ambientText = computed(() => {
         {{ seasonNames[gameTime.season] || gameTime.season }} ·
         {{ weatherNames[weather] || weather }}
       </div>
-      <div class="panel-text">
+      <div class="panel-time-large">
         {{ String(gameTime.hour).padStart(2, "0") }}:{{ String(gameTime.minute).padStart(2, "0") }}
       </div>
       <div class="skip-row">
@@ -298,7 +298,7 @@ const ambientText = computed(() => {
   scrollbar-color: #d4c08e #f5e6c8;
 }
 .panel-section {
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-bottom: 1px solid #d4c08e;
 }
 .panel-title {
@@ -310,6 +310,12 @@ const ambientText = computed(() => {
 .panel-text {
   font-size: 11px;
   line-height: 1.5;
+}
+.panel-time-large {
+  font-size: 16px;
+  font-weight: bold;
+  color: #3a3530;
+  line-height: 1.3;
 }
 .skip-row {
   display: flex;
@@ -361,10 +367,17 @@ const ambientText = computed(() => {
   font-size: 11px;
   color: #5c6b7a;
   cursor: pointer;
-  padding: 2px 0;
+  padding: 4px 8px;
+  background: #ede4d0;
+  border-radius: 3px;
+  margin-bottom: 3px;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
 }
 .nav-item:hover {
-  color: #c4706a;
+  color: #f5e6c8;
+  background: #c4706a;
 }
 .character-switch {
   display: flex;
@@ -406,12 +419,14 @@ const ambientText = computed(() => {
   font-size: 11px;
   font-weight: bold;
   color: #3a3530;
-  padding: 3px 0;
+  padding: 4px 0 4px 8px;
+  border-left: 3px solid #c4706a;
 }
 .mission-hint {
   font-size: 10px;
   color: #5c6b7a;
   line-height: 1.5;
+  padding-left: 11px;
 }
 .mission-go-btn {
   display: block;

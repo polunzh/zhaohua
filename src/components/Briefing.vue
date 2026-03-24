@@ -1,5 +1,7 @@
 <script setup lang="ts">
-defineProps<{
+import { computed } from "vue";
+
+const props = defineProps<{
   offlineText: string;
   events: { id: string; description: string; type: string }[];
   todos: { id: number; type: string; title: string; description: string; priority: string }[];
@@ -24,59 +26,25 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{ start: [] }>();
+
+const displayEvents = computed(() => props.events.slice(0, 3));
+const extraEventsCount = computed(() => Math.max(0, props.events.length - 3));
+
+// Combine yesterday mission + consequences into one recap section
+const hasRecap = computed(
+  () =>
+    props.yesterdayMission ||
+    props.consequences.length ||
+    (props.storyProgress && props.storyProgress.length),
+);
 </script>
 
 <template>
   <div class="briefing-overlay">
     <div class="briefing-panel">
       <h2>📜 {{ offlineText }}</h2>
-      <div v-if="stats && stats.streakDays > 1" class="streak-badge">
-        连续第 {{ stats.streakDays }} 天
-      </div>
 
-      <div class="briefing-section" v-if="yesterdayMission">
-        <h3 v-if="yesterdayMission.status === 'done'">✅ 昨天的任务完成了</h3>
-        <h3 v-else>❌ 昨天的任务没完成</h3>
-        <div class="yesterday-item" :class="yesterdayMission.status">
-          <div class="yesterday-title">{{ yesterdayMission.title }}</div>
-          <div class="yesterday-text">{{ yesterdayMission.completionText }}</div>
-        </div>
-      </div>
-
-      <div class="briefing-section" v-if="storyProgress && storyProgress.length">
-        <h3>📖 故事进展</h3>
-        <div v-for="(s, i) in storyProgress" :key="i" class="story-item">
-          <div class="story-name">{{ s.name }} {{ s.isFinal ? "（完结）" : "" }}</div>
-          <div class="story-desc">{{ s.description }}</div>
-        </div>
-      </div>
-
-      <div class="briefing-section" v-if="consequences.length">
-        <h3>🌱 你的选择产生了影响</h3>
-        <div v-for="(c, i) in consequences" :key="i" class="consequence-item" :class="c.type">
-          {{ c.description }}
-        </div>
-      </div>
-
-      <div class="briefing-section" v-if="events.length">
-        <h3>📋 发生了这些事</h3>
-        <div v-for="e in events.slice(0, 6)" :key="e.id" class="event-item">
-          · {{ e.description }}
-        </div>
-      </div>
-
-      <div class="briefing-section" v-if="todos.length">
-        <h3>📝 等你处理</h3>
-        <div v-for="t in todos" :key="t.id" class="todo-item" :class="t.priority">
-          <span class="todo-title">{{ t.title }}</span>
-          <span class="todo-desc">{{ t.description }}</span>
-        </div>
-      </div>
-
-      <div class="briefing-section" v-if="!events.length && !todos.length && !consequences.length">
-        <p class="quiet">一切如常，平静的一天。</p>
-      </div>
-
+      <!-- 1. Mission first — most important -->
       <div class="briefing-section" v-if="mission && mission.status === 'active'">
         <h3>🎯 今日任务</h3>
         <div class="mission-item">
@@ -85,11 +53,49 @@ const emit = defineEmits<{ start: [] }>();
         </div>
       </div>
 
-      <div class="briefing-section" v-if="stats && (stats.giftsReceived ?? 0) > 0">
-        <div class="stats-line">🎁 收到 {{ stats.giftsReceived }} 个礼物</div>
+      <!-- 2. Recap: yesterday + consequences + story combined -->
+      <div class="briefing-section" v-if="hasRecap">
+        <h3>📖 回顾</h3>
+        <div v-if="yesterdayMission" class="yesterday-item" :class="yesterdayMission.status">
+          <div class="yesterday-title">
+            {{ yesterdayMission.status === "done" ? "✅" : "❌" }} {{ yesterdayMission.title }}
+          </div>
+          <div class="yesterday-text">{{ yesterdayMission.completionText }}</div>
+        </div>
+        <div v-for="(c, i) in consequences" :key="'c' + i" class="consequence-item" :class="c.type">
+          {{ c.description }}
+        </div>
+        <div v-for="(s, i) in storyProgress" :key="'s' + i" class="story-item">
+          <span class="story-name">{{ s.name }}{{ s.isFinal ? "（完结）" : "" }}</span>
+          — {{ s.description }}
+        </div>
       </div>
 
+      <!-- 3. Events — max 3 -->
+      <div class="briefing-section" v-if="events.length">
+        <h3>📋 发生了这些事</h3>
+        <div v-for="e in displayEvents" :key="e.id" class="event-item">· {{ e.description }}</div>
+        <div v-if="extraEventsCount > 0" class="event-more">(还有{{ extraEventsCount }}件事)</div>
+      </div>
+
+      <!-- 4. Quiet fallback -->
+      <div
+        class="briefing-section"
+        v-if="!events.length && !hasRecap && !(mission && mission.status === 'active')"
+      >
+        <p class="quiet">一切如常，平静的一天。</p>
+      </div>
+
+      <!-- 5. Compact stats line -->
+      <div class="stats-line" v-if="stats">
+        🔥 连续{{ stats.streakDays }}天 · 完成{{ stats.missionsCompleted }}个任务 · 收到{{
+          stats.giftsReceived ?? 0
+        }}个礼物
+      </div>
+
+      <!-- 6. Prominent start button -->
       <button class="start-btn" @click="emit('start')">好的，开始</button>
+      <div class="start-sub">去看看今天的学校吧</div>
     </div>
   </div>
 </template>
@@ -123,58 +129,12 @@ h2 {
   text-align: center;
 }
 .briefing-section {
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 h3 {
   font-size: 13px;
   color: #c4706a;
-  margin-bottom: 8px;
-}
-.consequence-item {
-  font-size: 12px;
-  line-height: 1.6;
-  padding: 4px 8px;
-  border-radius: 3px;
-  margin-bottom: 4px;
-}
-.consequence-item.positive {
-  background: rgba(122, 145, 120, 0.15);
-  color: #5a7a58;
-}
-.consequence-item.negative {
-  background: rgba(196, 112, 106, 0.15);
-  color: #c4706a;
-}
-.event-item {
-  font-size: 11px;
-  line-height: 1.5;
-  color: #5c6b7a;
-}
-.todo-item {
-  display: flex;
-  flex-direction: column;
-  padding: 6px 8px;
-  border-left: 3px solid #d4c08e;
-  margin-bottom: 4px;
-  background: rgba(212, 192, 142, 0.2);
-}
-.todo-item.high {
-  border-left-color: #c4706a;
-}
-.todo-title {
-  font-size: 12px;
-  font-weight: bold;
-}
-.todo-desc {
-  font-size: 10px;
-  color: #5c6b7a;
-  margin-top: 2px;
-}
-.quiet {
-  font-size: 12px;
-  color: #a8b8b0;
-  text-align: center;
-  font-style: italic;
+  margin-bottom: 6px;
 }
 .mission-item {
   padding: 8px 10px;
@@ -212,47 +172,76 @@ h3 {
   color: #5c6b7a;
   margin-top: 2px;
 }
-.story-item {
+.consequence-item {
+  font-size: 12px;
+  line-height: 1.6;
   padding: 4px 8px;
+  border-radius: 3px;
   margin-bottom: 4px;
-  border-left: 2px solid #d4c08e;
+}
+.consequence-item.positive {
+  background: rgba(122, 145, 120, 0.15);
+  color: #5a7a58;
+}
+.consequence-item.negative {
+  background: rgba(196, 112, 106, 0.15);
+  color: #c4706a;
+}
+.story-item {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #5c6b7a;
+  padding: 2px 8px;
 }
 .story-name {
-  font-size: 11px;
   font-weight: bold;
   color: #6b5b4e;
 }
-.story-desc {
-  font-size: 10px;
+.event-item {
+  font-size: 11px;
+  line-height: 1.5;
   color: #5c6b7a;
+}
+.event-more {
+  font-size: 10px;
+  color: #a8b8b0;
+  font-style: italic;
   margin-top: 2px;
 }
-.start-btn {
-  display: block;
-  width: 100%;
-  margin-top: 16px;
-  padding: 10px;
-  background: #c4706a;
-  color: #f5e6c8;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  font-family: "Noto Serif SC", serif;
-  cursor: pointer;
-}
-.start-btn:hover {
-  background: #a05a54;
-}
-.streak-badge {
-  text-align: center;
+.quiet {
   font-size: 12px;
-  color: #c4706a;
-  margin-bottom: 12px;
-  font-weight: bold;
+  color: #a8b8b0;
+  text-align: center;
+  font-style: italic;
 }
 .stats-line {
   font-size: 12px;
   color: #6b5b4e;
   text-align: center;
+  margin-bottom: 4px;
+}
+.start-btn {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px;
+  background: #c4706a;
+  color: #f5e6c8;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: "Noto Serif SC", serif;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.start-btn:hover {
+  background: #a05a54;
+}
+.start-sub {
+  text-align: center;
+  font-size: 11px;
+  color: #a8b8b0;
+  margin-top: 6px;
 }
 </style>

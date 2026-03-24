@@ -57,6 +57,7 @@ const toastType = ref<"info" | "success" | "streak">("info");
 const playerStats = ref<any>(null);
 const showLocationName = ref(false);
 const locationLabel = ref("");
+const isLoading = ref(false);
 
 const locationNames: Record<string, string> = {
   classroom: "教室",
@@ -152,6 +153,7 @@ const visibleNpcs = computed(() => {
 });
 
 async function loadWorld() {
+  isLoading.value = true;
   const data = await fetchWorldState();
   gameTime.value = data.gameTime;
   weather.value = data.weather;
@@ -167,6 +169,7 @@ async function loadWorld() {
   } catch {
     /* ignore */
   }
+  isLoading.value = false;
 }
 
 async function handleNavigate(locationId: string) {
@@ -478,6 +481,9 @@ onMounted(async () => {
         @skip="handleSkip"
       />
       <div class="canvas-area">
+        <div v-if="isLoading" class="loading-indicator">
+          <div class="loading-text">……</div>
+        </div>
         <div v-if="showLocationName" class="location-announce">
           {{ locationLabel }}
         </div>
@@ -575,25 +581,44 @@ body {
 
 .choices {
   display: flex;
-  gap: 8px;
-  margin-top: 8px;
-  padding: 0 12px;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 4px 12px;
 }
 
 .choices button {
-  background: rgba(58, 53, 48, 0.85);
-  border: 1px solid #6b5b4e;
-  border-radius: 3px;
-  padding: 6px 16px;
+  background: rgba(58, 53, 48, 0.9);
+  border: 1px solid #5a5450;
+  border-radius: 4px;
+  padding: 6px 14px;
   font-family: "Noto Serif SC", serif;
-  font-size: 12px;
+  font-size: 11px;
   color: #f5e6c8;
   cursor: pointer;
+  transition: all 0.15s ease;
+  animation: choicePulse 2s ease-in-out infinite;
 }
 
 .choices button:hover {
   background: #c4706a;
   border-color: #c4706a;
+  transform: translateY(-1px);
+  animation: none;
+}
+
+.choices button:active {
+  transform: translateY(0);
+}
+
+@keyframes choicePulse {
+  0%,
+  100% {
+    border-color: #5a5450;
+  }
+  50% {
+    border-color: #8a7a6a;
+  }
 }
 
 .transition-overlay {
@@ -650,6 +675,33 @@ body {
   z-index: 10;
   pointer-events: none;
   animation: locationFade 1.5s ease forwards;
+}
+
+.loading-indicator {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2e2a26;
+  z-index: 5;
+}
+
+.loading-text {
+  color: #d4c08e;
+  font-size: 14px;
+  font-family: "Noto Serif SC", serif;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
 }
 
 @keyframes locationFade {
