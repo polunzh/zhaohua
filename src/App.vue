@@ -409,6 +409,7 @@ onMounted(async () => {
         :events="events"
         :todos="todos"
         :mission="mission"
+        :npcs="npcStates"
         @navigate="handleNavigate"
         @switch-character="handleSwitchCharacter"
         @skip="handleSkip"

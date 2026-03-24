@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { GameTime } from "../engine/time";
 import { getConnectedLocations, getLocation } from "../data/locations";
+import RelationshipPanel from "./RelationshipPanel.vue";
 
 const props = defineProps<{
   gameTime: GameTime | null;
@@ -9,6 +10,7 @@ const props = defineProps<{
   activeCharacter: string;
   events: { id: string; description: string }[];
   todos: { id: number; title: string; priority: string; location: string; actionType: string }[];
+  npcs: { id: string; name: string; role: string; mood: string; affinity: number }[];
   mission: {
     id: string;
     title: string;
@@ -179,6 +181,9 @@ const ambientText = computed(() => {
         → {{ loc.name }}
       </div>
     </div>
+
+    <!-- Relationships -->
+    <RelationshipPanel :npcs="npcs" />
 
     <!-- Character Switch -->
     <div class="panel-section">
