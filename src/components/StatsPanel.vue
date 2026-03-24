@@ -39,8 +39,7 @@ defineProps<{
 
 <style scoped>
 .stats-panel {
-  padding: 10px 12px;
-  border-bottom: 1px solid #d4c08e;
+  font-family: "Noto Serif SC", serif;
 }
 .stats-title {
   font-size: 11px;
@@ -63,12 +62,12 @@ defineProps<{
   border-radius: 3px;
 }
 .stat-value {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: bold;
   color: #6b5b4e;
 }
 .stat-label {
-  font-size: 7px;
+  font-size: 8px;
   color: #a8b8b0;
 }
 </style>

@@ -34,9 +34,10 @@ watch(
   transform: translateX(-50%);
   padding: 8px 20px;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: 12px;
   font-family: "Noto Serif SC", serif;
   z-index: 300;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 .toast.info {
   background: #f5e6c8;
@@ -48,11 +49,11 @@ watch(
   color: #f5e6c8;
 }
 .toast.streak {
-  background: #c4706a;
+  background: linear-gradient(135deg, #c4706a 0%, #d4915a 50%, #c4706a 100%);
   color: #f5e6c8;
 }
 .toast-enter-active {
-  animation: toastIn 0.3s ease;
+  animation: toastIn 0.4s ease;
 }
 .toast-leave-active {
   animation: toastOut 0.3s ease;
@@ -60,11 +61,11 @@ watch(
 @keyframes toastIn {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(-20px);
+    transform: translateX(-50%) translateY(-30px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateX(-50%) translateY(0) scale(1);
   }
 }
 @keyframes toastOut {

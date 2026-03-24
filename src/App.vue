@@ -575,7 +575,7 @@ body {
 
 .dialog-area {
   background: #2e2a26;
-  padding: 8px 12px 12px;
+  padding: 8px 12px 16px;
   border-top: 2px solid #4a4440;
 }
 
@@ -629,17 +629,27 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 200;
-  animation: fadeIn 0.5s ease;
+  animation: fadeIn 0.8s ease;
+}
+
+.transition-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.3) 100%);
+  pointer-events: none;
 }
 
 .transition-text {
   color: #f5e6c8;
-  font-size: 16px;
+  font-size: 18px;
   font-family: "Noto Serif SC", serif;
   max-width: 400px;
   text-align: center;
-  line-height: 1.8;
+  line-height: 2;
   animation: slideUp 0.8s ease;
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes fadeIn {

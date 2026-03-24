@@ -1503,8 +1503,8 @@ function render() {
         "home-zhu": "朱家",
       };
       const label = destNames[exit.targetMapId] || exit.targetMapId;
-      ctx.fillStyle = "rgba(245, 230, 200, 0.8)";
-      ctx.font = "7px sans-serif";
+      ctx.fillStyle = "rgba(245, 230, 200, 0.7)";
+      ctx.font = '7px "Noto Serif SC", serif';
       ctx.textAlign = "center";
       ctx.fillText("→" + label, ex + TILE_SIZE / 2, ey - 2);
     }
@@ -1542,9 +1542,9 @@ function handleClick(e: MouseEvent) {
   // Divide by 2 because canvas is rendered at 2x scale
   const { tileX, tileY } = engine.pixelToTile(canvasX / 2, canvasY / 2);
 
-  // Check NPC click
+  // Check NPC click (sprites are 2 tiles tall, check both tile and tile above)
   for (const npc of props.npcs) {
-    if (npc.tileX === tileX && npc.tileY === tileY) {
+    if (npc.tileX === tileX && (npc.tileY === tileY || npc.tileY === tileY + 1)) {
       emit("clickNpc", npc.id);
       return;
     }

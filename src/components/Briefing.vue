@@ -42,7 +42,8 @@ const hasRecap = computed(
 <template>
   <div class="briefing-overlay">
     <div class="briefing-panel">
-      <h2>📜 {{ offlineText }}</h2>
+      <div class="briefing-decoration"></div>
+      <h2>{{ offlineText }}</h2>
 
       <!-- 1. Mission first — most important -->
       <div class="briefing-section" v-if="mission && mission.status === 'active'">
@@ -112,9 +113,9 @@ const hasRecap = computed(
   font-family: "Noto Serif SC", serif;
 }
 .briefing-panel {
-  background: #f5e6c8;
+  background: linear-gradient(180deg, #f5e6c8 0%, #ede0c0 100%);
   border: 3px solid #6b5b4e;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 24px 32px;
   max-width: 480px;
   width: 90%;
@@ -122,17 +123,40 @@ const hasRecap = computed(
   overflow-y: auto;
   color: #3a3530;
 }
+.briefing-decoration {
+  height: 1px;
+  background: #d4c08e;
+  margin-bottom: 16px;
+  position: relative;
+}
+.briefing-decoration::before,
+.briefing-decoration::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  background: #d4c08e;
+  border-radius: 50%;
+}
+.briefing-decoration::before {
+  left: 25%;
+}
+.briefing-decoration::after {
+  right: 25%;
+}
 h2 {
   font-size: 18px;
   color: #6b5b4e;
   margin-bottom: 16px;
   text-align: center;
+  letter-spacing: 2px;
 }
 .briefing-section {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 h3 {
-  font-size: 13px;
+  font-size: 12px;
   color: #c4706a;
   margin-bottom: 6px;
 }
@@ -140,10 +164,10 @@ h3 {
   padding: 8px 10px;
   border-left: 3px solid #c4706a;
   background: rgba(196, 112, 106, 0.1);
-  border-radius: 0 3px 3px 0;
+  border-radius: 0 4px 4px 0;
 }
 .mission-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: bold;
   color: #3a3530;
 }
@@ -154,7 +178,7 @@ h3 {
 }
 .yesterday-item {
   padding: 6px 8px;
-  border-radius: 3px;
+  border-radius: 4px;
   margin-bottom: 4px;
 }
 .yesterday-item.done {
@@ -176,7 +200,7 @@ h3 {
   font-size: 12px;
   line-height: 1.6;
   padding: 4px 8px;
-  border-radius: 3px;
+  border-radius: 4px;
   margin-bottom: 4px;
 }
 .consequence-item.positive {
@@ -219,24 +243,39 @@ h3 {
   color: #6b5b4e;
   text-align: center;
   margin-bottom: 4px;
+  padding: 6px 12px;
+  background: linear-gradient(
+    90deg,
+    rgba(196, 112, 106, 0.12),
+    rgba(212, 192, 142, 0.25),
+    rgba(196, 112, 106, 0.12)
+  );
+  border-radius: 4px;
 }
 .start-btn {
   display: block;
   width: 100%;
   margin-top: 16px;
-  padding: 14px;
+  padding: 16px;
   background: #c4706a;
   color: #f5e6c8;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 16px;
   font-weight: bold;
   font-family: "Noto Serif SC", serif;
   cursor: pointer;
-  transition: background 0.15s ease;
+  letter-spacing: 2px;
+  transition: all 0.2s ease;
 }
 .start-btn:hover {
   background: #a05a54;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(196, 112, 106, 0.3);
+}
+.start-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
 }
 .start-sub {
   text-align: center;

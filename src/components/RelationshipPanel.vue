@@ -63,8 +63,7 @@ function getGrade(affinity: number): string {
 
 <style scoped>
 .relationship-panel {
-  padding: 10px 12px;
-  border-bottom: 1px solid #d4c08e;
+  font-family: "Noto Serif SC", serif;
 }
 .rel-title {
   font-size: 11px;
