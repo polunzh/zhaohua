@@ -269,6 +269,8 @@ const ambientText = computed(() => {
         </button>
       </div>
     </div>
+
+    <div class="sidebar-footer">📍 {{ locationNames[currentScene] || currentScene }}</div>
   </div>
 </template>
 
@@ -460,5 +462,16 @@ const ambientText = computed(() => {
   line-height: 1.8;
   color: #5c6b7a;
   padding-left: 2px;
+}
+.sidebar-footer {
+  margin-top: auto;
+  padding: 8px 12px;
+  background: linear-gradient(180deg, transparent, #ede0c0);
+  border-top: 1px solid #d4c08e;
+  font-size: 11px;
+  font-weight: bold;
+  color: #6b5b4e;
+  text-align: center;
+  font-family: "Noto Serif SC", serif;
 }
 </style>

@@ -55,6 +55,36 @@ const mission = ref<any>(null);
 const toastMessage = ref("");
 const toastType = ref<"info" | "success" | "streak">("info");
 const playerStats = ref<any>(null);
+const choiceIcons: Record<string, string> = {
+  "check-homework": "📝",
+  "ask-question": "❓",
+  encourage: "💪",
+  "leave-alone": "🚶",
+  "play-together": "⚽",
+  chat: "💬",
+  "call-back": "🔔",
+  "report-work": "📋",
+  "request-supplies": "📦",
+  "casual-chat": "☕",
+  "introduce-situation": "📖",
+  comfort: "🤝",
+  "invite-to-office": "🏢",
+  "buy-stuff": "🛒",
+  "ask-directions": "🗺",
+  "ask-for-mail": "📮",
+  "ask-to-carry": "📬",
+  "discuss-teaching": "📚",
+  "discuss-students": "👥",
+  "borrow-tools": "🔧",
+  "home-visit-chat": "🏠",
+  "understand-situation": "👂",
+  "say-goodbye": "👋",
+  "help-farm": "🌾",
+  "patrol-together": "🚶",
+  criticize: "⚠",
+  "rain-story": "🌧",
+  "rain-window": "🪟",
+};
 const weatherIcons: Record<string, string> = {
   sunny: "☀",
   cloudy: "☁",
@@ -68,6 +98,7 @@ const seasonMap: Record<string, string> = {
   autumn: "秋",
   winter: "冬",
 };
+const showMissionComplete = ref(false);
 const showLocationName = ref(false);
 const locationLabel = ref("");
 const isLoading = ref(false);
@@ -92,6 +123,14 @@ const locationNames: Record<string, string> = {
   "home-zhao": "赵春燕家",
   "home-zhu": "朱小龙家",
 };
+
+function celebrateMission() {
+  showMissionComplete.value = true;
+  showToast("🎯 任务完成！", "success");
+  setTimeout(() => {
+    showMissionComplete.value = false;
+  }, 2000);
+}
 
 function showToast(msg: string, type: "info" | "success" | "streak" = "info") {
   toastMessage.value = "";
@@ -239,7 +278,7 @@ async function checkMissionCompletion() {
     dialogText.value = m.completionText || "完成了今天的任务。";
     dialogLoading.value = false;
     choices.value = [];
-    showToast("任务完成！", "success");
+    celebrateMission();
   }
 }
 
@@ -357,7 +396,7 @@ async function handleClickNpc(npcId: string) {
     if (mission.value?.status === "active" && mission.value.targetNpc === npcId) {
       await completeMissionApi(mission.value.id);
       mission.value = { ...mission.value, status: "done" };
-      showToast("任务完成！", "success");
+      celebrateMission();
     }
   } catch {
     dialogText.value = "（沉默）";
@@ -519,6 +558,9 @@ onMounted(async () => {
         @skip="handleSkip"
       />
       <div class="canvas-area" :class="{ 'scene-fade': sceneFading }">
+        <div v-if="showMissionComplete" class="mission-complete-overlay">
+          <div class="mission-complete-text">✨ 任务完成！</div>
+        </div>
         <div v-if="isLoading" class="loading-indicator">
           <div class="loading-text">……</div>
         </div>
@@ -548,7 +590,7 @@ onMounted(async () => {
         />
         <div class="choices" v-if="choices.length && !dialogLoading">
           <button v-for="c in choices" :key="c.id" @click="handleChoose(c.id)">
-            {{ c.label }}
+            {{ choiceIcons[c.id] || "▸" }} {{ c.label }}
           </button>
         </div>
       </template>
@@ -636,6 +678,8 @@ body {
   align-items: center;
   justify-content: center;
   transition: opacity 0.25s ease;
+  border: 1px solid #1a1816;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.3);
 }
 .canvas-area.scene-fade {
   opacity: 0;
@@ -824,6 +868,43 @@ body {
   }
   100% {
     opacity: 0;
+  }
+}
+
+.mission-complete-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 15;
+}
+.mission-complete-text {
+  font-size: 24px;
+  font-weight: bold;
+  color: #f5e6c8;
+  text-shadow: 0 2px 12px rgba(196, 112, 106, 0.8);
+  animation: celebratePop 2s ease forwards;
+}
+@keyframes celebratePop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  40% {
+    transform: scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1) translateY(-20px);
   }
 }
 </style>
