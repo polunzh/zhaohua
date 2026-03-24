@@ -12,7 +12,6 @@ defineProps<{
 
 <template>
   <div v-if="stats" class="stats-panel">
-    <div class="stats-title">📊 记录</div>
     <div class="stats-grid">
       <div class="stat-item">
         <span class="stat-value">{{ stats.totalDaysPlayed }}</span>

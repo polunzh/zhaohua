@@ -67,8 +67,22 @@ const locationNames: Record<string, string> = {
   "home-zhu": "朱小龙家",
 };
 
+// Collapsible sidebar sections
+import { computed, ref } from "vue";
+
+const collapsed = ref<Record<string, boolean>>({
+  events: true,
+  todos: false,
+  navigation: false,
+  relationships: true,
+  stats: true,
+});
+
+function toggleSection(key: string) {
+  collapsed.value[key] = !collapsed.value[key];
+}
+
 // Ambient atmosphere text — makes the world feel alive
-import { computed } from "vue";
 
 const ambientText = computed(() => {
   if (!props.gameTime) return "";
@@ -166,22 +180,30 @@ const ambientText = computed(() => {
 
     <!-- Events -->
     <div class="panel-section events-section">
-      <div class="panel-title">📋 你不在时……</div>
-      <template v-if="events.length">
-        <div class="event-item" v-for="e in events.slice(0, 8)" :key="e.id">
-          · {{ e.description }}
-        </div>
+      <div class="panel-title clickable" @click="toggleSection('events')">
+        📋 你不在时…… {{ collapsed.events ? "▸" : "▾" }}
+      </div>
+      <template v-if="!collapsed.events">
+        <template v-if="events.length">
+          <div class="event-item" v-for="e in events.slice(0, 8)" :key="e.id">
+            · {{ e.description }}
+          </div>
+        </template>
+        <div v-else class="event-item hint">一切如常，没什么特别的事。</div>
       </template>
-      <div v-else class="event-item hint">一切如常，没什么特别的事。</div>
     </div>
 
     <!-- Todos -->
     <div class="panel-section" v-if="todos.length">
-      <div class="panel-title">📝 待处理</div>
-      <div v-for="t in todos" :key="t.id" class="todo-sidebar-item">
-        <span class="todo-dot" :class="t.priority">●</span> {{ t.title }}
-        <span class="todo-location">({{ locationNames[t.location] || t.location }})</span>
+      <div class="panel-title clickable" @click="toggleSection('todos')">
+        📝 待处理 {{ collapsed.todos ? "▸" : "▾" }}
       </div>
+      <template v-if="!collapsed.todos">
+        <div v-for="t in todos" :key="t.id" class="todo-sidebar-item">
+          <span class="todo-dot" :class="t.priority">●</span> {{ t.title }}
+          <span class="todo-location">({{ locationNames[t.location] || t.location }})</span>
+        </div>
+      </template>
     </div>
 
     <!-- Tips -->
@@ -193,19 +215,30 @@ const ambientText = computed(() => {
 
     <!-- Navigation -->
     <div class="panel-section">
-      <div class="panel-title">🚶 可以去</div>
-      <div
-        class="nav-item"
-        v-for="loc in getConnectedLocations(currentScene)"
-        :key="loc.id"
-        @click="emit('navigate', loc.id)"
-      >
-        → {{ loc.name }}
+      <div class="panel-title clickable" @click="toggleSection('navigation')">
+        🚶 可以去 {{ collapsed.navigation ? "▸" : "▾" }}
       </div>
+      <template v-if="!collapsed.navigation">
+        <div
+          class="nav-item"
+          v-for="loc in getConnectedLocations(currentScene)"
+          :key="loc.id"
+          @click="emit('navigate', loc.id)"
+        >
+          → {{ loc.name }}
+        </div>
+      </template>
     </div>
 
     <!-- Stats -->
-    <StatsPanel :stats="stats" />
+    <div class="panel-section" v-if="stats">
+      <div class="panel-title clickable" @click="toggleSection('stats')">
+        📊 记录 {{ collapsed.stats ? "▸" : "▾" }}
+      </div>
+      <template v-if="!collapsed.stats">
+        <StatsPanel :stats="stats" />
+      </template>
+    </div>
 
     <!-- Tutorial (first day only) -->
     <div class="panel-section tutorial" v-if="stats && stats.totalDaysPlayed <= 1">
@@ -218,7 +251,14 @@ const ambientText = computed(() => {
     </div>
 
     <!-- Relationships -->
-    <RelationshipPanel :npcs="npcs" />
+    <div class="panel-section">
+      <div class="panel-title clickable" @click="toggleSection('relationships')">
+        💛 关系 {{ collapsed.relationships ? "▸" : "▾" }}
+      </div>
+      <template v-if="!collapsed.relationships">
+        <RelationshipPanel :npcs="npcs" />
+      </template>
+    </div>
 
     <!-- Character Switch -->
     <div class="panel-section">
@@ -394,6 +434,13 @@ const ambientText = computed(() => {
   font-size: 10px;
   color: #7a9178;
   text-decoration: line-through;
+}
+.clickable {
+  cursor: pointer;
+  user-select: none;
+}
+.clickable:hover {
+  color: #a05a54;
 }
 .tutorial {
   background: rgba(196, 112, 106, 0.06);

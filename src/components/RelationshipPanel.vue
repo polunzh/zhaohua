@@ -49,7 +49,6 @@ function getGrade(affinity: number): string {
 
 <template>
   <div class="relationship-panel">
-    <div class="rel-title">👥 关系</div>
     <div v-for="npc in visibleNpcs" :key="npc.id" class="rel-item">
       <div class="rel-name">
         {{ npc.name }}
