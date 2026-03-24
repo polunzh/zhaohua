@@ -68,6 +68,18 @@ export function initSchema(db: Database.Database): void {
       action_type TEXT DEFAULT 'auto',
       created_at TEXT DEFAULT (datetime('now'))
     );
+    CREATE TABLE IF NOT EXISTS daily_missions (
+      id TEXT PRIMARY KEY,
+      game_date TEXT NOT NULL,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL,
+      target_location TEXT NOT NULL,
+      target_action TEXT,
+      target_npc TEXT,
+      completion_text TEXT DEFAULT '',
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TEXT DEFAULT (datetime('now'))
+    );
     CREATE TABLE IF NOT EXISTS mail (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       type TEXT NOT NULL,

@@ -9,6 +9,13 @@ const props = defineProps<{
   activeCharacter: string;
   events: { id: string; description: string }[];
   todos: { id: number; title: string; priority: string; location: string; actionType: string }[];
+  mission: {
+    id: string;
+    title: string;
+    description: string;
+    targetLocation: string;
+    status: string;
+  } | null;
 }>();
 
 const emit = defineEmits<{
@@ -77,6 +84,13 @@ const locationNames: Record<string, string> = {
       <div class="panel-text location-name">
         {{ locationNames[currentScene] || currentScene }}
       </div>
+    </div>
+
+    <!-- Daily Mission -->
+    <div class="panel-section" v-if="mission && mission.status === 'active'">
+      <div class="panel-title">🎯 今日任务</div>
+      <div class="mission-sidebar">{{ mission.title }}</div>
+      <div class="mission-hint">{{ mission.description }}</div>
     </div>
 
     <!-- Events -->
@@ -247,5 +261,16 @@ const locationNames: Record<string, string> = {
 }
 .todo-dot.high {
   color: #c4706a;
+}
+.mission-sidebar {
+  font-size: 11px;
+  font-weight: bold;
+  color: #3a3530;
+  padding: 3px 0;
+}
+.mission-hint {
+  font-size: 10px;
+  color: #5c6b7a;
+  line-height: 1.5;
 }
 </style>

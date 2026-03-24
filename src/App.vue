@@ -13,6 +13,7 @@ import {
   submitChoice,
   fetchBriefing,
   completeTodo as completeTodoApi,
+  completeMission as completeMissionApi,
 } from "./api/client";
 import type { GameTime } from "./engine/time";
 import type { TileMapData } from "./tilemap/types";
@@ -47,6 +48,7 @@ const npcStates = ref<any[]>([]);
 const showBriefing = ref(true);
 const briefingData = ref<any>(null);
 const todos = ref<any[]>([]);
+const mission = ref<any>(null);
 
 const maps: Record<string, TileMapData> = {
   classroom: classroomMap,
@@ -141,10 +143,11 @@ async function loadWorld() {
   activeCharacter.value = data.activeCharacter || "teacher";
   events.value = data.events || [];
   npcStates.value = data.npcs || [];
-  // Also refresh todos
+  // Also refresh todos and mission
   try {
     const briefing = await fetchBriefing();
     todos.value = briefing.todos || [];
+    mission.value = briefing.mission || null;
   } catch {
     /* ignore */
   }
@@ -153,6 +156,22 @@ async function loadWorld() {
 async function handleNavigate(locationId: string) {
   await moveToLocation(locationId);
   await loadWorld();
+  // Check if arriving at this location completes the daily mission
+  await checkMissionCompletion();
+}
+
+async function checkMissionCompletion() {
+  const m = mission.value;
+  if (!m || m.status !== "active") return;
+  if (currentScene.value === m.targetLocation && !m.targetNpc) {
+    // Location-only mission: complete on arrival
+    await completeMissionApi(m.id);
+    mission.value = { ...m, status: "done" };
+    dialogNpc.value = "";
+    dialogText.value = m.completionText || "完成了今天的任务。";
+    dialogLoading.value = false;
+    choices.value = [];
+  }
 }
 
 async function handleSwitchCharacter(character: string) {
@@ -193,6 +212,11 @@ async function handleClickNpc(npcId: string) {
       await completeTodoApi(matchingTodo.id);
       await loadWorld();
     }
+    // Check if this NPC interaction completes the daily mission
+    if (mission.value?.status === "active" && mission.value.targetNpc === npcId) {
+      await completeMissionApi(mission.value.id);
+      mission.value = { ...mission.value, status: "done" };
+    }
   } catch {
     dialogText.value = "（沉默）";
   }
@@ -202,6 +226,7 @@ async function handleClickNpc(npcId: string) {
 async function handleClickExit(targetMapId: string) {
   await moveToLocation(targetMapId);
   await loadWorld();
+  await checkMissionCompletion();
 }
 
 async function handleChoose(choiceId: string) {
@@ -238,6 +263,9 @@ async function handleClickObject(tileType: string) {
 
 function handleStartGame() {
   showBriefing.value = false;
+  if (briefingData.value?.mission) {
+    mission.value = briefingData.value.mission;
+  }
   loadWorld();
 }
 
@@ -258,6 +286,7 @@ onMounted(async () => {
     :events="briefingData.events"
     :todos="briefingData.todos"
     :consequences="briefingData.consequences"
+    :mission="briefingData.mission || null"
     @start="handleStartGame"
   />
   <div class="game-layout">
@@ -269,6 +298,7 @@ onMounted(async () => {
         :active-character="activeCharacter"
         :events="events"
         :todos="todos"
+        :mission="mission"
         @navigate="handleNavigate"
         @switch-character="handleSwitchCharacter"
         @skip="handleSkip"

@@ -3,6 +3,15 @@ import { getWorldState, getPendingTodos, getRecentEvents, expireTodos } from "..
 import { generateTodos } from "../engine/todos";
 import { processConsequences } from "../engine/consequences";
 import { performCatchUp } from "../engine/catch-up";
+import { generateDailyMission } from "../engine/daily-mission";
+
+function getSeason(dateStr: string): string {
+  const month = parseInt(dateStr.slice(5, 7), 10);
+  if (month >= 3 && month <= 5) return "spring";
+  if (month >= 6 && month <= 8) return "summer";
+  if (month >= 9 && month <= 11) return "autumn";
+  return "winter";
+}
 
 export function handleGetBriefing(db: Database.Database) {
   const worldState = getWorldState(db);
@@ -33,9 +42,20 @@ export function handleGetBriefing(db: Database.Database) {
   // Process consequences from past choices
   const consequences = processConsequences(db, worldState.gameDate);
 
-  // Get current state
+  // Get current state after catch-up
+  const worldStateAfter = getWorldState(db)!;
   const todos = getPendingTodos(db);
   const events = getRecentEvents(db, 10);
+
+  // Generate daily mission
+  const season = getSeason(worldStateAfter.gameDate);
+  const mission = generateDailyMission(
+    db,
+    worldStateAfter.gameDate,
+    worldStateAfter.activeCharacter,
+    season,
+    worldStateAfter.weather,
+  );
 
   return {
     offlineHours,
@@ -53,5 +73,17 @@ export function handleGetBriefing(db: Database.Database) {
       npcId: c.npcId,
       description: c.description,
     })),
+    mission: mission
+      ? {
+          id: mission.id,
+          title: mission.title,
+          description: mission.description,
+          targetLocation: mission.targetLocation,
+          targetNpc: mission.targetNpc,
+          targetAction: mission.targetAction,
+          status: mission.status,
+          completionText: mission.completionText,
+        }
+      : null,
   };
 }

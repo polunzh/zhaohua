@@ -76,3 +76,12 @@ export async function completeTodo(todoId: number) {
   });
   return res.json();
 }
+
+export async function completeMission(missionId: string) {
+  const res = await fetch(`${BASE_URL}/mission-complete`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ missionId }),
+  });
+  return res.json();
+}

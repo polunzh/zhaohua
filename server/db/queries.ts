@@ -437,6 +437,78 @@ export function expireTodos(db: Database.Database, currentDate: string): void {
   ).run(currentDate);
 }
 
+// --- Daily Missions ---
+
+export interface DailyMission {
+  id: string;
+  gameDate: string;
+  title: string;
+  description: string;
+  targetLocation: string;
+  targetAction: string | null;
+  targetNpc: string | null;
+  completionText: string;
+  status: string;
+}
+
+interface DailyMissionDbRow {
+  id: string;
+  game_date: string;
+  title: string;
+  description: string;
+  target_location: string;
+  target_action: string | null;
+  target_npc: string | null;
+  completion_text: string;
+  status: string;
+}
+
+export function getDailyMission(db: Database.Database, gameDate: string): DailyMission | null {
+  const row = db.prepare("SELECT * FROM daily_missions WHERE game_date = ?").get(gameDate) as
+    | DailyMissionDbRow
+    | undefined;
+  if (!row) return null;
+  return {
+    id: row.id,
+    gameDate: row.game_date,
+    title: row.title,
+    description: row.description,
+    targetLocation: row.target_location,
+    targetAction: row.target_action,
+    targetNpc: row.target_npc,
+    completionText: row.completion_text,
+    status: row.status,
+  };
+}
+
+export function saveDailyMission(db: Database.Database, mission: DailyMission): void {
+  db.prepare(
+    `INSERT OR REPLACE INTO daily_missions (id, game_date, title, description, target_location, target_action, target_npc, completion_text, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    mission.id,
+    mission.gameDate,
+    mission.title,
+    mission.description,
+    mission.targetLocation,
+    mission.targetAction,
+    mission.targetNpc,
+    mission.completionText,
+    mission.status,
+  );
+}
+
+export function completeDailyMission(
+  db: Database.Database,
+  missionId: string,
+  completionText: string,
+): void {
+  db.prepare("UPDATE daily_missions SET status = 'done', completion_text = ? WHERE id = ?").run(
+    completionText,
+    missionId,
+  );
+}
+
 // --- Mail ---
 
 export interface MailRow {

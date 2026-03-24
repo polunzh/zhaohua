@@ -4,6 +4,13 @@ defineProps<{
   events: { id: string; description: string; type: string }[];
   todos: { id: number; type: string; title: string; description: string; priority: string }[];
   consequences: { type: string; npcId: string; description: string }[];
+  mission: {
+    id: string;
+    title: string;
+    description: string;
+    targetLocation: string;
+    status: string;
+  } | null;
 }>();
 
 const emit = defineEmits<{ start: [] }>();
@@ -38,6 +45,14 @@ const emit = defineEmits<{ start: [] }>();
 
       <div class="briefing-section" v-if="!events.length && !todos.length && !consequences.length">
         <p class="quiet">一切如常，平静的一天。</p>
+      </div>
+
+      <div class="briefing-section" v-if="mission && mission.status === 'active'">
+        <h3>🎯 今日任务</h3>
+        <div class="mission-item">
+          <div class="mission-title">{{ mission.title }}</div>
+          <div class="mission-desc">{{ mission.description }}</div>
+        </div>
       </div>
 
       <button class="start-btn" @click="emit('start')">好的，开始</button>
@@ -126,6 +141,22 @@ h3 {
   color: #a8b8b0;
   text-align: center;
   font-style: italic;
+}
+.mission-item {
+  padding: 8px 10px;
+  border-left: 3px solid #c4706a;
+  background: rgba(196, 112, 106, 0.1);
+  border-radius: 0 3px 3px 0;
+}
+.mission-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: #3a3530;
+}
+.mission-desc {
+  font-size: 11px;
+  color: #5c6b7a;
+  margin-top: 3px;
 }
 .start-btn {
   display: block;
