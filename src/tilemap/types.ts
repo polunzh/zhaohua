@@ -1,4 +1,4 @@
-export const TILE_SIZE = 16;
+export const TILE_SIZE = 32;
 
 export interface TileMapData {
   width: number; // in tiles

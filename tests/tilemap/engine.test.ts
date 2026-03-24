@@ -44,9 +44,9 @@ describe("TileMapEngine", () => {
 
   it("converts pixel to tile coordinates", () => {
     const engine = new TileMapEngine(testMap);
-    const pos = engine.pixelToTile(35, 50);
-    expect(pos.tileX).toBe(2); // 35 / 16 = 2.18 → 2
-    expect(pos.tileY).toBe(3); // 50 / 16 = 3.12 → 3
+    const pos = engine.pixelToTile(70, 100);
+    expect(pos.tileX).toBe(2); // 70 / 32 = 2.18 → 2
+    expect(pos.tileY).toBe(3); // 100 / 32 = 3.12 → 3
   });
 
   it("checks walkability", () => {

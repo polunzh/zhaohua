@@ -57,8 +57,8 @@ describe("Sprites", () => {
   });
 
   it("sprite dimensions are correct", () => {
-    expect(SPRITE_WIDTH).toBe(16);
-    expect(SPRITE_HEIGHT).toBe(32);
+    expect(SPRITE_WIDTH).toBe(32);
+    expect(SPRITE_HEIGHT).toBe(64);
   });
 
   it("all NPCs have hairStyle field", () => {
