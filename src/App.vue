@@ -17,6 +17,7 @@ import {
   completeMission as completeMissionApi,
 } from "./api/client";
 import type { GameTime } from "./engine/time";
+import { getTravelEvent } from "./data/travel-events";
 import type { TileMapData } from "./tilemap/types";
 import { npcs } from "./data/npcs";
 import { getInteractionChoices } from "./data/interactions";
@@ -173,9 +174,32 @@ async function loadWorld() {
 }
 
 async function handleNavigate(locationId: string) {
+  // Check for travel event before moving
+  const fromScene = currentScene.value;
+  const travelEvent = getTravelEvent(
+    fromScene,
+    locationId,
+    gameTime.value?.season || "autumn",
+    weather.value,
+    gameTime.value?.date || "",
+  );
+
   await moveToLocation(locationId);
   await loadWorld();
-  // Check if arriving at this location completes the daily mission
+
+  // Show travel event if one occurred
+  if (travelEvent) {
+    dialogNpc.value = "";
+    dialogText.value = travelEvent.text;
+    dialogLoading.value = false;
+    choices.value = [];
+    setTimeout(() => {
+      if (dialogText.value === travelEvent.text) {
+        dialogText.value = "";
+      }
+    }, 3000);
+  }
+
   await checkMissionCompletion();
 }
 
