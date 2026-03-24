@@ -252,9 +252,30 @@ async function handleClickExit(targetMapId: string) {
   await checkMissionCompletion();
 }
 
+// Choice response templates — brief NPC reactions to player choices
+const choiceResponses: Record<string, string[]> = {
+  "check-homework": ["让我看看……嗯，这次写得还行。", "作业……我写了，真的写了……"],
+  "ask-question": ["嗯……让我想想……", "老师，这个题我不太会。"],
+  encourage: ["谢谢老师！", "嘿嘿，我会继续努力的。"],
+  "leave-alone": ["……", "好的。"],
+  "play-together": ["太好了！老师也来玩吗！", "老师来踢球吧！"],
+  chat: ["老师想聊啥？", "嘿，最近还行。"],
+  "call-back": ["啊……好吧。", "马上就回去了……"],
+  "report-work": ["好，我听着。", "嗯，说吧。"],
+  "request-supplies": ["经费紧张啊……我尽量想办法。", "写个申请吧。"],
+  "casual-chat": ["哈哈，今天天不错。", "坐，喝口水。"],
+  "introduce-situation": ["他在学校还好吧？", "麻烦老师多操心了。"],
+  comfort: ["谢谢老师，我就是有点担心。", "有老师在我就放心了。"],
+  "buy-stuff": ["要啥？粉笔还是本子？", "今天到了新货！"],
+  "ask-for-mail": ["今天没你的信。", "等等，让我翻翻。"],
+  "discuss-teaching": ["我觉得下周可以讲到第三单元了。", "数学这块他们学得有点慢。"],
+  "help-farm": ["哎哟，老师来帮忙啊！", "别弄脏了衣裳！"],
+  criticize: ["……知道了。", "我下次注意。"],
+};
+
 async function handleChoose(choiceId: string) {
   if (!gameTime.value) return;
-  await submitChoice({
+  const result = await submitChoice({
     npcId: currentNpcId.value,
     choiceId,
     gameDate: gameTime.value.date,
@@ -263,9 +284,24 @@ async function handleChoose(choiceId: string) {
     location: currentScene.value,
   });
   choices.value = [];
-  dialogText.value = "";
-  dialogNpc.value = "";
-  await loadWorld();
+
+  // Show NPC response + effect
+  const responses = choiceResponses[choiceId] || ["……"];
+  const response = responses[Math.floor(Math.random() * responses.length)];
+  const effect = result?.effect;
+  let effectText = "";
+  if (effect) {
+    if (effect.affinityDelta > 0) effectText = ` (好感+${effect.affinityDelta})`;
+    else if (effect.affinityDelta < 0) effectText = ` (好感${effect.affinityDelta})`;
+  }
+  dialogText.value = response + effectText;
+
+  // Keep response visible briefly, then close
+  setTimeout(() => {
+    dialogText.value = "";
+    dialogNpc.value = "";
+    loadWorld();
+  }, 2000);
 }
 
 function handleCloseDialog() {
