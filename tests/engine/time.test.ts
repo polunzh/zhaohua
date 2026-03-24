@@ -4,13 +4,14 @@ import { TimeEngine } from "../../src/engine/time";
 describe("TimeEngine", () => {
   const anchor = "2026-03-23T00:00:00Z";
 
-  it("returns game time matching real time when offset is 0", () => {
+  it("returns game time matching real local time when offset is 0", () => {
     const engine = new TimeEngine({
       calendarOffset: 0,
       gameStartDate: "1994-09-01",
       anchorRealDate: anchor,
     });
-    const now = new Date("2026-03-23T08:00:00Z");
+    // Use a Date and check it returns local hours, not UTC
+    const now = new Date(2026, 2, 23, 8, 0, 0); // Mar 23, 2026 08:00 local
     const gameTime = engine.getGameTime(now);
     expect(gameTime.hour).toBe(8);
     expect(gameTime.minute).toBe(0);

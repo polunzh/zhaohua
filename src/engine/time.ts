@@ -37,20 +37,20 @@ export class TimeEngine {
     );
     const totalGameDays = realDaysElapsed + this.calendarOffset;
 
-    const start = new Date(this.gameStartDate + "T00:00:00Z");
+    const start = new Date(this.gameStartDate + "T00:00:00");
     const gameDate = new Date(start.getTime() + totalGameDays * msPerDay);
 
-    const y = gameDate.getUTCFullYear();
-    const m = String(gameDate.getUTCMonth() + 1).padStart(2, "0");
-    const d = String(gameDate.getUTCDate()).padStart(2, "0");
+    const y = gameDate.getFullYear();
+    const m = String(gameDate.getMonth() + 1).padStart(2, "0");
+    const d = String(gameDate.getDate()).padStart(2, "0");
     return `${y}-${m}-${d}`;
   }
 
   /** Get full game time for a given real-world instant */
   getGameTime(realNow: Date): GameTime {
     const date = this.calculateGameDate(realNow);
-    const hour = realNow.getUTCHours();
-    const minute = realNow.getUTCMinutes();
+    const hour = realNow.getHours();
+    const minute = realNow.getMinutes();
     const season = this.getSeason(date);
     const period = TimeEngine.getPeriod(hour);
     return { date, hour, minute, season, period };
