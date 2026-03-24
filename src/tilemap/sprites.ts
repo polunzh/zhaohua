@@ -485,39 +485,33 @@ export function drawCharacter(
       ctx.fillRect(rightEyeX, y + 13, 4, 1);
     }
 
-    // Eye whites
-    ctx.fillStyle = "#ffffff";
+    // Eye whites with subtle shading
+    ctx.fillStyle = "#f8f8f0";
     ctx.fillRect(leftEyeX, y + 14, 4, 3);
     ctx.fillRect(rightEyeX, y + 14, 4, 3);
+    // Bottom eye shadow (subtle depth)
+    ctx.fillStyle = "#e0dcd4";
+    ctx.fillRect(leftEyeX, y + 16, 4, 1);
+    ctx.fillRect(rightEyeX, y + 16, 4, 1);
 
-    // Iris (2×2 dark, positioned based on direction)
-    ctx.fillStyle = "#3a3530";
-    if (direction === "down") {
-      // Centered iris
-      ctx.fillRect(leftEyeX + 1, y + 15, 2, 2);
-      ctx.fillRect(rightEyeX + 1, y + 15, 2, 2);
-    } else if (direction === "left") {
-      // Iris shifted left
-      ctx.fillRect(leftEyeX, y + 15, 2, 2);
-      ctx.fillRect(rightEyeX, y + 15, 2, 2);
-    } else {
-      // Iris shifted right
-      ctx.fillRect(leftEyeX + 2, y + 15, 2, 2);
-      ctx.fillRect(rightEyeX + 2, y + 15, 2, 2);
-    }
+    // Iris — dark brown with colored center, not pure black
+    let irisOffX = 1;
+    if (direction === "left") irisOffX = 0;
+    else if (direction === "right") irisOffX = 2;
 
-    // Eye highlights (1×1 white dot)
+    // Iris outline (dark)
+    ctx.fillStyle = "#2a2420";
+    ctx.fillRect(leftEyeX + irisOffX, y + 14, 2, 3);
+    ctx.fillRect(rightEyeX + irisOffX, y + 14, 2, 3);
+    // Iris color center (warm brown)
+    ctx.fillStyle = "#5a4030";
+    ctx.fillRect(leftEyeX + irisOffX, y + 15, 2, 1);
+    ctx.fillRect(rightEyeX + irisOffX, y + 15, 2, 1);
+
+    // Eye highlights (1×1 white dot — top-left of iris for consistent light source)
     ctx.fillStyle = "#ffffff";
-    if (direction === "down") {
-      ctx.fillRect(leftEyeX + 1, y + 15, 1, 1);
-      ctx.fillRect(rightEyeX + 1, y + 15, 1, 1);
-    } else if (direction === "left") {
-      ctx.fillRect(leftEyeX, y + 15, 1, 1);
-      ctx.fillRect(rightEyeX, y + 15, 1, 1);
-    } else {
-      ctx.fillRect(leftEyeX + 2, y + 15, 1, 1);
-      ctx.fillRect(rightEyeX + 2, y + 15, 1, 1);
-    }
+    ctx.fillRect(leftEyeX + irisOffX, y + 14, 1, 1);
+    ctx.fillRect(rightEyeX + irisOffX, y + 14, 1, 1);
 
     // === NOSE (2×1px, small cute) ===
     if (direction === "down") {
