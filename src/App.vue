@@ -14,9 +14,18 @@ import {
 import type { GameTime } from "./engine/time";
 import type { TileMapData } from "./tilemap/types";
 import { npcs } from "./data/npcs";
-import { campusMap } from "./tilemap/maps/campus";
 import { classroomMap } from "./tilemap/maps/classroom";
 import { officeMap } from "./tilemap/maps/office";
+import { playgroundMap } from "./tilemap/maps/playground";
+import { flowerPoolMap } from "./tilemap/maps/flower-pool";
+import { waterTowerMap } from "./tilemap/maps/water-tower";
+import { villageRoadMap } from "./tilemap/maps/village-road";
+import { farmlandMap } from "./tilemap/maps/farmland";
+import { villagerHouseMap } from "./tilemap/maps/villager-house";
+import { townRoadMap } from "./tilemap/maps/town-road";
+import { postOfficeMap } from "./tilemap/maps/post-office";
+import { marketMap } from "./tilemap/maps/market";
+import { clinicMap } from "./tilemap/maps/clinic";
 
 const gameTime = ref<GameTime | null>(null);
 const weather = ref("sunny");
@@ -33,12 +42,20 @@ const npcStates = ref<any[]>([]);
 const maps: Record<string, TileMapData> = {
   classroom: classroomMap,
   office: officeMap,
-  playground: campusMap,
-  // Other scenes fall back to campus map for now
+  playground: playgroundMap,
+  "flower-pool": flowerPoolMap,
+  "water-tower": waterTowerMap,
+  "village-road": villageRoadMap,
+  farmland: farmlandMap,
+  "villager-house": villagerHouseMap,
+  "town-road": townRoadMap,
+  "post-office": postOfficeMap,
+  market: marketMap,
+  clinic: clinicMap,
 };
 
 const currentMapData = computed(() => {
-  return maps[currentScene.value] || campusMap;
+  return maps[currentScene.value] || playgroundMap;
 });
 
 // Map NPC states to include tile positions based on their schedule location
@@ -47,11 +64,7 @@ const visibleNpcs = computed(() => {
     .filter((n: any) => {
       // Only show NPCs whose schedule location matches current scene
       const locId = n.location;
-      return (
-        locId === currentScene.value ||
-        (currentScene.value === "playground" &&
-          ["playground", "flower-pool", "water-tower"].includes(locId))
-      );
+      return locId === currentScene.value;
     })
     .map((n: any, i: number) => {
       // Assign tile positions from map's npcSpawns or spread them out

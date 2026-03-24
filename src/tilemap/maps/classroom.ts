@@ -79,20 +79,20 @@ export const classroomMap: TileMapData = {
   objects,
   collision,
   exits: [
-    // Door leads back to campus (in front of building)
+    // Door leads back to playground
     {
       tileX: 7,
       tileY: 11,
-      targetMapId: "campus",
-      targetTileX: 14,
-      targetTileY: 8,
+      targetMapId: "playground",
+      targetTileX: 9,
+      targetTileY: 0,
     },
     {
       tileX: 8,
       tileY: 11,
-      targetMapId: "campus",
-      targetTileX: 15,
-      targetTileY: 8,
+      targetMapId: "playground",
+      targetTileX: 10,
+      targetTileY: 0,
     },
   ],
   npcSpawns: [{ npcId: "teacher", tileX: 8, tileY: 1 }],
