@@ -158,6 +158,14 @@ export function darkenColor(hex: string, amount: number): string {
   return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
 }
 
+// Helper: hue-shifted shadow toward cool blue for warm-toned objects
+export function coolShadowColor(hex: string, amount: number): string {
+  const r = Math.max(0, parseInt(hex.slice(1, 3), 16) - amount);
+  const g = Math.max(0, parseInt(hex.slice(3, 5), 16) - Math.floor(amount * 0.7));
+  const b = Math.min(255, parseInt(hex.slice(5, 7), 16) + Math.floor(amount * 0.3));
+  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+}
+
 // Helper: lighten a hex color
 export function lightenColor(hex: string, amount: number): string {
   const r = Math.min(255, parseInt(hex.slice(1, 3), 16) + amount);
@@ -402,8 +410,10 @@ export function drawCharacter(
   const skinLight = lightenColor(config.skinColor, 15);
   const skinDark = darkenColor(config.skinColor, 15);
   const bodyDark = darkenColor(config.bodyColor, 20);
+  const bodyCoolShadow = coolShadowColor(config.bodyColor, 25);
   const bodyLight = lightenColor(config.bodyColor, 15);
   const legDark = darkenColor(config.legColor, 15);
+  const legCoolShadow = coolShadowColor(config.legColor, 20);
   const shoeColor = darkenColor(config.legColor, 30);
   const shoeDark = darkenColor(config.legColor, 50);
 
@@ -560,8 +570,8 @@ export function drawCharacter(
     // Arms (4px wide each)
     ctx.fillRect(x + 3, y + 27, 4, 14); // left arm
     ctx.fillRect(x + 25, y + 27, 4, 14); // right arm
-    // Body shading (right side)
-    ctx.fillStyle = bodyDark;
+    // Body shading (right side) with cool hue shift
+    ctx.fillStyle = bodyCoolShadow;
     ctx.fillRect(x + 22, y + 27, 3, 14);
     ctx.fillRect(x + 27, y + 29, 2, 10);
     // Body highlight (left side)
@@ -598,8 +608,8 @@ export function drawCharacter(
     // Arms (4px wide each)
     ctx.fillRect(x + 2, y + 27, 4, 14); // left arm
     ctx.fillRect(x + 26, y + 27, 4, 14); // right arm
-    // Body shading (right side)
-    ctx.fillStyle = bodyDark;
+    // Body shading (right side) with cool hue shift
+    ctx.fillStyle = bodyCoolShadow;
     ctx.fillRect(x + 23, y + 27, 3, 14);
     ctx.fillRect(x + 28, y + 29, 2, 10);
     // Body highlight (left side)
@@ -630,8 +640,8 @@ export function drawCharacter(
     ctx.fillStyle = config.legColor;
     ctx.fillRect(x + 8, y + 45, 6, 12); // left leg
     ctx.fillRect(x + 18, y + 45, 6, 12); // right leg
-    // Leg shading (inner edges)
-    ctx.fillStyle = legDark;
+    // Leg shading (inner edges) with cool hue shift
+    ctx.fillStyle = legCoolShadow;
     ctx.fillRect(x + 13, y + 45, 1, 12); // left inner
     ctx.fillRect(x + 18, y + 45, 1, 12); // right inner
     // Ankle taper
@@ -642,8 +652,8 @@ export function drawCharacter(
     ctx.fillStyle = config.legColor;
     ctx.fillRect(x + 7, y + 45, 7, 12); // left leg
     ctx.fillRect(x + 18, y + 45, 7, 12); // right leg
-    // Leg shading
-    ctx.fillStyle = legDark;
+    // Leg shading with cool hue shift
+    ctx.fillStyle = legCoolShadow;
     ctx.fillRect(x + 13, y + 45, 1, 12); // left inner
     ctx.fillRect(x + 18, y + 45, 1, 12); // right inner
     // Ankle taper

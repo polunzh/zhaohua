@@ -45,6 +45,32 @@ let staticLayerCache: HTMLCanvasElement | null = null;
 let cachedMapId = "";
 let cachedSeason = "";
 
+// Dithering: checkerboard pattern between two colors for smooth gradients
+function ditherRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  color1: string,
+  color2: string,
+): void {
+  for (let py = 0; py < h; py++) {
+    for (let px = 0; px < w; px++) {
+      ctx.fillStyle = (px + py) % 2 === 0 ? color1 : color2;
+      ctx.fillRect(x + px, y + py, 1, 1);
+    }
+  }
+}
+
+// Hue-shifted shadow: shift toward cool blue for warm-toned objects
+function coolShadow(hex: string, amount: number): string {
+  const r = Math.max(0, parseInt(hex.slice(1, 3), 16) - amount);
+  const g = Math.max(0, parseInt(hex.slice(3, 5), 16) - Math.floor(amount * 0.7));
+  const b = Math.min(255, parseInt(hex.slice(5, 7), 16) + Math.floor(amount * 0.3));
+  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+}
+
 function drawTile(
   ctx: CanvasRenderingContext2D,
   tileId: number,
@@ -109,6 +135,8 @@ function drawTile(
       ctx.fillRect(x + 28, y + 20, 2, 2);
       ctx.fillRect(x + 3, y + 20, 1, 1);
       ctx.fillRect(x + 16, y + 22, 1, 1);
+      // Dithered bottom edge for depth
+      ditherRect(ctx, x, y + s - 4, s, 4, PAL.dirt[1], PAL.dirt[3]);
       break;
     }
 
@@ -147,6 +175,8 @@ function drawTile(
       ctx.fillRect(x + 0, y + 28, 2, 2);
       ctx.fillRect(x + 30, y + 26, 2, 2);
       ctx.fillRect(x + 15, y + 30, 2, 1);
+      // Dithered bottom edge for smooth transition
+      ditherRect(ctx, x, y + s - 4, s, 4, PAL.grass[1], PAL.grass[2]);
       break;
     }
 
@@ -284,8 +314,12 @@ function drawTile(
       ctx.fillRect(x + 26, y + 20, 3, 2);
       ctx.fillRect(x + 4, y + 28, 2, 2);
       ctx.fillRect(x + 18, y + 28, 3, 2);
-      // Bottom edge shadow line (2px)
-      ctx.fillStyle = PAL.brick[3];
+      // Dithered mortar transition zones
+      ditherRect(ctx, x, y + 6, s, 2, PAL.brick[0], PAL.brick[1]);
+      ditherRect(ctx, x, y + 14, s, 2, PAL.brick[0], PAL.brick[1]);
+      ditherRect(ctx, x, y + 22, s, 2, PAL.brick[0], PAL.brick[1]);
+      // Bottom edge shadow line with cool shadow (2px)
+      ctx.fillStyle = coolShadow(PAL.brick[3], 15);
       ctx.fillRect(x, y + 30, s, 2);
       break;
     }
@@ -355,13 +389,13 @@ function drawTile(
       ctx.fillRect(x + 24, y + 24, 6, 2);
       ctx.fillRect(x + 6, y + 26, 6, 2);
       ctx.fillRect(x + 22, y + 26, 6, 2);
-      // Dark shadow lines between shingle rows (2px)
-      ctx.fillStyle = "#6a3010";
-      ctx.fillRect(x, y + 6, s, 2);
-      ctx.fillRect(x, y + 14, s, 2);
-      ctx.fillRect(x, y + 22, s, 2);
-      ctx.fillRect(x, y + 30, s, 2);
-      // Extra deep shadow spots
+      // Dithered shadow lines between shingle rows for natural wood look
+      ditherRect(ctx, x, y + 6, s, 2, "#8B4513", "#6a3010");
+      ditherRect(ctx, x, y + 14, s, 2, "#8B4513", "#6a3010");
+      ditherRect(ctx, x, y + 22, s, 2, "#8B4513", "#6a3010");
+      ditherRect(ctx, x, y + 30, s, 2, "#8B4513", "#6a3010");
+      // Extra deep shadow spots with cool shadow
+      ctx.fillStyle = coolShadow("#6a3010", 10);
       ctx.fillRect(x + 12, y + 6, 4, 2);
       ctx.fillRect(x + 4, y + 14, 4, 2);
       ctx.fillRect(x + 28, y + 22, 4, 2);
@@ -420,12 +454,12 @@ function drawTile(
       ctx.fillStyle = PAL.wood[1];
       ctx.fillRect(x + 6, y + 16, 2, 10);
       ctx.fillRect(x + 22, y + 16, 2, 10);
-      // Leg shadows
-      ctx.fillStyle = PAL.wood[3];
+      // Leg shadows with cool hue shift
+      ctx.fillStyle = coolShadow(PAL.wood[3], 12);
       ctx.fillRect(x + 9, y + 24, 1, 2);
       ctx.fillRect(x + 25, y + 24, 1, 2);
-      // Shadow on floor beneath desk
-      ctx.fillStyle = PAL.floor[3];
+      // Shadow on floor beneath desk with cool shift
+      ctx.fillStyle = coolShadow(PAL.floor[3], 10);
       ctx.fillRect(x + 8, y + 26, 16, 2);
       break;
     }
@@ -822,6 +856,10 @@ function drawTile(
         ctx.fillRect(x + 10, y + 24, 12, 2);
         ctx.fillRect(x + 22, y + 16, 4, 4);
         ctx.fillRect(x + 4, y + 20, 3, 2);
+        // Dithered canopy edge (bottom transition to grass)
+        ditherRect(ctx, x + 8, y + 26, 16, 2, treeLeaf[3], PAL.grass[1]);
+        ditherRect(ctx, x + 4, y + 24, 4, 2, treeLeaf[2], PAL.grass[1]);
+        ditherRect(ctx, x + 24, y + 24, 4, 2, treeLeaf[2], PAL.grass[1]);
       }
       break;
     }
@@ -843,8 +881,8 @@ function drawTile(
       // Highlight on left side (2px)
       ctx.fillStyle = PAL.wood[1];
       ctx.fillRect(x + 12, y + 0, 2, 24);
-      // Shadow on right side (2px)
-      ctx.fillStyle = PAL.wood[3];
+      // Shadow on right side (2px) with cool hue shift
+      ctx.fillStyle = coolShadow(PAL.wood[3], 12);
       ctx.fillRect(x + 18, y + 0, 2, 24);
       // Bark texture (3-4 dark vertical scratches)
       ctx.fillStyle = PAL.wood[3];
