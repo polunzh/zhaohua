@@ -1470,7 +1470,44 @@ function render() {
     if (!spriteConfig) continue;
     const px = npc.tileX * TILE_SIZE; // 16px sprite fits exactly in 16px tile
     const py = npc.tileY * TILE_SIZE - 16; // sprite is taller than tile
+    // Draw interaction hint under NPC
+    ctx.fillStyle = "rgba(196, 112, 106, 0.15)";
+    ctx.beginPath();
+    ctx.ellipse(px + 8, py + 30, 10, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
     drawCharacter(ctx, px, py, spriteConfig, "down", npc.name, npc.mood);
+  }
+
+  // Draw exit labels
+  if (props.mapData) {
+    for (const exit of props.mapData.exits) {
+      const ex = exit.tileX * TILE_SIZE;
+      const ey = exit.tileY * TILE_SIZE;
+      const destNames: Record<string, string> = {
+        classroom: "教室",
+        office: "办公室",
+        playground: "操场",
+        "flower-pool": "花池",
+        "water-tower": "水塔",
+        "village-road": "村路",
+        farmland: "农田",
+        "villager-house": "村民家",
+        "town-road": "镇上",
+        "post-office": "邮局",
+        market: "集市",
+        clinic: "卫生所",
+        "home-zhang": "张家",
+        "home-wang": "王家",
+        "home-li": "李家",
+        "home-zhao": "赵家",
+        "home-zhu": "朱家",
+      };
+      const label = destNames[exit.targetMapId] || exit.targetMapId;
+      ctx.fillStyle = "rgba(245, 230, 200, 0.8)";
+      ctx.font = "7px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("→" + label, ex + TILE_SIZE / 2, ey - 2);
+    }
   }
 
   // Draw player character
