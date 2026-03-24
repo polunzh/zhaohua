@@ -13,6 +13,7 @@ import type { TileMapData } from "../tilemap/types";
 import { applyColorGrading } from "../scene/filter";
 import { getSeasonalPalette } from "../tilemap/season-palette";
 import type { SeasonalPalette } from "../tilemap/season-palette";
+import { TileCache } from "../tilemap/tile-cache";
 
 const props = defineProps<{
   mapData: TileMapData | null;
@@ -38,6 +39,11 @@ const emit = defineEmits<{
 
 const canvasRef = ref<HTMLCanvasElement>();
 let engine: TileMapEngine | null = null;
+let tileCache: TileCache | null = null;
+let currentScale = 1;
+let staticLayerCache: HTMLCanvasElement | null = null;
+let cachedMapId = "";
+let cachedSeason = "";
 
 function drawTile(
   ctx: CanvasRenderingContext2D,
@@ -1564,38 +1570,90 @@ function drawTile(
   }
 }
 
+function renderStaticLayers(
+  ctx: CanvasRenderingContext2D,
+  mapData: TileMapData,
+  tc: TileCache,
+  seasonPal: SeasonalPalette,
+): void {
+  // Draw ground
+  for (let y = 0; y < mapData.height; y++) {
+    for (let x = 0; x < mapData.width; x++) {
+      const tileId = mapData.ground[y][x];
+      const cached = tc.getTile(tileId);
+      if (cached) {
+        ctx.drawImage(cached, x * TILE_SIZE, y * TILE_SIZE);
+      } else {
+        drawTile(ctx, tileId, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, seasonPal);
+      }
+    }
+  }
+  // Draw objects
+  for (let y = 0; y < mapData.height; y++) {
+    for (let x = 0; x < mapData.width; x++) {
+      const tileId = mapData.objects[y][x];
+      if (tileId === 0) continue;
+      const cached = tc.getTile(tileId);
+      if (cached) {
+        ctx.drawImage(cached, x * TILE_SIZE, y * TILE_SIZE);
+      } else {
+        drawTile(ctx, tileId, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, seasonPal);
+      }
+    }
+  }
+}
+
 function render() {
   if (!canvasRef.value || !props.mapData) return;
   const ctx = canvasRef.value.getContext("2d")!;
   engine = new TileMapEngine(props.mapData);
 
-  const seasonPal = getSeasonalPalette(props.season || "summer");
+  const season = props.season || "summer";
+  const seasonPal = getSeasonalPalette(season);
 
-  const w = props.mapData.width * TILE_SIZE;
-  const h = props.mapData.height * TILE_SIZE;
-  canvasRef.value.width = w;
-  canvasRef.value.height = h;
+  // Build / rebuild tile cache when season changes
+  if (!tileCache) {
+    tileCache = new TileCache(drawTile, seasonPal);
+  } else if (cachedSeason !== season) {
+    tileCache.rebuild(seasonPal);
+  }
+
+  const mapW = props.mapData.width * TILE_SIZE;
+  const mapH = props.mapData.height * TILE_SIZE;
+
+  // Calculate integer scale that best fits the container
+  const containerWidth = canvasRef.value.parentElement?.clientWidth || 800;
+  const containerHeight = canvasRef.value.parentElement?.clientHeight || 600;
+  const scaleX = Math.floor(containerWidth / mapW) || 1;
+  const scaleY = Math.floor(containerHeight / mapH) || 1;
+  const scale = Math.max(1, Math.min(scaleX, scaleY, 4)); // Cap at 4×
+  currentScale = scale;
+
+  // Set canvas to scaled size
+  canvasRef.value.width = mapW * scale;
+  canvasRef.value.height = mapH * scale;
+  ctx.scale(scale, scale);
 
   // Clear
   ctx.fillStyle = "#D4C08E";
-  ctx.fillRect(0, 0, w, h);
+  ctx.fillRect(0, 0, mapW, mapH);
 
-  // Draw ground layer
-  for (let y = 0; y < props.mapData.height; y++) {
-    for (let x = 0; x < props.mapData.width; x++) {
-      const tileId = engine.getGroundTile(x, y);
-      drawTile(ctx, tileId, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, seasonPal);
-    }
+  // Build / rebuild static layer cache when map or season changes
+  const mapId = props.currentScene + "_" + season;
+  if (!staticLayerCache || cachedMapId !== mapId) {
+    staticLayerCache = document.createElement("canvas");
+    staticLayerCache.width = mapW;
+    staticLayerCache.height = mapH;
+    const slCtx = staticLayerCache.getContext("2d")!;
+    slCtx.fillStyle = "#D4C08E";
+    slCtx.fillRect(0, 0, mapW, mapH);
+    renderStaticLayers(slCtx, props.mapData, tileCache, seasonPal);
+    cachedMapId = mapId;
+    cachedSeason = season;
   }
 
-  // Draw objects layer
-  for (let y = 0; y < props.mapData.height; y++) {
-    for (let x = 0; x < props.mapData.width; x++) {
-      const tileId = engine.getObjectTile(x, y);
-      if (tileId === 0) continue;
-      drawTile(ctx, tileId, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, seasonPal);
-    }
-  }
+  // Blit static layers
+  ctx.drawImage(staticLayerCache, 0, 0);
 
   // Draw NPCs
   for (const npc of props.npcs) {
@@ -1652,6 +1710,9 @@ function render() {
   }
 
   // Apply nostalgic filter (operates on actual pixel buffer)
+  const w = mapW * scale;
+  const h = mapH * scale;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform before getImageData
   const imageData = ctx.getImageData(0, 0, w, h);
   applyColorGrading(imageData.data);
   ctx.putImageData(imageData, 0, 0);
@@ -1667,13 +1728,12 @@ function render() {
 function handleClick(e: MouseEvent) {
   if (!canvasRef.value || !engine || !props.mapData) return;
   const rect = canvasRef.value.getBoundingClientRect();
-  // Convert click position to tile coordinates (accounting for CSS scaling and 2x render scale)
+  // Convert click position to tile coordinates (accounting for CSS scaling and integer render scale)
   const cssToCanvasX = canvasRef.value.width / rect.width;
   const cssToCanvasY = canvasRef.value.height / rect.height;
   const canvasX = (e.clientX - rect.left) * cssToCanvasX;
   const canvasY = (e.clientY - rect.top) * cssToCanvasY;
-  // Divide by 2 because canvas is rendered at 2x scale
-  const { tileX, tileY } = engine.pixelToTile(canvasX, canvasY);
+  const { tileX, tileY } = engine.pixelToTile(canvasX / currentScale, canvasY / currentScale);
 
   // Check NPC click (sprites are 2 tiles tall, check both tile and tile above)
   for (const npc of props.npcs) {
@@ -1710,7 +1770,7 @@ function handleMouseMove(e: MouseEvent) {
   const cssToCanvasY = canvasRef.value.height / rect.height;
   const canvasX = (e.clientX - rect.left) * cssToCanvasX;
   const canvasY = (e.clientY - rect.top) * cssToCanvasY;
-  const { tileX, tileY } = engine.pixelToTile(canvasX, canvasY);
+  const { tileX, tileY } = engine.pixelToTile(canvasX / currentScale, canvasY / currentScale);
 
   // Check what's under the cursor
   for (const npc of props.npcs) {
@@ -1767,8 +1827,5 @@ watch(
   display: block;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
 }
 </style>
