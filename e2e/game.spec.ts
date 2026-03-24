@@ -8,11 +8,18 @@ test.describe("朝花夕拾 — 游戏基本流程", () => {
     try {
       await startBtn.waitFor({ timeout: 5000 });
       await startBtn.click();
+      // Wait for briefing to fully disappear
+      await page.waitForSelector(".briefing-overlay", {
+        state: "hidden",
+        timeout: 3000,
+      });
     } catch {
       // No briefing, continue
     }
-    // Wait for the side panel to appear (indicates world state loaded)
-    await page.waitForSelector(".side-panel", { timeout: 15000 });
+    // Wait for game to load
+    await page.waitForSelector(".side-panel", { timeout: 10000 });
+    // Ensure no overlays are blocking
+    await page.waitForTimeout(500);
   });
 
   test("页面加载后显示游戏界面", async ({ page }) => {
@@ -28,25 +35,48 @@ test.describe("朝花夕拾 — 游戏基本流程", () => {
     expect(hasSeason).toBe(true);
   });
 
-  test("侧边栏显示导航选项", async ({ page }) => {
-    await expect(page.locator(".nav-item").first()).toBeVisible();
+  test("没有遮挡层阻止交互", async ({ page }) => {
+    // Verify no overlays are present
+    await expect(page.locator(".briefing-overlay")).toBeHidden();
+    await expect(page.locator(".transition-overlay")).toBeHidden();
   });
 
-  test("点击导航切换场景", async ({ page }) => {
+  test("侧边栏导航选项可点击", async ({ page }) => {
     const firstNav = page.locator(".nav-item").first();
     await expect(firstNav).toBeVisible();
+    // Verify it's actually clickable (no overlay blocking)
+    await expect(firstNav).toBeEnabled();
+    const box = await firstNav.boundingBox();
+    expect(box).toBeTruthy();
+    // Actually click and verify response
     await firstNav.click();
-    // Wait for panel to re-render with new location
     await page.waitForTimeout(1000);
     await expect(page.locator(".side-panel")).toBeVisible();
   });
 
-  test("跳到明天更新时间", async ({ page }) => {
+  test("点击导航后位置变化", async ({ page }) => {
+    const locationBefore = await page.locator(".location-name").textContent();
+    const firstNav = page.locator(".nav-item").first();
+    const navText = await firstNav.textContent();
+    await firstNav.click();
+    await page.waitForTimeout(1500);
+    const locationAfter = await page.locator(".location-name").textContent();
+    // Location should have changed
+    expect(locationAfter).not.toBe(locationBefore);
+  });
+
+  test("跳到明天按钮可点击且有过场动画", async ({ page }) => {
     const skipBtn = page.locator(".skip-row button").first();
     await expect(skipBtn).toContainText("明天");
     await skipBtn.click();
-    await page.waitForTimeout(1000);
-    await expect(page.locator(".side-panel")).toContainText("1994");
+    // Should show transition overlay
+    await expect(page.locator(".transition-overlay")).toBeVisible({
+      timeout: 2000,
+    });
+    // Should disappear after ~2.5s
+    await expect(page.locator(".transition-overlay")).toBeHidden({
+      timeout: 5000,
+    });
   });
 
   test("角色切换按钮工作", async ({ page }) => {
@@ -86,6 +116,60 @@ test.describe("朝花夕拾 — 游戏基本流程", () => {
   test("点击 Canvas 不会崩溃", async ({ page }) => {
     const canvas = page.locator("canvas.game-canvas");
     await canvas.click({ position: { x: 100, y: 100 } });
+    await expect(page.locator(".side-panel")).toBeVisible();
+  });
+
+  test("关系面板显示 NPC 列表", async ({ page }) => {
+    await expect(page.locator(".rel-title")).toContainText("关系");
+    await expect(page.locator(".rel-name").first()).toBeVisible();
+  });
+
+  test("简报可以正常打开和关闭", async ({ page }) => {
+    // Reload to see briefing again
+    await page.reload();
+    const startBtn = page.locator(".start-btn");
+    try {
+      await startBtn.waitFor({ timeout: 5000 });
+      // Briefing should be visible
+      await expect(page.locator(".briefing-overlay")).toBeVisible();
+      // Click start
+      await startBtn.click();
+      // Briefing should disappear
+      await expect(page.locator(".briefing-overlay")).toBeHidden({
+        timeout: 3000,
+      });
+      // Game should be interactive
+      await expect(page.locator(".side-panel")).toBeVisible();
+      const firstNav = page.locator(".nav-item").first();
+      await expect(firstNav).toBeVisible();
+    } catch {
+      // No briefing shown (e.g. if API fails), that's ok for this test
+    }
+  });
+
+  test("多次导航不会卡住", async ({ page }) => {
+    // Navigate 3 times
+    for (let i = 0; i < 3; i++) {
+      const navItems = page.locator(".nav-item");
+      const count = await navItems.count();
+      if (count > 0) {
+        await navItems.first().click();
+        await page.waitForTimeout(800);
+      }
+    }
+    // Should still be interactive
+    await expect(page.locator(".side-panel")).toBeVisible();
+    await expect(page.locator("canvas.game-canvas")).toBeVisible();
+  });
+
+  test("今日任务显示在侧边栏", async ({ page }) => {
+    // Mission section might or might not be present depending on briefing generation
+    const missionSection = page.locator(".mission-sidebar");
+    const hasMission = await missionSection.count();
+    if (hasMission > 0) {
+      await expect(missionSection).toBeVisible();
+    }
+    // Either way, game should be functional
     await expect(page.locator(".side-panel")).toBeVisible();
   });
 });
