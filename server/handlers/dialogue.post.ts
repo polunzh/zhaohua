@@ -7,6 +7,11 @@ interface DialogueParams {
   situation: string;
   season: string;
   gameDate: string;
+  weather?: string;
+  mood?: string;
+  affinity?: number;
+  recentEvent?: string;
+  mission?: string;
 }
 
 export async function handleDialogue(params: DialogueParams) {

@@ -4,6 +4,11 @@ interface DialogueContext {
   situation: string;
   season: string;
   gameDate: string;
+  weather?: string;
+  mood?: string;
+  affinity?: number;
+  recentEvent?: string;
+  mission?: string;
 }
 
 interface EventDescContext {
@@ -25,12 +30,34 @@ export function buildDialoguePrompt(ctx: DialogueContext): string {
     autumn: "秋天",
     winter: "冬天",
   };
-  return `时间：${ctx.gameDate}，${seasonName[ctx.season] || ctx.season}。
-角色：${ctx.npcName}，性格：${ctx.npcPersonality}。
-场景：${ctx.situation}。
-不要使用现代网络用语。
+  const weatherName: Record<string, string> = {
+    sunny: "晴天",
+    cloudy: "阴天",
+    rainy: "下雨",
+    snowy: "下雪",
+    windy: "刮风",
+  };
+  const moodName: Record<string, string> = {
+    happy: "开心",
+    neutral: "平静",
+    upset: "不高兴",
+    excited: "兴奋",
+    tired: "疲惫",
+  };
 
-请用${ctx.npcName}的口吻说一两句话。只输出对话内容，不要加引号或角色名前缀。`;
+  let prompt = `时间：${ctx.gameDate}，${seasonName[ctx.season] || ctx.season}`;
+  if (ctx.weather) prompt += `，${weatherName[ctx.weather] || ctx.weather}`;
+  prompt += `。\n角色：${ctx.npcName}，性格：${ctx.npcPersonality}。`;
+  if (ctx.mood) prompt += `\n当前心情：${moodName[ctx.mood] || ctx.mood}。`;
+  if (ctx.affinity !== undefined) {
+    if (ctx.affinity >= 70) prompt += `\n和老师关系很好，信任老师。`;
+    else if (ctx.affinity <= 30) prompt += `\n和老师关系一般，有些疏远。`;
+  }
+  prompt += `\n场景：${ctx.situation}。`;
+  if (ctx.recentEvent) prompt += `\n最近发生的事：${ctx.recentEvent}。`;
+  if (ctx.mission) prompt += `\n老师今天的任务：${ctx.mission}。`;
+  prompt += `\n不要使用现代网络用语。\n\n请用${ctx.npcName}的口吻说一两句话。只输出对话内容，不要加引号或角色名前缀。`;
+  return prompt;
 }
 
 export function buildEventDescriptionPrompt(ctx: EventDescContext): string {

@@ -193,13 +193,36 @@ async function handleClickNpc(npcId: string) {
   dialogText.value = "";
   choices.value = [];
   try {
-    const periodName = gameTime.value.period === "morning" ? "上午" : "下午";
+    const periodNames: Record<string, string> = {
+      morning: "上午",
+      afternoon: "下午",
+      evening: "傍晚",
+      night: "晚上",
+    };
+    const locationCN: Record<string, string> = {
+      classroom: "教室",
+      office: "办公室",
+      playground: "操场",
+      "flower-pool": "花池",
+      "water-tower": "水塔",
+      "village-road": "村路",
+      market: "集市",
+      "post-office": "邮局",
+    };
+    const npcState = npcStates.value.find((n: any) => n.id === npcId);
+    const recentEvent = events.value.length > 0 ? events.value[0].description : undefined;
+    const missionText = mission.value?.status === "active" ? mission.value.title : undefined;
     const { dialogue } = await generateDialogue({
       npcName: npc.name,
       npcPersonality: npc.personality,
-      situation: `在${currentScene.value}，当前是${periodName}`,
+      situation: `在${locationCN[currentScene.value] || currentScene.value}，${periodNames[gameTime.value.period] || ""}`,
       season: gameTime.value.season,
       gameDate: gameTime.value.date,
+      weather: weather.value,
+      mood: npcState?.mood,
+      affinity: npcState?.affinity,
+      recentEvent,
+      mission: missionText,
     });
     dialogText.value = dialogue;
     const interactionChoices = getInteractionChoices(npc.role, currentScene.value);

@@ -20,6 +20,11 @@ export async function generateDialogue(params: {
   situation: string;
   season: string;
   gameDate: string;
+  weather?: string;
+  mood?: string;
+  affinity?: number;
+  recentEvent?: string;
+  mission?: string;
 }) {
   const res = await fetch(`${BASE_URL}/dialogue`, {
     method: "POST",
