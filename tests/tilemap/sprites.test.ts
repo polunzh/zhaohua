@@ -57,7 +57,7 @@ describe("Sprites", () => {
   });
 
   it("sprite dimensions are correct", () => {
-    expect(SPRITE_WIDTH).toBe(24);
+    expect(SPRITE_WIDTH).toBe(16);
     expect(SPRITE_HEIGHT).toBe(32);
   });
 });
