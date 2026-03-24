@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import SidePanel from "./components/SidePanel.vue";
-import GameCanvas from "./components/GameCanvas.vue";
+import PixiGameCanvas from "./components/PixiGameCanvas.vue";
 import DialogBox from "./components/DialogBox.vue";
 import Briefing from "./components/Briefing.vue";
 import Toast from "./components/Toast.vue";
@@ -568,7 +568,7 @@ onMounted(async () => {
           {{ locationLabel }}
         </div>
         <div v-if="sceneStatus" class="scene-status">{{ sceneStatus }}</div>
-        <GameCanvas
+        <PixiGameCanvas
           :map-data="currentMapData"
           :npcs="visibleNpcs"
           :active-character="activeCharacter"
