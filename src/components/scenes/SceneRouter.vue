@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import ClassroomScene from "./ClassroomScene.vue";
+import PlaygroundScene from "./PlaygroundScene.vue";
+import FlowerPoolScene from "./FlowerPoolScene.vue";
+import OfficeScene from "./OfficeScene.vue";
+import VillageRoadScene from "./VillageRoadScene.vue";
 
 const props = defineProps<{
   currentScene: string;
@@ -17,6 +21,38 @@ const emit = defineEmits<{
 <template>
   <ClassroomScene
     v-if="currentScene === 'classroom'"
+    :npcs="npcs"
+    :season="season"
+    @click-npc="emit('clickNpc', $event)"
+    @click-exit="emit('clickExit', $event)"
+    @click-object="emit('clickObject', $event)"
+  />
+  <PlaygroundScene
+    v-else-if="currentScene === 'playground'"
+    :npcs="npcs"
+    :season="season"
+    @click-npc="emit('clickNpc', $event)"
+    @click-exit="emit('clickExit', $event)"
+    @click-object="emit('clickObject', $event)"
+  />
+  <FlowerPoolScene
+    v-else-if="currentScene === 'flower-pool'"
+    :npcs="npcs"
+    :season="season"
+    @click-npc="emit('clickNpc', $event)"
+    @click-exit="emit('clickExit', $event)"
+    @click-object="emit('clickObject', $event)"
+  />
+  <OfficeScene
+    v-else-if="currentScene === 'office'"
+    :npcs="npcs"
+    :season="season"
+    @click-npc="emit('clickNpc', $event)"
+    @click-exit="emit('clickExit', $event)"
+    @click-object="emit('clickObject', $event)"
+  />
+  <VillageRoadScene
+    v-else-if="currentScene === 'village-road'"
     :npcs="npcs"
     :season="season"
     @click-npc="emit('clickNpc', $event)"
