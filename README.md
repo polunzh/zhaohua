@@ -2,11 +2,19 @@
 
 # Zhaohua (朝花夕拾)
 
-> _When I was a kid, I wanted to be a postman — riding my bicycle through the village, delivering letters from faraway places. I also dreamed of being a primary school teacher, standing at the blackboard with chalk dust on my fingers._
->
-> _I never got to do either. So I built this game to live those lives, even if only for a few minutes each day._
+> **Status:** This is not a serious project. I just thought it would be fun, and it was. It's not finished — I don't know if I'll ever finish it, or what "finished" would even mean for something like this. If you stumble upon it and find it interesting, that's nice.
 
-A life simulation game set in 1990s rural China. Play as a village primary school teacher or a town postman, experiencing the warmth and simplicity of countryside daily life.
+> _When I was little, growing up in a village in northern China in the 1990s, I wanted to be two things._
+>
+> _First, a postman. Our village postman rode a green bicycle with a big canvas bag on the back. He knew everyone's name. When he came down the dirt road, dogs barked and kids ran out to see if there was a letter from someone's father working in the city. I thought that was the best job in the world — carrying news from far away, connecting people who missed each other._
+>
+> _Second, a primary school teacher. Our school was a row of brick houses with a flag pole in the yard. In winter the classroom had a coal stove that smoked when the wind changed. The teacher knew every student by name, knew who was struggling at home, knew who needed an extra word of encouragement. The school had a flower garden — roses in summer, just bamboo in winter._
+>
+> _I grew up. I became neither. But sometimes I still think about that postman's bicycle bell, and the chalk dust floating in the morning light of that classroom._
+>
+> _So I made this. Not a game, really. More like a window into a life I never lived._
+
+A life simulation set in 1990s rural China. Play as a village primary school teacher or a town postman, experiencing the quiet warmth of countryside daily life.
 
 ## Screenshots
 
