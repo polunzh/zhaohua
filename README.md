@@ -2,6 +2,10 @@
 
 # Zhaohua (朝花夕拾)
 
+> _When I was a kid, I wanted to be a postman — riding my bicycle through the village, delivering letters from faraway places. I also dreamed of being a primary school teacher, standing at the blackboard with chalk dust on my fingers._
+>
+> _I never got to do either. So I built this game to live those lives, even if only for a few minutes each day._
+
 A life simulation game set in 1990s rural China. Play as a village primary school teacher or a town postman, experiencing the warmth and simplicity of countryside daily life.
 
 ## Screenshots
