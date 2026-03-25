@@ -1,4 +1,5 @@
 import { eventPool, type EventTemplate } from "../data/event-pool";
+import { getRelationshipBoost, type RelationshipInfo } from "./relationship-events";
 
 interface GameTime {
   date: string;
@@ -32,6 +33,8 @@ export class EventEngine {
     location?: string,
     character?: string,
     affinity?: number,
+    relationships?: RelationshipInfo[],
+    presentNpcIds?: string[],
   ): EventTemplate | null {
     const mmdd = gameTime.date.slice(5); // "YYYY-MM-DD" -> "MM-DD"
 
@@ -61,7 +64,20 @@ export class EventEngine {
       return null;
     }
 
-    const index = Math.floor(this.rng() * eligible.length);
-    return eligible[index];
+    // Apply relationship weighting
+    const weighted = eligible.map((e) => ({
+      event: e,
+      weight: getRelationshipBoost(e as any, relationships || [], presentNpcIds || []),
+    }));
+
+    // Weighted random selection
+    const totalWeight = weighted.reduce((sum, w) => sum + w.weight, 0);
+    if (totalWeight === 0) return null;
+    let roll = this.rng() * totalWeight;
+    for (const w of weighted) {
+      roll -= w.weight;
+      if (roll <= 0) return w.event;
+    }
+    return weighted[weighted.length - 1].event;
   }
 }

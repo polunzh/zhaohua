@@ -205,6 +205,13 @@ describe("EventEngine", () => {
     }
   });
 
+  it("selectEvent accepts relationships parameter", () => {
+    const engine = new EventEngine(42);
+    // Should not throw with new parameter
+    const event = engine.selectEvent(makeGameTime(), [], "sunny", "classroom", "teacher", 50, []);
+    expect(true).toBe(true);
+  });
+
   it("cross-character event (no character filter) triggers for both postman and teacher", () => {
     // postman-at-school has no character field, location=playground, period=morning
     let foundForPostman = false;

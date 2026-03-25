@@ -10,6 +10,7 @@ export interface EventTemplate {
   minAffinity?: number;
   maxAffinity?: number;
   description: string;
+  relationshipTag?: string;
 }
 
 export const eventPool: EventTemplate[] = [
@@ -260,6 +261,23 @@ export const eventPool: EventTemplate[] = [
     maxAffinity: 30,
     description: "发现有学生逃学了，跑去河边摸鱼",
   },
+  {
+    id: "friends-play-together",
+    type: "daily",
+    description: "好朋友们凑在一起，有说有笑",
+    periods: ["morning", "afternoon"],
+    location: "playground",
+    relationshipTag: "friend-activity",
+  },
+  {
+    id: "friend-shares-secret",
+    type: "daily",
+    description: "有个学生悄悄拉住你，想跟你说个秘密",
+    periods: ["morning", "afternoon"],
+    location: "classroom",
+    relationshipTag: "secret-share",
+    minAffinity: 70,
+  },
 
   // ===== Original daily events =====
   {
@@ -285,6 +303,7 @@ export const eventPool: EventTemplate[] = [
     type: "daily",
     periods: ["afternoon"],
     description: "课间两个学生吵起来了",
+    relationshipTag: "rival-conflict",
   },
   {
     id: "parent-visit",
