@@ -63,3 +63,27 @@ describe("useSeasonColors", () => {
     expect(summer.sky).not.toBe(winter.sky);
   });
 });
+
+describe("flower pool seasonal data", () => {
+  it("summer has 5 flower colors", () => {
+    const colors = getSceneColors("summer");
+    expect(colors.flowerColors.length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("winter has no flower colors", () => {
+    const colors = getSceneColors("winter");
+    expect(colors.flowerColors).toHaveLength(0);
+  });
+
+  it("spring has muted flower colors (buds)", () => {
+    const colors = getSceneColors("spring");
+    expect(colors.flowerColors.length).toBeGreaterThan(0);
+    expect(colors.flowerState).toBe("bud");
+  });
+
+  it("autumn has faded flower colors", () => {
+    const colors = getSceneColors("autumn");
+    expect(colors.flowerColors.length).toBeGreaterThan(0);
+    expect(colors.flowerState).toBe("wilt");
+  });
+});
