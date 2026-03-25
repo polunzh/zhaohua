@@ -4,6 +4,13 @@ import PlaygroundScene from "./PlaygroundScene.vue";
 import FlowerPoolScene from "./FlowerPoolScene.vue";
 import OfficeScene from "./OfficeScene.vue";
 import VillageRoadScene from "./VillageRoadScene.vue";
+import WaterTowerScene from "./WaterTowerScene.vue";
+import FarmlandScene from "./FarmlandScene.vue";
+import VillagerHouseScene from "./VillagerHouseScene.vue";
+import TownRoadScene from "./TownRoadScene.vue";
+import PostOfficeScene from "./PostOfficeScene.vue";
+import MarketScene from "./MarketScene.vue";
+import HomeScene from "./HomeScene.vue";
 
 const props = defineProps<{
   currentScene: string;
@@ -53,6 +60,62 @@ const emit = defineEmits<{
   />
   <VillageRoadScene
     v-else-if="currentScene === 'village-road'"
+    :npcs="npcs"
+    :season="season"
+    @click-npc="emit('clickNpc', $event)"
+    @click-exit="emit('clickExit', $event)"
+    @click-object="emit('clickObject', $event)"
+  />
+  <WaterTowerScene
+    v-else-if="currentScene === 'water-tower'"
+    :npcs="npcs"
+    :season="season"
+    @click-npc="emit('clickNpc', $event)"
+    @click-exit="emit('clickExit', $event)"
+    @click-object="emit('clickObject', $event)"
+  />
+  <FarmlandScene
+    v-else-if="currentScene === 'farmland'"
+    :npcs="npcs"
+    :season="season"
+    @click-npc="emit('clickNpc', $event)"
+    @click-exit="emit('clickExit', $event)"
+    @click-object="emit('clickObject', $event)"
+  />
+  <VillagerHouseScene
+    v-else-if="currentScene === 'villager-house'"
+    :npcs="npcs"
+    :season="season"
+    @click-npc="emit('clickNpc', $event)"
+    @click-exit="emit('clickExit', $event)"
+    @click-object="emit('clickObject', $event)"
+  />
+  <TownRoadScene
+    v-else-if="currentScene === 'town-road'"
+    :npcs="npcs"
+    :season="season"
+    @click-npc="emit('clickNpc', $event)"
+    @click-exit="emit('clickExit', $event)"
+    @click-object="emit('clickObject', $event)"
+  />
+  <PostOfficeScene
+    v-else-if="currentScene === 'post-office'"
+    :npcs="npcs"
+    :season="season"
+    @click-npc="emit('clickNpc', $event)"
+    @click-exit="emit('clickExit', $event)"
+    @click-object="emit('clickObject', $event)"
+  />
+  <MarketScene
+    v-else-if="currentScene === 'market'"
+    :npcs="npcs"
+    :season="season"
+    @click-npc="emit('clickNpc', $event)"
+    @click-exit="emit('clickExit', $event)"
+    @click-object="emit('clickObject', $event)"
+  />
+  <HomeScene
+    v-else-if="currentScene.startsWith('home')"
     :npcs="npcs"
     :season="season"
     @click-npc="emit('clickNpc', $event)"
