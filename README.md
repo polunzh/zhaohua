@@ -12,7 +12,7 @@
 >
 > _I grew up. I became neither. But sometimes I still think about that postman's bicycle bell, and the chalk dust floating in the morning light of that classroom._
 >
-> _So I made this._
+> _So I made this. It's not really a game — more like opening a window onto a life I never lived._
 
 A life simulation set in 1990s rural China. Play as a village primary school teacher or a town postman, experiencing the quiet warmth of countryside daily life.
 
