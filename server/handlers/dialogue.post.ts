@@ -2,6 +2,9 @@ import { createAiAdapter } from "../ai/adapter";
 import { buildDialoguePrompt, SYSTEM_PROMPT } from "../ai/prompts";
 import { getDb } from "../db/connection";
 import { getLastChoiceForNpc, getNpcState } from "../db/queries";
+import { createLogger } from "../utils/logger";
+
+const log = createLogger("handler:dialogue");
 
 interface DialogueParams {
   npcName: string;
@@ -59,8 +62,8 @@ export async function handleDialogue(params: DialogueParams) {
           if (!params.affinity) params.affinity = state.affinity;
         }
       }
-    } catch {
-      /* ignore DB errors in dialogue */
+    } catch (err) {
+      log.warn(`failed to enrich NPC state for ${params.npcId}`, err);
     }
   }
 
