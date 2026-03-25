@@ -811,10 +811,12 @@ body {
   background: linear-gradient(180deg, #3a3530 0%, #2e2a26 100%);
   padding: 8px 16px 12px;
   border-top: 2px solid #4a4440;
-  min-height: 72px;
+  height: 100px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  overflow-y: auto;
 }
 .dialog-empty {
   text-align: center;
