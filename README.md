@@ -1,6 +1,6 @@
 [中文](./README.zh-CN.md) | **English**
 
-# Zhaohua (朝花夕拾)
+# Dawn Blossoms Plucked at Dusk (朝花夕拾)
 
 > **Status:** This is not a serious project. I just thought it would be fun, and it was. It's not finished — I don't know if I'll ever finish it, or what "finished" would even mean for something like this. If you stumble upon it and find it interesting, that's nice.
 
