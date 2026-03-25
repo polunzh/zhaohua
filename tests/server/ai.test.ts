@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { createAiAdapter } from "../../server/ai/adapter";
 import { buildDialoguePrompt, buildEventDescriptionPrompt } from "../../server/ai/prompts";
 
@@ -34,6 +34,59 @@ describe("AI Adapter", () => {
 
   it("throws for unknown model", () => {
     expect(() => createAiAdapter({ model: "unknown", apiKey: "k", baseUrl: "" })).toThrow();
+  });
+});
+
+describe("AI Adapter generateText", () => {
+  const originalFetch = globalThis.fetch;
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  it("returns content on successful OpenAI-format response", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ choices: [{ message: { content: "你好" } }] }),
+    });
+
+    const adapter = createAiAdapter({
+      model: "deepseek",
+      apiKey: "test-key",
+      baseUrl: "https://api.deepseek.com",
+    });
+    const result = await adapter.generateText("测试 prompt");
+    expect(result).toBe("你好");
+  });
+
+  it("throws with status code on API failure", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 429,
+      text: () => Promise.resolve("rate limited"),
+    });
+
+    const adapter = createAiAdapter({
+      model: "deepseek",
+      apiKey: "test-key",
+      baseUrl: "https://api.deepseek.com",
+    });
+    await expect(adapter.generateText("test")).rejects.toThrow("AI API error (429)");
+  });
+
+  it("returns content on successful Anthropic-format response", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ content: [{ text: "你好" }] }),
+    });
+
+    const adapter = createAiAdapter({
+      model: "claude",
+      apiKey: "test-key",
+      baseUrl: "https://api.anthropic.com",
+    });
+    const result = await adapter.generateText("测试 prompt");
+    expect(result).toBe("你好");
   });
 });
 

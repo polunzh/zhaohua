@@ -1,3 +1,7 @@
+import { createLogger } from "../utils/logger";
+
+const log = createLogger("ai");
+
 export interface AiAdapter {
   name: string;
   generateText(prompt: string, systemPrompt?: string): Promise<string>;
@@ -70,6 +74,9 @@ function createOpenAICompatAdapter(
   return {
     name,
     async generateText(prompt, systemPrompt) {
+      const start = Date.now();
+      log.debug(`[${name}] calling, prompt length: ${prompt.length} chars`);
+
       const response = await fetch(`${baseUrl}/v1/chat/completions`, {
         method: "POST",
         headers: {
@@ -86,15 +93,22 @@ function createOpenAICompatAdapter(
           temperature: 0.8,
         }),
       });
+
+      const elapsed = Date.now() - start;
+
       if (!response.ok) {
         const text = await response.text();
+        log.error(`[${name}] failed: ${response.status} (${elapsed}ms)`, text);
         throw new Error(`AI API error (${response.status}): ${text}`);
       }
       const data = (await response.json()) as any;
       if (!data.choices?.length) {
+        log.error(`[${name}] no choices returned (${elapsed}ms)`, JSON.stringify(data));
         throw new Error(`AI API returned no choices: ${JSON.stringify(data)}`);
       }
-      return data.choices[0].message.content;
+      const content = data.choices[0].message.content;
+      log.info(`[${name}] success (${elapsed}ms), response length: ${content.length} chars`);
+      return content;
     },
   };
 }
@@ -108,6 +122,9 @@ function createAnthropicAdapter(
   return {
     name,
     async generateText(prompt, systemPrompt) {
+      const start = Date.now();
+      log.debug(`[${name}] calling, prompt length: ${prompt.length} chars`);
+
       const response = await fetch(`${baseUrl}/v1/messages`, {
         method: "POST",
         headers: {
@@ -122,15 +139,22 @@ function createAnthropicAdapter(
           messages: [{ role: "user", content: prompt }],
         }),
       });
+
+      const elapsed = Date.now() - start;
+
       if (!response.ok) {
         const text = await response.text();
+        log.error(`[${name}] failed: ${response.status} (${elapsed}ms)`, text);
         throw new Error(`AI API error (${response.status}): ${text}`);
       }
       const data = (await response.json()) as any;
       if (!data.content?.length) {
+        log.error(`[${name}] no content returned (${elapsed}ms)`, JSON.stringify(data));
         throw new Error(`AI API returned no content: ${JSON.stringify(data)}`);
       }
-      return data.content[0].text;
+      const content = data.content[0].text;
+      log.info(`[${name}] success (${elapsed}ms), response length: ${content.length} chars`);
+      return content;
     },
   };
 }
