@@ -87,3 +87,35 @@ describe("flower pool seasonal data", () => {
     expect(colors.flowerState).toBe("wilt");
   });
 });
+
+describe("scene seasonal consistency", () => {
+  it("winter: showBareTree true and showSnow true", () => {
+    const c = getSceneColors("winter");
+    expect(c.showBareTree).toBe(true);
+    expect(c.showSnow).toBe(true);
+  });
+
+  it("summer: showBareTree false and showSnow false", () => {
+    const c = getSceneColors("summer");
+    expect(c.showBareTree).toBe(false);
+    expect(c.showSnow).toBe(false);
+  });
+
+  it("all seasons return valid hex grass color", () => {
+    for (const s of ["spring", "summer", "autumn", "winter"]) {
+      expect(getSceneColors(s).grass).toMatch(/^#[0-9a-fA-F]{6}$/);
+    }
+  });
+
+  it("all seasons return valid hex treeLeaf color", () => {
+    for (const s of ["spring", "summer", "autumn", "winter"]) {
+      expect(getSceneColors(s).treeLeaf).toMatch(/^#[0-9a-fA-F]{6}$/);
+    }
+  });
+
+  it("all seasons return valid hex sky color", () => {
+    for (const s of ["spring", "summer", "autumn", "winter"]) {
+      expect(getSceneColors(s).sky).toMatch(/^#[0-9a-fA-F]{6}$/);
+    }
+  });
+});

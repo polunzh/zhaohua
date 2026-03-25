@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import SvgCharacter from "../SvgCharacter.vue";
+import { getSceneColors } from "../../composables/useSeasonColors";
 
 const props = defineProps<{
   npcs: { id: string; name: string; mood: string; hairColor?: string; bodyColor?: string }[];
   season: string;
 }>();
+
+const colors = computed(() => getSceneColors(props.season));
 
 const emit = defineEmits<{
   clickNpc: [npcId: string];
@@ -28,7 +32,7 @@ const npcPositions = [
     <!-- SVG Background -->
     <svg viewBox="0 0 800 500" class="scene-bg" preserveAspectRatio="xMidYMid meet">
       <!-- Grass background -->
-      <rect x="0" y="0" width="800" height="500" fill="#9aaa88" />
+      <rect x="0" y="0" width="800" height="500" :fill="colors.grass" />
 
       <!-- Dirt center area -->
       <rect
@@ -54,8 +58,41 @@ const npcPositions = [
         stroke="#4a4040"
         stroke-width="2"
       />
-      <circle cx="75" cy="30" r="35" fill="#6a8a58" stroke="#4a4040" stroke-width="2" />
-      <circle cx="60" cy="38" r="22" fill="#a8c490" opacity="0.7" />
+      <!-- Tree 1 crown (hidden in winter) -->
+      <g v-if="!colors.showBareTree">
+        <circle cx="75" cy="30" r="35" :fill="colors.treeLeaf" stroke="#4a4040" stroke-width="2" />
+        <circle cx="60" cy="38" r="22" :fill="colors.treeLeafHighlight" opacity="0.7" />
+      </g>
+      <!-- Tree 1 bare branches (winter) -->
+      <g v-if="colors.showBareTree">
+        <line
+          x1="75"
+          y1="40"
+          x2="55"
+          y2="18"
+          stroke="#8a7050"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        />
+        <line
+          x1="75"
+          y1="40"
+          x2="95"
+          y2="15"
+          stroke="#8a7050"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        />
+        <line
+          x1="75"
+          y1="40"
+          x2="75"
+          y2="10"
+          stroke="#8a7050"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+      </g>
 
       <!-- Tree 2 (top-center-right) -->
       <rect
@@ -68,8 +105,41 @@ const npcPositions = [
         stroke="#4a4040"
         stroke-width="2"
       />
-      <circle cx="625" cy="22" r="38" fill="#6a8a58" stroke="#4a4040" stroke-width="2" />
-      <circle cx="640" cy="28" r="24" fill="#a8c490" opacity="0.7" />
+      <!-- Tree 2 crown (hidden in winter) -->
+      <g v-if="!colors.showBareTree">
+        <circle cx="625" cy="22" r="38" :fill="colors.treeLeaf" stroke="#4a4040" stroke-width="2" />
+        <circle cx="640" cy="28" r="24" :fill="colors.treeLeafHighlight" opacity="0.7" />
+      </g>
+      <!-- Tree 2 bare branches (winter) -->
+      <g v-if="colors.showBareTree">
+        <line
+          x1="625"
+          y1="30"
+          x2="605"
+          y2="6"
+          stroke="#8a7050"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        />
+        <line
+          x1="625"
+          y1="30"
+          x2="648"
+          y2="4"
+          stroke="#8a7050"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        />
+        <line
+          x1="625"
+          y1="30"
+          x2="625"
+          y2="0"
+          stroke="#8a7050"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+      </g>
 
       <!-- Tree 3 (right side) -->
       <rect
@@ -82,8 +152,48 @@ const npcPositions = [
         stroke="#4a4040"
         stroke-width="2"
       />
-      <circle cx="745" cy="170" r="32" fill="#6a8a58" stroke="#4a4040" stroke-width="2" />
-      <circle cx="732" cy="178" r="20" fill="#a8c490" opacity="0.7" />
+      <!-- Tree 3 crown (hidden in winter) -->
+      <g v-if="!colors.showBareTree">
+        <circle
+          cx="745"
+          cy="170"
+          r="32"
+          :fill="colors.treeLeaf"
+          stroke="#4a4040"
+          stroke-width="2"
+        />
+        <circle cx="732" cy="178" r="20" :fill="colors.treeLeafHighlight" opacity="0.7" />
+      </g>
+      <!-- Tree 3 bare branches (winter) -->
+      <g v-if="colors.showBareTree">
+        <line
+          x1="745"
+          y1="180"
+          x2="725"
+          y2="158"
+          stroke="#8a7050"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        />
+        <line
+          x1="745"
+          y1="180"
+          x2="765"
+          y2="155"
+          stroke="#8a7050"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        />
+        <line
+          x1="745"
+          y1="180"
+          x2="745"
+          y2="150"
+          stroke="#8a7050"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+      </g>
 
       <!-- Flag pole (center-top) -->
       <rect
@@ -187,6 +297,21 @@ const npcPositions = [
         >
           ← 花坛
         </text>
+      </g>
+
+      <!-- Snow overlay (winter) -->
+      <g v-if="colors.showSnow">
+        <!-- Ground snow layer -->
+        <ellipse cx="400" cy="490" rx="380" ry="18" fill="white" opacity="0.55" />
+        <!-- Small snow patches -->
+        <circle cx="80" cy="478" r="12" fill="white" opacity="0.5" />
+        <circle cx="200" cy="482" r="9" fill="white" opacity="0.45" />
+        <circle cx="580" cy="480" r="11" fill="white" opacity="0.5" />
+        <circle cx="720" cy="476" r="10" fill="white" opacity="0.45" />
+        <!-- Snow on tree tops -->
+        <ellipse cx="75" cy="18" rx="28" ry="8" fill="white" opacity="0.6" />
+        <ellipse cx="625" cy="8" rx="30" ry="9" fill="white" opacity="0.6" />
+        <ellipse cx="745" cy="158" rx="24" ry="7" fill="white" opacity="0.6" />
       </g>
 
       <!-- Exit right → water-tower -->
