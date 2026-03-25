@@ -1,18 +1,17 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { getStoryDisplayData, type StoryProgressRow } from "../composables/storyDisplayData";
 
 const props = defineProps<{
   storyProgressRows: StoryProgressRow[];
 }>();
+
+const displayItems = computed(() => getStoryDisplayData(props.storyProgressRows));
 </script>
 
 <template>
   <div class="story-progress" v-if="storyProgressRows.length > 0">
-    <div
-      v-for="item in getStoryDisplayData(storyProgressRows)"
-      :key="item.storyId"
-      class="story-item"
-    >
+    <div v-for="item in displayItems" :key="item.storyId" class="story-item">
       <div class="story-header">
         <span class="story-name">{{ item.name }}</span>
         <span v-if="item.isFinal" class="story-badge done">完结</span>

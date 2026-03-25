@@ -55,6 +55,7 @@ watch(
 }
 .toast.story {
   background: rgba(184, 152, 96, 0.95);
+  color: #f5e6c8;
   border-left: 4px solid #8a6a30;
 }
 .toast-enter-active {

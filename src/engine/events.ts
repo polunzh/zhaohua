@@ -67,7 +67,7 @@ export class EventEngine {
     // Apply relationship weighting
     const weighted = eligible.map((e) => ({
       event: e,
-      weight: getRelationshipBoost(e as any, relationships || [], presentNpcIds || []),
+      weight: getRelationshipBoost(e, relationships || [], presentNpcIds || []),
     }));
 
     // Weighted random selection
