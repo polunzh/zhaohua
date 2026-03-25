@@ -6,6 +6,9 @@ import {
   addEventLog,
   type DailyMission,
 } from "../db/queries";
+import { createLogger } from "../utils/logger";
+
+const log = createLogger("engine:mission");
 
 /**
  * Process penalties for a failed (not completed) mission.
@@ -32,6 +35,7 @@ export function processMissionFailure(
     updateNpcAffinity(db, mission.targetNpc, -3);
   }
 
+  log.info(`mission failed: ${mission.id}, penalty applied to ${mission.targetNpc || "none"}`);
   addEventLog(db, {
     eventId: "mission-failed-" + mission.id,
     gameDate,

@@ -5,6 +5,9 @@ import {
   completeDailyMission,
   type DailyMission,
 } from "../db/queries";
+import { createLogger } from "../utils/logger";
+
+const log = createLogger("engine:mission");
 
 interface MissionTemplate {
   id: string;
@@ -240,6 +243,7 @@ export function generateDailyMission(
   };
 
   saveDailyMission(db, mission);
+  log.debug(`mission generated: ${mission.id} for ${gameDate}`);
   return mission;
 }
 

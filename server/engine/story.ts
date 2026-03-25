@@ -7,6 +7,9 @@ import {
   getNpcState,
 } from "../db/queries";
 import { storyArcs, type StoryArc, type StoryStage } from "../../src/data/stories";
+import { createLogger } from "../utils/logger";
+
+const log = createLogger("engine:story");
 
 export function processStories(
   db: Database.Database,
@@ -21,6 +24,7 @@ export function processStories(
     if (progress) continue; // already started
 
     if (shouldStartStory(db, arc, gameDate)) {
+      log.info(`story started: ${arc.id}, stage: ${arc.stages[0].id}`);
       saveStoryProgress(db, {
         storyId: arc.id,
         currentStage: arc.stages[0].id,
@@ -60,6 +64,7 @@ export function processStories(
       const nextStage = arc.stages.find((s) => s.id === nextStageId);
       if (!nextStage) continue;
 
+      log.info(`story advanced: ${arc.id} → stage: ${nextStageId}`);
       saveStoryProgress(db, {
         storyId: arc.id,
         currentStage: nextStageId,

@@ -1,6 +1,9 @@
 import type Database from "better-sqlite3";
 import { getNpcState, addEventLog } from "../db/queries";
 import { npcs } from "../../src/data/npcs";
+import { createLogger } from "../utils/logger";
+
+const log = createLogger("engine:exams");
 
 export interface ExamResult {
   npcId: string;
@@ -72,6 +75,11 @@ export function runExams(db: Database.Database, gameDate: string): ExamResult[] 
       involvedNpcs: studentId,
       description: `${npc?.name || "学生"}考了${score}分（${grade}），${change}。`,
     });
+  }
+
+  log.info(`exams run for ${gameDate}: ${results.length} students`);
+  for (const r of results) {
+    log.debug(`exam: ${r.name} → ${r.score} (${r.grade}, ${r.change})`);
   }
 
   return results;

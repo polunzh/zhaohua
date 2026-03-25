@@ -1,4 +1,7 @@
 import type Database from "better-sqlite3";
+import { createLogger } from "../utils/logger";
+
+const log = createLogger("engine:weekly");
 
 function addDays(dateStr: string, days: number): string {
   const d = new Date(dateStr + "T00:00:00");
@@ -30,5 +33,6 @@ export function generateWeeklySummary(db: Database.Database, gameDate: string): 
   const choiceCount = choices?.cnt || 0;
   const missionCount = missions?.cnt || 0;
 
+  log.info(`weekly summary generated for ${gameDate}`);
   return `这周发生了${eventCount}件事，和${choiceCount}个人聊了天，完成了${missionCount}个任务。`;
 }

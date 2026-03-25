@@ -9,6 +9,9 @@ import {
   setNpcLocationOverride,
 } from "../db/queries";
 import { npcs } from "../../src/data/npcs";
+import { createLogger } from "../utils/logger";
+
+const log = createLogger("engine:consequences");
 
 interface ConsequenceResult {
   type: "positive" | "negative";
@@ -120,6 +123,7 @@ export function processConsequences(db: Database.Database, gameDate: string): Co
       }
     }
 
+    log.info(`consequence: ${type} for ${npcId} — ${description}`);
     results.push({ type, npcId, description });
   }
 

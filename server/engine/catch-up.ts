@@ -3,6 +3,9 @@ import { TimeEngine } from "../../src/engine/time";
 import { getWorldState, saveWorldState } from "../db/queries";
 import { tick } from "./tick";
 import type { EventTemplate } from "../../src/data/event-pool";
+import { createLogger } from "../utils/logger";
+
+const log = createLogger("engine:catch-up");
 
 const GAME_START_DATE = "1994-09-01";
 const TICK_MINUTES = 15;
@@ -77,6 +80,10 @@ export function performCatchUp(
   runCatchUp();
 
   const summary = events.slice(-20);
+
+  log.info(
+    `catch-up: ${tickCount} ticks processed, coarse=${coarseMode}, ${events.length} events generated`,
+  );
 
   return {
     ticksProcessed: tickCount,
