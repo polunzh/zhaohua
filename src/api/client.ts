@@ -1,20 +1,41 @@
+import { logger } from "../utils/logger";
+
 const BASE_URL = "/api";
 
-export async function fetchWorldState() {
-  const res = await fetch(`${BASE_URL}/world`);
+async function request<T>(url: string, options?: RequestInit): Promise<T> {
+  const start = performance.now();
+  const method = options?.method || "GET";
+
+  const res = await fetch(url, options);
+  const elapsed = Math.round(performance.now() - start);
+
+  if (!res.ok) {
+    const text = await res.text();
+    logger.error(`${method} ${url} → ${res.status} (${elapsed}ms)`, text);
+    throw new Error(`API error ${res.status}: ${text}`);
+  }
+
+  logger.debug(`${method} ${url} → ${res.status} (${elapsed}ms)`);
   return res.json();
 }
 
-export async function skipTime(type: "day" | "week" | "semester") {
-  const res = await fetch(`${BASE_URL}/skip`, {
+function post<T>(url: string, body: unknown): Promise<T> {
+  return request(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ type }),
+    body: JSON.stringify(body),
   });
-  return res.json();
 }
 
-export async function generateDialogue(params: {
+export function fetchWorldState() {
+  return request(`${BASE_URL}/world`);
+}
+
+export function skipTime(type: "day" | "week" | "semester") {
+  return post(`${BASE_URL}/skip`, { type });
+}
+
+export function generateDialogue(params: {
   npcName: string;
   npcId?: string;
   npcPersonality: string;
@@ -27,24 +48,14 @@ export async function generateDialogue(params: {
   recentEvent?: string;
   mission?: string;
 }) {
-  const res = await fetch(`${BASE_URL}/dialogue`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(params),
-  });
-  return res.json();
+  return post(`${BASE_URL}/dialogue`, params);
 }
 
-export async function moveToLocation(targetLocationId: string) {
-  const res = await fetch(`${BASE_URL}/move`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ targetLocationId }),
-  });
-  return res.json();
+export function moveToLocation(targetLocationId: string) {
+  return post(`${BASE_URL}/move`, { targetLocationId });
 }
 
-export async function submitChoice(params: {
+export function submitChoice(params: {
   npcId: string;
   choiceId: string;
   gameDate: string;
@@ -52,56 +63,29 @@ export async function submitChoice(params: {
   npcRole?: string;
   location?: string;
 }) {
-  const res = await fetch(`${BASE_URL}/choice`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(params),
-  });
-  return res.json();
+  return post(`${BASE_URL}/choice`, params);
 }
 
-export async function switchCharacter(character: "teacher" | "postman") {
-  const res = await fetch(`${BASE_URL}/switch`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ character }),
-  });
-  return res.json();
+export function switchCharacter(character: "teacher" | "postman") {
+  return post(`${BASE_URL}/switch`, { character });
 }
 
-export async function fetchBriefing() {
-  const res = await fetch(`${BASE_URL}/briefing`);
-  return res.json();
+export function fetchBriefing() {
+  return request(`${BASE_URL}/briefing`);
 }
 
-export async function completeTodo(todoId: number) {
-  const res = await fetch(`${BASE_URL}/todo-complete`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ todoId }),
-  });
-  return res.json();
+export function completeTodo(todoId: number) {
+  return post(`${BASE_URL}/todo-complete`, { todoId });
 }
 
-export async function completeMission(missionId: string) {
-  const res = await fetch(`${BASE_URL}/mission-complete`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ missionId }),
-  });
-  return res.json();
+export function completeMission(missionId: string) {
+  return post(`${BASE_URL}/mission-complete`, { missionId });
 }
 
-export async function fetchEnergy(): Promise<{ remaining: number; max: number }> {
-  const res = await fetch(`${BASE_URL}/energy`);
-  return res.json();
+export function fetchEnergy(): Promise<{ remaining: number; max: number }> {
+  return request(`${BASE_URL}/energy`);
 }
 
-export async function resolveConflict(conflictId: string, choiceId: string, gameDate: string) {
-  const res = await fetch(`${BASE_URL}/conflict-resolve`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ conflictId, choiceId, gameDate }),
-  });
-  return res.json();
+export function resolveConflict(conflictId: string, choiceId: string, gameDate: string) {
+  return post(`${BASE_URL}/conflict-resolve`, { conflictId, choiceId, gameDate });
 }
