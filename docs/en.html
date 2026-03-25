@@ -134,7 +134,6 @@
         inset: 0;
         background: rgba(20, 18, 16, 0.92);
         z-index: 100;
-        cursor: zoom-out;
         align-items: center;
         justify-content: center;
       }
@@ -145,6 +144,55 @@
         max-width: 90vw;
         max-height: 90vh;
         border-radius: 6px;
+        user-select: none;
+      }
+      .lightbox .close-btn {
+        position: absolute;
+        top: 16px;
+        right: 20px;
+        width: 36px;
+        height: 36px;
+        border: none;
+        background: rgba(255, 255, 255, 0.15);
+        color: #f5e6c8;
+        font-size: 20px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s ease;
+        z-index: 102;
+      }
+      .lightbox .close-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+      .lightbox .nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 44px;
+        height: 44px;
+        border: none;
+        background: rgba(255, 255, 255, 0.1);
+        color: #f5e6c8;
+        font-size: 22px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s ease;
+        z-index: 102;
+      }
+      .lightbox .nav-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+      }
+      .lightbox .nav-prev {
+        left: 16px;
+      }
+      .lightbox .nav-next {
+        right: 16px;
       }
 
       .screenshots .caption {
@@ -280,15 +328,42 @@
 
       <div class="footer">1994 — 2002 · Northern China · A small village</div>
     </div>
-    <div class="lightbox" id="lightbox" onclick="this.classList.remove('active')">
-      <img id="lightbox-img" src="" alt="" />
+    <div class="lightbox" id="lightbox">
+      <button class="close-btn" onclick="closeLightbox()">&times;</button>
+      <button class="nav-btn nav-prev" onclick="navLightbox(-1)">&#8249;</button>
+      <img id="lightbox-img" src="" alt="" onclick="event.stopPropagation()" />
+      <button class="nav-btn nav-next" onclick="navLightbox(1)">&#8250;</button>
     </div>
     <script>
-      document.querySelectorAll(".screenshots img").forEach(function (img) {
+      var lbImages = [];
+      var lbIndex = 0;
+      document.querySelectorAll(".screenshots img").forEach(function (img, i) {
+        lbImages.push(img.src);
         img.addEventListener("click", function () {
-          document.getElementById("lightbox-img").src = this.src;
-          document.getElementById("lightbox").classList.add("active");
+          lbIndex = i;
+          showLightbox();
         });
+      });
+      function showLightbox() {
+        document.getElementById("lightbox-img").src = lbImages[lbIndex];
+        document.getElementById("lightbox").classList.add("active");
+      }
+      function closeLightbox() {
+        document.getElementById("lightbox").classList.remove("active");
+      }
+      function navLightbox(dir) {
+        lbIndex = (lbIndex + dir + lbImages.length) % lbImages.length;
+        document.getElementById("lightbox-img").src = lbImages[lbIndex];
+      }
+      document.getElementById("lightbox").addEventListener("click", function (e) {
+        if (e.target === this) closeLightbox();
+      });
+      document.addEventListener("keydown", function (e) {
+        var lb = document.getElementById("lightbox");
+        if (!lb.classList.contains("active")) return;
+        if (e.key === "Escape") closeLightbox();
+        if (e.key === "ArrowLeft") navLightbox(-1);
+        if (e.key === "ArrowRight") navLightbox(1);
       });
     </script>
   </body>
