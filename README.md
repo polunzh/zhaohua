@@ -4,15 +4,15 @@
 
 > **Status:** This is not a serious project. I just thought it would be fun, and it was. It's not finished — I don't know if I'll ever finish it, or what "finished" would even mean for something like this. If you stumble upon it and find it interesting, that's nice.
 
-> _When I was little, growing up in a village in northern China in the 1990s, I wanted to be two things._
+> _I grew up in a village, and had two dreams._
 >
-> _First, a postman. Our village postman rode a green bicycle with a big canvas bag on the back. He knew everyone's name. When he came down the dirt road, dogs barked and kids ran out to see if there was a letter from someone's father working in the city. I thought that was the best job in the world — carrying news from far away, connecting people who missed each other._
+> _One was to be a postman. Our village postman rode a green bicycle with a big canvas bag on the back. He knew everyone. When he came down the dirt road, dogs barked and kids ran out to see if there was a letter from someone's father working in the city. It was the job of delivering distant longing right to the doorstep._
 >
-> _Second, a primary school teacher. Our school was a row of brick houses with a flag pole in the yard. In winter the classroom had a coal stove that smoked when the wind changed. The teacher knew every student by name, knew who was struggling at home, knew who needed an extra word of encouragement. The school had a flower garden — roses in summer, just bamboo in winter._
+> _The other was to be a primary school teacher. Our school was a row of brick houses with a flag pole on the playground. In winter the classroom had a coal stove that smoked when the wind shifted. The teacher knew every student by name — who was naughty, who hadn't done their homework again. The school had a flower garden. In summer it was full of all kinds of flowers, mostly roses, and the scent filled the whole campus, with bees humming through. In winter, only the bamboo was left._
 >
 > _I grew up. I became neither. But sometimes I still think about that postman's bicycle bell, and the chalk dust floating in the morning light of that classroom._
 >
-> _So I made this. Not a game, really. More like a window into a life I never lived._
+> _So I made this._
 
 A life simulation set in 1990s rural China. Play as a village primary school teacher or a town postman, experiencing the quiet warmth of countryside daily life.
 
@@ -55,19 +55,47 @@ A life simulation set in 1990s rural China. Play as a village primary school tea
 
 ## Getting Started
 
+### Prerequisites
+
+- Node.js 20.19+ or 22.12+
+- pnpm (the project uses pnpm as package manager)
+
+### Setup
+
 ```bash
 # Install dependencies
 pnpm install
 
-# Configure AI API key
+# Copy the environment template
+cp .env.example .env
+```
+
+### AI Configuration (optional)
+
+The game uses AI to generate NPC dialogue. Without an API key, NPC conversations will show an error — everything else works fine.
+
+Create a `.env.local` file with your key:
+
+```bash
 echo 'AI_API_KEY=your-key-here' > .env.local
+```
 
-# Start development
-pnpm dev          # Frontend (port 5173)
-pnpm dev:server   # Backend (port 3001)
+Supported models (set `AI_MODEL` in `.env`): `deepseek` (default), `kimi`, `minimax`, `openai`, `claude`
 
-# Run tests
-pnpm test
+### Run
+
+```bash
+pnpm dev          # Frontend — http://localhost:5173
+pnpm dev:server   # Backend  — http://localhost:3001
+```
+
+Both need to run at the same time. The frontend proxies API requests to the backend.
+
+### Test
+
+```bash
+pnpm test         # 308 unit tests
+pnpm test:e2e     # 26 e2e tests (needs both servers running)
 ```
 
 ## License
