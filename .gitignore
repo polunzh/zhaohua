@@ -39,6 +39,7 @@ __screenshots__/
 *.timestamp-*-*.mjs
 
 # Project
+.env
 *.local
 *.db
 *.db-shm
