@@ -3,6 +3,8 @@ import type { GameTime } from "../engine/time";
 import { getConnectedLocations, getLocation } from "../data/locations";
 import RelationshipPanel from "./RelationshipPanel.vue";
 import StatsPanel from "./StatsPanel.vue";
+import StoryProgress from "./StoryProgress.vue";
+import type { StoryProgressRow } from "../composables/storyDisplayData";
 
 const props = defineProps<{
   gameTime: GameTime | null;
@@ -27,6 +29,7 @@ const props = defineProps<{
     giftsReceived: number;
   } | null;
   inventory?: { itemType: string; quantity: number }[];
+  storyProgressRows?: StoryProgressRow[];
 }>();
 
 const itemIcons: Record<string, string> = {
@@ -84,6 +87,7 @@ const collapsed = ref<Record<string, boolean>>({
   navigation: false,
   relationships: true,
   stats: true,
+  stories: false,
 });
 
 function toggleSection(key: string) {
@@ -242,6 +246,16 @@ const ambientText = computed(() => {
         </div>
         <template v-if="!collapsed.relationships">
           <RelationshipPanel :npcs="npcs" />
+        </template>
+      </div>
+
+      <!-- Stories -->
+      <div class="panel-section" v-if="storyProgressRows && storyProgressRows.length > 0">
+        <div class="panel-title clickable" @click="toggleSection('stories')">
+          📖 故事 <span class="collapse-indicator">{{ collapsed.stories ? "▸" : "▾" }}</span>
+        </div>
+        <template v-if="!collapsed.stories">
+          <StoryProgress :story-progress-rows="storyProgressRows" />
         </template>
       </div>
 

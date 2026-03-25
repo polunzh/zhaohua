@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 
-const props = defineProps<{ message: string; type?: "info" | "success" | "streak" }>();
+const props = defineProps<{ message: string; type?: "info" | "success" | "streak" | "story" }>();
 
 const visible = ref(false);
 
@@ -52,6 +52,10 @@ watch(
 .toast.streak {
   background: linear-gradient(135deg, #c4706a 0%, #d4915a 50%, #c4706a 100%);
   color: #f5e6c8;
+}
+.toast.story {
+  background: rgba(184, 152, 96, 0.95);
+  border-left: 4px solid #8a6a30;
 }
 .toast-enter-active {
   animation: toastIn 0.4s ease;

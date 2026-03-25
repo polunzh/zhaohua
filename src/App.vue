@@ -27,6 +27,8 @@ import { getInteractionChoices } from "./data/interactions";
 import { getGatedChoices, getRefusalText } from "./engine/affinity-gate";
 import { generateSceneDescription } from "./engine/scene-descriptions";
 import { checkDiscovery } from "./data/discoveries";
+import { storyArcs } from "./data/stories";
+import type { StoryProgressRow } from "./composables/storyDisplayData";
 import { classroomMap } from "./tilemap/maps/classroom";
 import { officeMap } from "./tilemap/maps/office";
 import { playgroundMap } from "./tilemap/maps/playground";
@@ -58,9 +60,10 @@ const briefingData = ref<any>(null);
 const todos = ref<any[]>([]);
 const mission = ref<any>(null);
 const toastMessage = ref("");
-const toastType = ref<"info" | "success" | "streak">("info");
+const toastType = ref<"info" | "success" | "streak" | "story">("info");
 const playerStats = ref<any>(null);
 const energy = ref({ remaining: 5, max: 5 });
+const storyProgressRows = ref<StoryProgressRow[]>([]);
 const choiceIcons: Record<string, string> = {
   "check-homework": "📝",
   "ask-question": "❓",
@@ -140,7 +143,7 @@ function celebrateMission() {
   }, 2000);
 }
 
-function showToast(msg: string, type: "info" | "success" | "streak" = "info") {
+function showToast(msg: string, type: "info" | "success" | "streak" | "story" = "info") {
   toastMessage.value = "";
   // Force reactivity by toggling in next tick
   setTimeout(() => {
@@ -225,6 +228,15 @@ async function loadWorld() {
   activeCharacter.value = data.activeCharacter || "teacher";
   events.value = data.events || [];
   npcStates.value = data.npcs || [];
+  storyProgressRows.value = data.storyProgress || [];
+  if (data.advancedStories?.length > 0) {
+    for (const storyId of data.advancedStories) {
+      const arc = storyArcs.find((a) => a.id === storyId);
+      if (arc) {
+        showToast(`📖 ${arc.name} — 故事有了新进展`, "story");
+      }
+    }
+  }
   // Also refresh todos, mission, and energy
   try {
     const briefing = await fetchBriefing();
@@ -646,6 +658,7 @@ onMounted(async () => {
         :npcs="npcStates"
         :stats="playerStats"
         :inventory="briefingData?.inventory || []"
+        :story-progress-rows="storyProgressRows"
         @navigate="handleNavigate"
         @switch-character="handleSwitchCharacter"
         @skip="handleSkip"
