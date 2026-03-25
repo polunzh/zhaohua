@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import SvgCharacter from "../SvgCharacter.vue";
+import { getSceneColors } from "../../composables/useSeasonColors";
 
 const props = defineProps<{
   npcs: { id: string; name: string; mood: string; hairColor?: string; bodyColor?: string }[];
   season: string;
 }>();
+
+const colors = computed(() => getSceneColors(props.season));
 
 const emit = defineEmits<{
   clickNpc: [npcId: string];
@@ -79,7 +83,7 @@ const npcPositions = [
         width="60"
         height="80"
         rx="3"
-        fill="#b8c8b8"
+        :fill="colors.sky"
         stroke="#4a4040"
         stroke-width="2"
       />
@@ -101,7 +105,7 @@ const npcPositions = [
         width="60"
         height="80"
         rx="3"
-        fill="#b8c8b8"
+        :fill="colors.sky"
         stroke="#4a4040"
         stroke-width="2"
       />

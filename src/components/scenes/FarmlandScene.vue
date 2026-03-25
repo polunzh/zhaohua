@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import SvgCharacter from "../SvgCharacter.vue";
+import { getSceneColors } from "../../composables/useSeasonColors";
 
 const props = defineProps<{
   npcs: { id: string; name: string; mood: string; hairColor?: string; bodyColor?: string }[];
   season: string;
 }>();
+
+const colors = computed(() => getSceneColors(props.season));
 
 const emit = defineEmits<{
   clickNpc: [npcId: string];
@@ -22,14 +26,14 @@ const npcPositions = [
   <div class="scene farmland-scene">
     <svg viewBox="0 0 800 500" class="scene-bg" preserveAspectRatio="xMidYMid meet">
       <!-- Sky -->
-      <rect x="0" y="0" width="800" height="180" fill="#c8d0b8" />
+      <rect x="0" y="0" width="800" height="180" :fill="colors.sky" />
 
       <!-- Gentle hills -->
-      <ellipse cx="200" cy="180" rx="250" ry="40" fill="#a8be90" />
-      <ellipse cx="600" cy="185" rx="300" ry="35" fill="#9ab080" />
+      <ellipse cx="200" cy="180" rx="250" ry="40" :fill="colors.grass" />
+      <ellipse cx="600" cy="185" rx="300" ry="35" :fill="colors.grass" />
 
       <!-- Field base -->
-      <rect x="0" y="180" width="800" height="320" fill="#9aaa88" />
+      <rect x="0" y="180" width="800" height="320" :fill="colors.grass" />
 
       <!-- Crop rows (parallel lines) -->
       <g v-for="i in 12" :key="'crop' + i">
@@ -49,7 +53,13 @@ const npcPositions = [
           :cx="60 + j * 42"
           :cy="196 + i * 22"
           r="3"
-          :fill="season === 'autumn' ? '#c8a840' : '#6a8a58'"
+          :fill="
+            colors.flowerState === 'bare'
+              ? '#a09080'
+              : colors.flowerState === 'wilt'
+                ? '#c8a840'
+                : '#6a8a58'
+          "
           opacity="0.7"
         />
       </g>
@@ -69,8 +79,47 @@ const npcPositions = [
         stroke="#4a4040"
         stroke-width="2"
       />
-      <ellipse cx="36" cy="145" rx="28" ry="30" fill="#6a8a58" stroke="#4a4040" stroke-width="2" />
-      <ellipse cx="50" cy="155" rx="20" ry="22" fill="#a8c490" opacity="0.6" />
+      <g v-if="!colors.showBareTree">
+        <ellipse
+          cx="36"
+          cy="145"
+          rx="28"
+          ry="30"
+          :fill="colors.treeLeaf"
+          stroke="#4a4040"
+          stroke-width="2"
+        />
+        <ellipse cx="50" cy="155" rx="20" ry="22" :fill="colors.treeLeafHighlight" opacity="0.6" />
+      </g>
+      <g v-if="colors.showBareTree">
+        <line
+          x1="36"
+          y1="160"
+          x2="18"
+          y2="135"
+          stroke="#8a6a48"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        />
+        <line
+          x1="36"
+          y1="160"
+          x2="54"
+          y2="132"
+          stroke="#8a6a48"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        />
+        <line
+          x1="36"
+          y1="160"
+          x2="36"
+          y2="128"
+          stroke="#8a6a48"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+      </g>
 
       <!-- Tree (right edge) -->
       <rect
@@ -83,7 +132,46 @@ const npcPositions = [
         stroke="#4a4040"
         stroke-width="2"
       />
-      <ellipse cx="753" cy="155" rx="25" ry="28" fill="#6a8a58" stroke="#4a4040" stroke-width="2" />
+      <g v-if="!colors.showBareTree">
+        <ellipse
+          cx="753"
+          cy="155"
+          rx="25"
+          ry="28"
+          :fill="colors.treeLeaf"
+          stroke="#4a4040"
+          stroke-width="2"
+        />
+      </g>
+      <g v-if="colors.showBareTree">
+        <line
+          x1="753"
+          y1="170"
+          x2="735"
+          y2="145"
+          stroke="#8a6a48"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        />
+        <line
+          x1="753"
+          y1="170"
+          x2="771"
+          y2="143"
+          stroke="#8a6a48"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        />
+        <line
+          x1="753"
+          y1="170"
+          x2="753"
+          y2="138"
+          stroke="#8a6a48"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+      </g>
 
       <!-- Scarecrow -->
       <g class="clickable-object" @click="emit('clickObject', 'scarecrow')">
@@ -136,6 +224,17 @@ const npcPositions = [
         <!-- Shirt scraps -->
         <path d="M360,270 L355,285" stroke="#b8786a" stroke-width="2" opacity="0.6" />
         <path d="M440,270 L445,285" stroke="#b8786a" stroke-width="2" opacity="0.6" />
+      </g>
+
+      <!-- Snow overlay (winter) -->
+      <g v-if="colors.showSnow">
+        <ellipse cx="400" cy="490" rx="380" ry="18" fill="white" opacity="0.55" />
+        <circle cx="100" cy="478" r="12" fill="white" opacity="0.5" />
+        <circle cx="300" cy="482" r="9" fill="white" opacity="0.45" />
+        <circle cx="600" cy="480" r="11" fill="white" opacity="0.5" />
+        <circle cx="720" cy="476" r="10" fill="white" opacity="0.45" />
+        <ellipse cx="36" cy="130" rx="22" ry="7" fill="white" opacity="0.6" />
+        <ellipse cx="753" cy="140" rx="20" ry="6" fill="white" opacity="0.6" />
       </g>
 
       <!-- Exit to village road -->
