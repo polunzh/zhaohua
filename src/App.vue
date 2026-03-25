@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import SidePanel from "./components/SidePanel.vue";
-import PixiGameCanvas from "./components/PixiGameCanvas.vue";
+import SceneRouter from "./components/scenes/SceneRouter.vue";
 import DialogBox from "./components/DialogBox.vue";
 import Briefing from "./components/Briefing.vue";
 import Toast from "./components/Toast.vue";
@@ -21,6 +21,7 @@ import {
 import type { GameTime } from "./engine/time";
 import { getTravelEvent } from "./data/travel-events";
 import type { TileMapData } from "./tilemap/types";
+import { npcSpriteConfigs } from "./tilemap/sprites";
 import { npcs } from "./data/npcs";
 import { getInteractionChoices } from "./data/interactions";
 import { getGatedChoices, getRefusalText } from "./engine/affinity-gate";
@@ -204,10 +205,13 @@ const visibleNpcs = computed(() => {
       // Assign tile positions from map's npcSpawns or spread them out
       const mapData = currentMapData.value;
       const spawn = mapData.npcSpawns.find((s: any) => s.npcId === n.id);
+      const spriteConfig = npcSpriteConfigs[n.id];
       return {
         ...n,
         tileX: spawn ? spawn.tileX : 5 + i * 2,
         tileY: spawn ? spawn.tileY : 5 + i,
+        hairColor: spriteConfig?.hairColor,
+        bodyColor: spriteConfig?.bodyColor,
       };
     });
 });
@@ -657,11 +661,9 @@ onMounted(async () => {
           {{ locationLabel }}
         </div>
         <div v-if="sceneStatus" class="scene-status">{{ sceneStatus }}</div>
-        <PixiGameCanvas
-          :map-data="currentMapData"
-          :npcs="visibleNpcs"
-          :active-character="activeCharacter"
+        <SceneRouter
           :current-scene="currentScene"
+          :npcs="visibleNpcs"
           :season="gameTime?.season || 'autumn'"
           @click-npc="handleClickNpc"
           @click-exit="handleClickExit"
