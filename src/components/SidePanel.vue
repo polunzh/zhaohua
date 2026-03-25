@@ -134,144 +134,131 @@ const ambientText = computed(() => {
 
 <template>
   <div class="side-panel">
-    <!-- Skip time -->
-    <div class="panel-section" v-if="gameTime">
-      <div class="skip-row">
-        <button @click="emit('skip', 'day')">⏩ 明天</button>
-        <button @click="emit('skip', 'week')">⏩ 下周</button>
-        <button @click="emit('skip', 'semester')">⏩ 下学期</button>
+    <div class="side-panel-scroll">
+      <!-- Skip time -->
+      <div class="panel-section" v-if="gameTime">
+        <div class="skip-row">
+          <button @click="emit('skip', 'day')">⏩ 明天</button>
+          <button @click="emit('skip', 'week')">⏩ 下周</button>
+          <button @click="emit('skip', 'semester')">⏩ 下学期</button>
+        </div>
       </div>
-    </div>
 
-    <!-- Ambient atmosphere -->
-    <div v-if="ambientText" class="panel-section ambient">
-      <div class="ambient-text">{{ ambientText }}</div>
-    </div>
-
-    <!-- Current Location -->
-    <div class="panel-section">
-      <div class="panel-title">📍 当前位置</div>
-      <div class="panel-text location-name">
-        {{ locationNames[currentScene] || currentScene }}
+      <!-- Ambient atmosphere -->
+      <div v-if="ambientText" class="panel-section ambient">
+        <div class="ambient-text">{{ ambientText }}</div>
       </div>
-    </div>
 
-    <!-- Daily Mission -->
-    <div class="panel-section" v-if="mission && mission.status === 'active'">
-      <div class="panel-title">🎯 今日任务</div>
-      <div class="mission-sidebar">{{ mission.title }}</div>
-      <div class="mission-hint">{{ mission.description }}</div>
-      <button
-        v-if="mission.targetLocation && mission.targetLocation !== currentScene"
-        class="mission-go-btn"
-        @click="emit('navigate', mission.targetLocation)"
-      >
-        前往{{ locationNames[mission.targetLocation] || mission.targetLocation }} →
-      </button>
-      <div v-else-if="mission.targetLocation === currentScene" class="mission-here">
-        📍 就在这里{{ mission.targetNpc ? "，找到对应的人" : "" }}
+      <!-- Daily Mission -->
+      <div class="panel-section" v-if="mission && mission.status === 'active'">
+        <div class="panel-title">🎯 今日任务</div>
+        <div class="mission-sidebar">{{ mission.title }}</div>
+        <div class="mission-hint">{{ mission.description }}</div>
+        <button
+          v-if="mission.targetLocation && mission.targetLocation !== currentScene"
+          class="mission-go-btn"
+          @click="emit('navigate', mission.targetLocation)"
+        >
+          前往{{ locationNames[mission.targetLocation] || mission.targetLocation }} →
+        </button>
+        <div v-else-if="mission.targetLocation === currentScene" class="mission-here">
+          📍 就在这里{{ mission.targetNpc ? "，找到对应的人" : "" }}
+        </div>
       </div>
-    </div>
-    <div class="panel-section" v-else-if="mission && mission.status === 'done'">
-      <div class="panel-title">✅ 今日任务已完成</div>
-      <div class="mission-done">{{ mission.title }}</div>
-    </div>
+      <div class="panel-section" v-else-if="mission && mission.status === 'done'">
+        <div class="panel-title">✅ 今日任务已完成</div>
+        <div class="mission-done">{{ mission.title }}</div>
+      </div>
 
-    <!-- Events -->
-    <div class="panel-section events-section">
-      <div class="panel-title clickable" @click="toggleSection('events')">
-        📋 你不在时…… <span class="collapse-indicator">{{ collapsed.events ? "▸" : "▾" }}</span>
+      <!-- Events -->
+      <div class="panel-section events-section">
+        <div class="panel-title clickable" @click="toggleSection('events')">
+          📋 你不在时…… <span class="collapse-indicator">{{ collapsed.events ? "▸" : "▾" }}</span>
+        </div>
+        <template v-if="!collapsed.events">
+          <template v-if="events.length">
+            <div class="event-item" v-for="e in events.slice(0, 8)" :key="e.id">
+              · {{ e.description }}
+            </div>
+          </template>
+          <div v-else class="event-item hint">一切如常，没什么特别的事。</div>
+        </template>
       </div>
-      <template v-if="!collapsed.events">
-        <template v-if="events.length">
-          <div class="event-item" v-for="e in events.slice(0, 8)" :key="e.id">
-            · {{ e.description }}
+
+      <!-- Todos -->
+      <div class="panel-section" v-if="todos.length">
+        <div class="panel-title clickable" @click="toggleSection('todos')">
+          📝 待处理 <span class="collapse-indicator">{{ collapsed.todos ? "▸" : "▾" }}</span>
+        </div>
+        <template v-if="!collapsed.todos">
+          <div v-for="t in todos" :key="t.id" class="todo-sidebar-item">
+            <span class="todo-dot" :class="t.priority">●</span> {{ t.title }}
+            <span class="todo-location">({{ locationNames[t.location] || t.location }})</span>
           </div>
         </template>
-        <div v-else class="event-item hint">一切如常，没什么特别的事。</div>
-      </template>
-    </div>
-
-    <!-- Todos -->
-    <div class="panel-section" v-if="todos.length">
-      <div class="panel-title clickable" @click="toggleSection('todos')">
-        📝 待处理 <span class="collapse-indicator">{{ collapsed.todos ? "▸" : "▾" }}</span>
       </div>
-      <template v-if="!collapsed.todos">
-        <div v-for="t in todos" :key="t.id" class="todo-sidebar-item">
-          <span class="todo-dot" :class="t.priority">●</span> {{ t.title }}
-          <span class="todo-location">({{ locationNames[t.location] || t.location }})</span>
+
+      <!-- Navigation -->
+      <div class="panel-section">
+        <div class="panel-title clickable" @click="toggleSection('navigation')">
+          🚶 可以去 <span class="collapse-indicator">{{ collapsed.navigation ? "▸" : "▾" }}</span>
         </div>
-      </template>
-    </div>
-
-    <!-- Tips -->
-    <div class="panel-section">
-      <div class="panel-title">💡 提示</div>
-      <div class="event-item hint">点击场景中的人物可以对话</div>
-      <div class="event-item hint">点击门或出口可以换地方</div>
-    </div>
-
-    <!-- Navigation -->
-    <div class="panel-section">
-      <div class="panel-title clickable" @click="toggleSection('navigation')">
-        🚶 可以去 <span class="collapse-indicator">{{ collapsed.navigation ? "▸" : "▾" }}</span>
+        <template v-if="!collapsed.navigation">
+          <div
+            class="nav-item"
+            v-for="loc in getConnectedLocations(currentScene)"
+            :key="loc.id"
+            @click="emit('navigate', loc.id)"
+          >
+            → {{ loc.name }}
+          </div>
+        </template>
       </div>
-      <template v-if="!collapsed.navigation">
-        <div
-          class="nav-item"
-          v-for="loc in getConnectedLocations(currentScene)"
-          :key="loc.id"
-          @click="emit('navigate', loc.id)"
-        >
-          → {{ loc.name }}
+
+      <!-- Stats -->
+      <div class="panel-section" v-if="stats">
+        <div class="panel-title clickable" @click="toggleSection('stats')">
+          📊 记录 <span class="collapse-indicator">{{ collapsed.stats ? "▸" : "▾" }}</span>
         </div>
-      </template>
-    </div>
-
-    <!-- Stats -->
-    <div class="panel-section" v-if="stats">
-      <div class="panel-title clickable" @click="toggleSection('stats')">
-        📊 记录 <span class="collapse-indicator">{{ collapsed.stats ? "▸" : "▾" }}</span>
+        <template v-if="!collapsed.stats">
+          <StatsPanel :stats="stats" />
+        </template>
       </div>
-      <template v-if="!collapsed.stats">
-        <StatsPanel :stats="stats" />
-      </template>
-    </div>
 
-    <!-- Tutorial (first day only) -->
-    <div class="panel-section tutorial" v-if="stats && stats.totalDaysPlayed <= 1">
-      <div class="panel-title">📖 新手指引</div>
-      <div class="tutorial-step">1. 点击左侧地点可以移动</div>
-      <div class="tutorial-step">2. 点击场景中的人物可以对话</div>
-      <div class="tutorial-step">3. 对话后选择互动方式</div>
-      <div class="tutorial-step">4. 完成🎯今日任务获得成就感</div>
-      <div class="tutorial-step">5. 每天来看看，保持连续签到🔥</div>
-    </div>
-
-    <!-- Relationships -->
-    <div class="panel-section">
-      <div class="panel-title clickable" @click="toggleSection('relationships')">
-        💛 关系 <span class="collapse-indicator">{{ collapsed.relationships ? "▸" : "▾" }}</span>
+      <!-- Tutorial (first day only) -->
+      <div class="panel-section tutorial" v-if="stats && stats.totalDaysPlayed <= 1">
+        <div class="panel-title">📖 新手指引</div>
+        <div class="tutorial-step">1. 点击左侧地点可以移动</div>
+        <div class="tutorial-step">2. 点击场景中的人物可以对话</div>
+        <div class="tutorial-step">3. 对话后选择互动方式</div>
+        <div class="tutorial-step">4. 完成🎯今日任务获得成就感</div>
+        <div class="tutorial-step">5. 每天来看看，保持连续签到🔥</div>
       </div>
-      <template v-if="!collapsed.relationships">
-        <RelationshipPanel :npcs="npcs" />
-      </template>
-    </div>
 
-    <!-- Inventory -->
-    <div class="panel-section" v-if="inventory && inventory.length > 0">
-      <div class="panel-title">🎒 物品</div>
-      <div class="inventory-row">
-        <span v-for="item in inventory" :key="item.itemType" class="inv-badge">
-          {{ itemIcons[item.itemType] || "📦" }}{{ item.quantity }}
-        </span>
+      <!-- Relationships -->
+      <div class="panel-section">
+        <div class="panel-title clickable" @click="toggleSection('relationships')">
+          💛 关系 <span class="collapse-indicator">{{ collapsed.relationships ? "▸" : "▾" }}</span>
+        </div>
+        <template v-if="!collapsed.relationships">
+          <RelationshipPanel :npcs="npcs" />
+        </template>
+      </div>
+
+      <!-- Inventory -->
+      <div class="panel-section" v-if="inventory && inventory.length > 0">
+        <div class="panel-title">🎒 物品</div>
+        <div class="inventory-row">
+          <span v-for="item in inventory" :key="item.itemType" class="inv-badge">
+            {{ itemIcons[item.itemType] || "📦" }}{{ item.quantity }}
+          </span>
+        </div>
       </div>
     </div>
+    <!-- end side-panel-scroll -->
 
-    <!-- Character Switch -->
-    <div class="panel-section">
-      <div class="panel-title">👤 角色</div>
+    <!-- Fixed bottom area -->
+    <div class="side-panel-bottom">
       <div class="character-switch">
         <button
           :class="{ active: activeCharacter === 'teacher' }"
@@ -286,9 +273,8 @@ const ambientText = computed(() => {
           邮递员
         </button>
       </div>
+      <div class="sidebar-footer">📍 {{ locationNames[currentScene] || currentScene }}</div>
     </div>
-
-    <div class="sidebar-footer">📍 {{ locationNames[currentScene] || currentScene }}</div>
   </div>
 </template>
 
@@ -301,14 +287,23 @@ const ambientText = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   font-family: "Noto Serif SC", serif;
   color: #3a3530;
+}
+.side-panel-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: none;
 }
-.side-panel::-webkit-scrollbar {
+.side-panel-scroll::-webkit-scrollbar {
   display: none;
+}
+.side-panel-bottom {
+  flex-shrink: 0;
+  border-top: 1px solid rgba(212, 192, 142, 0.5);
+  padding: 8px 12px;
 }
 .panel-section {
   padding: 12px 16px;
@@ -524,13 +519,9 @@ const ambientText = computed(() => {
   white-space: nowrap;
 }
 .sidebar-footer {
-  margin-top: auto;
-  padding: 12px 16px;
-  background: linear-gradient(180deg, transparent, #ede0c0);
-  border-top: 1px solid #d4c08e;
-  font-size: 13px;
-  font-weight: bold;
-  color: #6b5b4e;
+  padding: 6px 0 0;
+  font-size: 12px;
+  color: #8a7a6a;
   text-align: center;
   font-family: "Noto Serif SC", serif;
 }
